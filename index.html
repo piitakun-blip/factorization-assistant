@@ -202,8 +202,8 @@
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Step 1: Place terms into Area Model</span>
                 <div class="flex gap-4">
                     <!-- Draggable and Clickable solid cards -->
-                    <div id="card-ax2" draggable="true" class="px-5 py-2.5 bg-blue-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-blue-700 active:scale-95 transition-all text-sm select-none touch-none">2x²</div>
-                    <div id="card-c" draggable="true" class="px-5 py-2.5 bg-purple-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-purple-700 active:scale-95 transition-all text-sm select-none touch-none">40</div>
+                    <div id="card-ax2" draggable="false" class="px-5 py-2.5 bg-blue-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-blue-700 active:scale-95 transition-all text-sm select-none touch-none">2x²</div>
+                    <div id="card-c" draggable="false" class="px-5 py-2.5 bg-purple-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-purple-700 active:scale-95 transition-all text-sm select-none touch-none">40</div>
                 </div>
                 <p class="text-[11px] text-slate-400 italic text-center">Drag cards onto their matching boxes below, or click them to snap them in!</p>
             </div>
@@ -800,145 +800,136 @@
         checkStage1Completion();
     }
 
-    // Click placement actions
-    cardAx2.addEventListener('click', placeTL);
-    cardC.addEventListener('click', placeBR);
-
-    // --- Drag & Drop Core Event Listeners ---
-    // 1. Drag Start & End on source cards
-    cardAx2.addEventListener('dragstart', (e) => {
-        if (currentStage !== 2) return e.preventDefault();
-        e.dataTransfer.setData('text/plain', 'ax2');
-        cardAx2.classList.add('dragging');
-    });
-    cardAx2.addEventListener('dragend', () => cardAx2.classList.remove('dragging'));
-
-    cardC.addEventListener('dragstart', (e) => {
-        if (currentStage !== 2) return e.preventDefault();
-        e.dataTransfer.setData('text/plain', 'c');
-        cardC.classList.add('dragging');
-    });
-    cardC.addEventListener('dragend', () => cardC.classList.remove('dragging'));
-
-    // Helper Touch drag/touch support for Chromebook screens & tablets
-    function setupTouchDrag(cardEl, valueType) {
-        let activeTouch = false;
+    // Unified mouse/touch/stylus drag support using Pointer Events.
+    // A short click still snaps the card into its correct cell.
+    function setupPointerDrag(cardEl, valueType, clickPlaceFn) {
+        let pointerId = null;
+        let startX = 0;
+        let startY = 0;
+        let dragging = false;
         let ghostEl = null;
+        const DRAG_THRESHOLD = 6;
 
-        cardEl.addEventListener('touchstart', (e) => {
-            if (currentStage !== 2) return;
-            activeTouch = true;
-            cardEl.classList.add('dragging');
+        function clearHighlights() {
+            cellTl.classList.remove('ring-4', 'ring-blue-500', 'border-blue-400');
+            cellBr.classList.remove('ring-4', 'ring-purple-500', 'border-purple-400');
+        }
 
-            // Create a beautiful floating dragging touch-indicator
+        function isInside(el, x, y) {
+            const rect = el.getBoundingClientRect();
+            return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+        }
+
+        function updateHighlight(x, y) {
+            clearHighlights();
+            if (valueType === 'ax2' && !placedTL && isInside(cellTl, x, y)) {
+                cellTl.classList.add('ring-4', 'ring-blue-500', 'border-blue-400');
+            } else if (valueType === 'c' && !placedBR && isInside(cellBr, x, y)) {
+                cellBr.classList.add('ring-4', 'ring-purple-500', 'border-purple-400');
+            }
+        }
+
+        function startGhost(x, y) {
             ghostEl = cardEl.cloneNode(true);
+            ghostEl.removeAttribute('id');
             ghostEl.style.position = 'fixed';
             ghostEl.style.pointerEvents = 'none';
-            ghostEl.style.zIndex = '1000';
-            ghostEl.style.opacity = '0.8';
-            ghostEl.style.left = `${e.touches[0].clientX - 50}px`;
-            ghostEl.style.top = `${e.touches[0].clientY - 20}px`;
+            ghostEl.style.zIndex = '9999';
+            ghostEl.style.opacity = '0.85';
+            ghostEl.style.margin = '0';
+            ghostEl.style.transform = 'translate(-50%, -50%) scale(1.06)';
+            ghostEl.style.left = `${x}px`;
+            ghostEl.style.top = `${y}px`;
+            ghostEl.style.boxShadow = '0 14px 30px rgba(15, 23, 42, 0.25)';
             document.body.appendChild(ghostEl);
-        }, { passive: false });
+            cardEl.classList.add('opacity-40');
+        }
 
-        cardEl.addEventListener('touchmove', (e) => {
-            if (!activeTouch || !ghostEl) return;
-            e.preventDefault(); // prevent scrolling while dragging elements
+        function moveGhost(x, y) {
+            if (!ghostEl) return;
+            ghostEl.style.left = `${x}px`;
+            ghostEl.style.top = `${y}px`;
+        }
 
-            const clientX = e.touches[0].clientX;
-            const clientY = e.touches[0].clientY;
-            ghostEl.style.left = `${clientX - 50}px`;
-            ghostEl.style.top = `${clientY - 20}px`;
+        function finishDrag(x, y) {
+            const correctTarget = valueType === 'ax2' ? cellTl : cellBr;
+            const wrongTarget = valueType === 'ax2' ? cellBr : cellTl;
 
-            // Add focus border highlight targets on intersections
-            highlightActiveTouchDropZones(clientX, clientY, valueType);
-        }, { passive: false });
+            if (isInside(correctTarget, x, y)) {
+                clickPlaceFn();
+            } else if (isInside(wrongTarget, x, y)) {
+                alert(valueType === 'ax2'
+                    ? 'Incorrect spot! Drag your ax² leading card into the Top-Left dashed box.'
+                    : 'Incorrect spot! Drag your constant c card into the Bottom-Right dashed box.');
+            }
+        }
 
-        cardEl.addEventListener('touchend', (e) => {
-            if (!activeTouch) return;
-            activeTouch = false;
-            cardEl.classList.remove('dragging');
+        cardEl.addEventListener('pointerdown', (e) => {
+            if (currentStage !== 2) return;
+            if (e.button !== undefined && e.button !== 0) return; // left mouse button only
 
-            if (ghostEl) {
-                const rect = ghostEl.getBoundingClientRect();
-                document.body.removeChild(ghostEl);
-                ghostEl = null;
+            pointerId = e.pointerId;
+            startX = e.clientX;
+            startY = e.clientY;
+            dragging = false;
+            cardEl.setPointerCapture?.(pointerId);
+        });
 
-                // Remove all highlight ring zones
-                cellTl.classList.remove('ring-4', 'ring-blue-500', 'border-blue-400');
-                cellBr.classList.remove('ring-4', 'ring-purple-500', 'border-purple-400');
+        cardEl.addEventListener('pointermove', (e) => {
+            if (pointerId !== e.pointerId || currentStage !== 2) return;
 
-                // Check drop intersection on targets
-                resolveTouchDropIntersection(rect.left + rect.width/2, rect.top + rect.height/2, valueType);
+            const distance = Math.hypot(e.clientX - startX, e.clientY - startY);
+            if (!dragging && distance >= DRAG_THRESHOLD) {
+                dragging = true;
+                startGhost(e.clientX, e.clientY);
+                cardEl.classList.add('dragging');
+            }
+
+            if (dragging) {
+                e.preventDefault();
+                moveGhost(e.clientX, e.clientY);
+                updateHighlight(e.clientX, e.clientY);
             }
         });
+
+        function endPointer(e) {
+            if (pointerId !== e.pointerId) return;
+
+            if (dragging) {
+                e.preventDefault();
+                finishDrag(e.clientX, e.clientY);
+            } else if (currentStage === 2) {
+                // No meaningful movement: preserve the original click-to-snap behavior.
+                clickPlaceFn();
+            }
+
+            clearHighlights();
+            if (ghostEl) ghostEl.remove();
+            ghostEl = null;
+            cardEl.classList.remove('dragging', 'opacity-40');
+
+            try { cardEl.releasePointerCapture?.(pointerId); } catch (_) {}
+            pointerId = null;
+            dragging = false;
+        }
+
+        cardEl.addEventListener('pointerup', endPointer);
+        cardEl.addEventListener('pointercancel', (e) => {
+            if (pointerId !== e.pointerId) return;
+            clearHighlights();
+            if (ghostEl) ghostEl.remove();
+            ghostEl = null;
+            cardEl.classList.remove('dragging', 'opacity-40');
+            pointerId = null;
+            dragging = false;
+        });
+
+        // Prevent the browser's native drag behavior from competing with Pointer Events.
+        cardEl.addEventListener('dragstart', (e) => e.preventDefault());
     }
 
-    function highlightActiveTouchDropZones(x, y, valueType) {
-        const rectTL = cellTl.getBoundingClientRect();
-        const rectBR = cellBr.getBoundingClientRect();
-
-        // Reset highlighted zones
-        cellTl.classList.remove('ring-4', 'ring-blue-500', 'border-blue-400');
-        cellBr.classList.remove('ring-4', 'ring-purple-500', 'border-purple-400');
-
-        if (valueType === 'ax2' && x >= rectTL.left && x <= rectTL.right && y >= rectTL.top && y <= rectTL.bottom) {
-            cellTl.classList.add('ring-4', 'ring-blue-500', 'border-blue-400');
-        } else if (valueType === 'c' && x >= rectBR.left && x <= rectBR.right && y >= rectBR.top && y <= rectBR.bottom) {
-            cellBr.classList.add('ring-4', 'ring-purple-500', 'border-purple-400');
-        }
-    }
-
-    function resolveTouchDropIntersection(x, y, valueType) {
-        const rectTL = cellTl.getBoundingClientRect();
-        const rectBR = cellBr.getBoundingClientRect();
-
-        if (valueType === 'ax2' && x >= rectTL.left && x <= rectTL.right && y >= rectTL.top && y <= rectTL.bottom) {
-            placeTL();
-        } else if (valueType === 'c' && x >= rectBR.left && x <= rectBR.right && y >= rectBR.top && y <= rectBR.bottom) {
-            placeBR();
-        }
-    }
-
-    setupTouchDrag(cardAx2, 'ax2');
-    setupTouchDrag(cardC, 'c');
-
-    // 2. Drag over drop zones (must prevent default to allow drop)
-    cellTl.addEventListener('dragover', (e) => {
-        if (currentStage !== 2 || placedTL) return;
-        e.preventDefault();
-        cellTl.classList.add('ring-4', 'ring-blue-500', 'border-blue-400');
-    });
-    cellTl.addEventListener('dragleave', () => cellTl.classList.remove('ring-4', 'ring-blue-500', 'border-blue-400'));
-    cellTl.addEventListener('drop', (e) => {
-        if (currentStage !== 2 || placedTL) return;
-        e.preventDefault();
-        cellTl.classList.remove('ring-4', 'ring-blue-500', 'border-blue-400');
-        const data = e.dataTransfer.getData('text/plain');
-        if (data === 'ax2') {
-            placeTL();
-        } else {
-            alert("Incorrect spot! Drag your ax² leading card into the Top-Left dashed box.");
-        }
-    });
-
-    cellBr.addEventListener('dragover', (e) => {
-        if (currentStage !== 2 || placedBR) return;
-        e.preventDefault();
-        cellBr.classList.add('ring-4', 'ring-purple-500', 'border-purple-400');
-    });
-    cellBr.addEventListener('dragleave', () => cellBr.classList.remove('ring-4', 'ring-purple-500', 'border-purple-400'));
-    cellBr.addEventListener('drop', (e) => {
-        if (currentStage !== 2 || placedBR) return;
-        e.preventDefault();
-        cellBr.classList.remove('ring-4', 'ring-purple-500', 'border-purple-400');
-        const data = e.dataTransfer.getData('text/plain');
-        if (data === 'c') {
-            placeBR();
-        } else {
-            alert("Incorrect spot! Drag your constant c card into the Bottom-Right dashed box.");
-        }
-    });
+    setupPointerDrag(cardAx2, 'ax2', placeTL);
+    setupPointerDrag(cardC, 'c', placeBR);
 
     function checkStage1Completion() {
         if (placedTL && placedBR) {
