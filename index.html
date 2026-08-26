@@ -46,7 +46,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
             <!-- LEFT COLUMN: Dynamic Stages & Controls (Scrollable/Changes per stage) (5 Cols) -->
-            <section class="lg:col-span-5 flex flex-col gap-6">
+            <section class="lg:col-span-5 flex flex-col gap-6 lg:max-h-[82vh] lg:overflow-y-auto custom-scrollbar pr-2">
 
                 <!-- Control Panel Card -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
@@ -247,17 +247,17 @@
                         <div></div>
 
                         <!-- Col 1 GCF border -->
-                        <div id="gcf-col-1" class="flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50">
+                        <div id="gcf-col1" class="flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50">
                             <!-- Clickable slot for GCF Border -->
                         </div>
 
                         <!-- Col 2 GCF border -->
-                        <div id="gcf-col-2" class="flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50">
+                        <div id="gcf-col2" class="flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50">
                             <!-- Clickable slot for GCF Border -->
                         </div>
 
                         <!-- Row 1 GCF border -->
-                        <div id="gcf-row-1" class="flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50">
+                        <div id="gcf-row1" class="flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50">
                             <!-- Clickable slot for GCF Border -->
                         </div>
 
@@ -274,7 +274,7 @@
                         </div>
 
                         <!-- Row 2 GCF border -->
-                        <div id="gcf-row-2" class="flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50">
+                        <div id="gcf-row2" class="flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50">
                             <!-- Clickable slot for GCF Border -->
                         </div>
 
@@ -392,10 +392,10 @@
         const cellBl = document.getElementById('cell-bl');
         const cellBr = document.getElementById('cell-br');
 
-        const gcfRow1 = document.getElementById('gcf-row-1');
-        const gcfRow2 = document.getElementById('gcf-row-2');
-        const gcfCol1 = document.getElementById('gcf-col-1');
-        const gcfCol2 = document.getElementById('gcf-col-2');
+        const gcfRow1 = document.getElementById('gcf-row1');
+        const gcfRow2 = document.getElementById('gcf-row2');
+        const gcfCol1 = document.getElementById('gcf-col1');
+        const gcfCol2 = document.getElementById('gcf-col2');
 
         // GCF manual factoring elements on right
         const factorInputsRow = document.getElementById('factor-inputs-row');
@@ -715,12 +715,14 @@
                 rowHeaders.push(i);
             }
 
-            // Column headers are completely continuous from 1 up to absAc
-            const maxColFactor = absAc;
-            const colHeaders = [];
-            for (let j = 1; j <= maxColFactor; j++) {
-                colHeaders.push(j);
+            // Column headers ONLY contain values where companion factors actually appear
+            const colHeadersSet = new Set();
+            for (let i = 1; i <= Math.sqrt(absAc); i++) {
+                if (absAc % i === 0) {
+                    colHeadersSet.add(absAc / i);
+                }
             }
+            const colHeaders = Array.from(colHeadersSet).sort((x, y) => x - y);
 
             // Construct HTML table dynamically
             let tableHTML = `<table class="border-collapse border-2 border-slate-200 text-xs font-mono shadow-sm">
