@@ -1,234 +1,484 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trinomial Factorization Helper</title>
+    <title>Interactive Trinomial Factorer - Game Mode</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         .math-font {
             font-family: 'Fira Code', monospace;
         }
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+        .glowing-cell {
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+            animation: pulse-glow 2s infinite alternate;
+        }
+        @keyframes pulse-glow {
+            from {
+                box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+                background-color: rgba(99, 102, 241, 0.15);
+            }
+            to {
+                box-shadow: 0 0 16px rgba(99, 102, 241, 0.7);
+                background-color: rgba(99, 102, 241, 0.3);
+            }
+        }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased">
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-850 dark:text-slate-100 min-h-screen flex flex-col antialiased">
 
     <!-- Header Section -->
-    <header class="border-b border-slate-800 bg-slate-950/50 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <header class="border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/50 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-                <div class="p-2.5 bg-blue-600/20 text-blue-400 rounded-xl border border-blue-500/30">
-                    <i class="fa-solid fa-square-root-variable text-xl"></i>
+                <div class="p-2.5 bg-blue-600/10 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 rounded-xl border border-blue-500/20 dark:border-blue-500/30">
+                    <i class="fa-solid fa-gamepad text-2xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight text-white">Algebra II Factoring Helper</h1>
-                    <p class="text-xs text-slate-400">Interactive Trinomial Box-Method Factorer</p>
+                    <h1 class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        Factoring Workspace <span class="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/20">Game Mode</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Interactive Area Model & Multiplication Grid Scaffolding</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3 text-xs">
-                <span class="px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300">
-                    <i class="fa-brands fa-github text-sm mr-1"></i> Ready for GitHub Pages
+
+            <div class="flex items-center gap-4">
+                <button id="theme-toggle" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-600 dark:text-slate-400 transition-all shadow-sm">
+                    <i id="theme-toggle-icon" class="fa-solid fa-moon text-lg"></i>
+                </button>
+                <span class="hidden md:inline-flex px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 text-xs items-center gap-1.5">
+                    <i class="fa-brands fa-github text-sm"></i> GitHub Ready
                 </span>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Grid -->
-    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- Left Column: Inputs & Current Equation (4 Cols) -->
-        <section class="lg:col-span-4 flex flex-col gap-6">
-            <!-- Input Card -->
-            <div class="bg-slate-950/40 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
-                <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-blue-400"></i> Coefficients
-                </h2>
-                <p class="text-xs text-slate-400 mb-6">Enter coefficients for the trinomial ax² + bx + c:</p>
+        <!-- Left Column: Input Panel & Guided Steps (5 Cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
 
+            <!-- Controls Card -->
+            <div class="bg-white dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-md font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-indigo-500"></i> Set Polynomial
+                    </h2>
+                    <button id="btn-generate" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm">
+                        <i class="fa-solid fa-dice"></i> 🎲 Practice Problem
+                    </button>
+                </div>
+
+                <!-- Input Grid -->
                 <div class="flex flex-col gap-5">
-                    <!-- Coefficient A -->
-                    <div>
-                        <div class="flex justify-between items-center mb-1.5">
-                            <label for="coeff-a" class="text-xs font-semibold uppercase tracking-wider text-slate-300">Coefficient a</label>
-                            <span id="val-a" class="text-xs font-mono text-blue-400">2</span>
+
+                    <!-- Coefficient A (Blue) -->
+                    <div class="p-3 rounded-xl border border-blue-100 dark:border-blue-550/10 bg-blue-50/20 dark:bg-blue-950/5 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="num-a" class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Coefficient a</label>
+                            <input type="number" id="num-a" value="2" class="w-16 px-2.5 py-1 text-sm text-center font-mono font-bold bg-white dark:bg-slate-900 border border-blue-300 dark:border-blue-700 rounded-lg text-blue-600 dark:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
-                        <input type="number" id="coeff-a" value="2" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                        <div class="relative flex items-center">
+                            <div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3.5 bg-blue-300 dark:bg-blue-800 pointer-events-none z-0"></div>
+                            <input type="range" id="slider-a" min="-50" max="50" value="2" step="1" class="w-full h-1.5 bg-slate-200 dark:bg-slate-850 rounded-lg appearance-none cursor-pointer accent-blue-600 dark:accent-blue-400 relative z-10">
+                        </div>
+                        <div class="flex justify-between text-[10px] text-blue-400 dark:text-blue-500 font-mono font-semibold">
+                            <span>-50</span>
+                            <span>0</span>
+                            <span>+50</span>
+                        </div>
                     </div>
 
-                    <!-- Coefficient B -->
-                    <div>
-                        <div class="flex justify-between items-center mb-1.5">
-                            <label for="coeff-b" class="text-xs font-semibold uppercase tracking-wider text-slate-300">Coefficient b</label>
-                            <span id="val-b" class="text-xs font-mono text-emerald-400">-21</span>
+                    <!-- Coefficient B (Green) -->
+                    <div class="p-3 rounded-xl border border-emerald-100 dark:border-emerald-550/10 bg-emerald-50/20 dark:bg-emerald-950/5 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="num-b" class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Coefficient b</label>
+                            <input type="number" id="num-b" value="-21" class="w-16 px-2.5 py-1 text-sm text-center font-mono font-bold bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 rounded-lg text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-550">
                         </div>
-                        <input type="number" id="coeff-b" value="-21" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                        <div class="relative flex items-center">
+                            <div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3.5 bg-emerald-300 dark:bg-emerald-800 pointer-events-none z-0"></div>
+                            <input type="range" id="slider-b" min="-50" max="50" value="-21" step="1" class="w-full h-1.5 bg-slate-200 dark:bg-slate-850 rounded-lg appearance-none cursor-pointer accent-emerald-600 dark:accent-emerald-400 relative z-10">
+                        </div>
+                        <div class="flex justify-between text-[10px] text-emerald-400 dark:text-emerald-550 font-mono font-semibold">
+                            <span>-50</span>
+                            <span>0</span>
+                            <span>+50</span>
+                        </div>
                     </div>
 
-                    <!-- Coefficient C -->
-                    <div>
-                        <div class="flex justify-between items-center mb-1.5">
-                            <label for="coeff-c" class="text-xs font-semibold uppercase tracking-wider text-slate-300">Coefficient c</label>
-                            <span id="val-c" class="text-xs font-mono text-purple-400">40</span>
+                    <!-- Coefficient C (Purple) -->
+                    <div class="p-3 rounded-xl border border-purple-100 dark:border-purple-550/10 bg-purple-50/20 dark:bg-purple-950/5 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label for="num-c" class="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Coefficient c</label>
+                            <input type="number" id="num-c" value="40" class="w-16 px-2.5 py-1 text-sm text-center font-mono font-bold bg-white dark:bg-slate-900 border border-purple-300 dark:border-purple-700 rounded-lg text-purple-600 dark:text-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
                         </div>
-                        <input type="number" id="coeff-c" value="40" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                        <div class="relative flex items-center">
+                            <div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3.5 bg-purple-300 dark:bg-purple-800 pointer-events-none z-0"></div>
+                            <input type="range" id="slider-c" min="-50" max="50" value="40" step="1" class="w-full h-1.5 bg-slate-200 dark:bg-slate-850 rounded-lg appearance-none cursor-pointer accent-purple-600 dark:accent-purple-400 relative z-10">
+                        </div>
+                        <div class="flex justify-between text-[10px] text-purple-400 dark:text-purple-500 font-mono font-semibold">
+                            <span>-50</span>
+                            <span>0</span>
+                            <span>+50</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Presets -->
-                <div class="mt-6 pt-6 border-t border-slate-800">
-                    <span class="text-xs font-medium text-slate-400 block mb-2">Preset Examples:</span>
-                    <div class="flex flex-wrap gap-2">
-                        <button onclick="applyPreset(2, -21, 40)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-white transition-all font-mono">2x² - 21x + 40</button>
-                        <button onclick="applyPreset(6, -7, -5)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-white transition-all font-mono">6x² - 7x - 5</button>
-                        <button onclick="applyPreset(1, 5, 6)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-white transition-all font-mono">x² + 5x + 6</button>
-                        <button onclick="applyPreset(2, 4, -9)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-white transition-all font-mono">2x² + 4x - 9</button>
+                <!-- Equation Display below Inputs -->
+                <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/80 text-center">
+                    <span class="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-1 block">Active Problem</span>
+                    <div id="equation-display" class="text-xl font-extrabold math-font py-1">
+                        <!-- Dynamic Color-coded Equation -->
+                    </div>
+                    <!-- Overall GCF Indicator (If present initially) -->
+                    <div id="overall-gcf-hint" class="hidden mt-2 p-2 rounded-lg border border-yellow-500/20 bg-yellow-500/5 text-yellow-600 dark:text-yellow-400 text-xs flex items-center gap-1.5 justify-center">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>💡 All terms share a common factor! We can pull it out at the end.</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Current Equation Output -->
-            <div class="bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-500/20 rounded-2xl p-6 text-center shadow-lg">
-                <span class="text-xs uppercase font-bold tracking-widest text-blue-400 mb-1 block">Active Polynomial</span>
-                <div id="equation-display" class="text-2xl font-bold tracking-wide text-white math-font py-2">
-                    2x² - 21x + 40
+            <!-- Stage Progress & Game Instructions -->
+            <div class="bg-white dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+                <div class="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-map-location-dot text-blue-500"></i> Workspace Stage
+                    </h3>
+                    <span id="active-stage-indicator" class="text-xs px-2.5 py-0.5 rounded-full bg-blue-600 text-white font-bold font-mono">Stage 1/5</span>
+                </div>
+
+                <!-- Prompt instructions -->
+                <div id="stage-instructions-text" class="text-sm text-slate-600 dark:text-slate-350 leading-relaxed mb-4 min-h-[50px]">
+                    <!-- Step instructions dynamically loaded -->
+                </div>
+
+                <!-- Block Selection / Floating Blocks (Used for Stage 1 placement) -->
+                <div id="draggable-blocks-area" class="hidden flex justify-center gap-4 p-3 bg-slate-100/50 dark:bg-slate-900/30 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+                    <button id="block-ax2" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-mono font-black text-sm rounded-xl shadow-md cursor-pointer transition-all flex items-center gap-1 border border-blue-400">
+                        <i class="fa-solid fa-arrows-up-to-line"></i> <span id="block-ax2-text">2x²</span>
+                    </button>
+                    <button id="block-c" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white font-mono font-black text-sm rounded-xl shadow-md cursor-pointer transition-all flex items-center gap-1 border border-purple-400">
+                        <i class="fa-solid fa-arrows-up-to-line"></i> <span id="block-c-text">40</span>
+                    </button>
+                </div>
+
+                <!-- Custom GCF input chooser (Used for Stage 3 GCF solving) -->
+                <div id="gcf-selectors-area" class="hidden flex flex-col gap-3">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block text-center">Click a slot on the area model border, then select its correct GCF below:</span>
+                    <div id="gcf-option-buttons" class="flex flex-wrap gap-2 justify-center">
+                        <!-- Populated with numerical factor candidates -->
+                    </div>
+                </div>
+
+                <!-- Parenthesis Snapper (Used for Stage 4) -->
+                <div id="parentheses-snap-area" class="hidden flex justify-center gap-3">
+                    <button id="snap-row-btn" class="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-arrows-spin"></i> Binomial 1 (Side Border)
+                    </button>
+                    <button id="snap-col-btn" class="px-3.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-arrows-spin"></i> Binomial 2 (Top Border)
+                    </button>
                 </div>
             </div>
+
         </section>
 
-        <!-- Right Column: Visualizer (8 Cols) -->
-        <section class="lg:col-span-8 flex flex-col gap-6">
+        <!-- Right Column: Interactive Area Model & Dynamic Multiplication Grid (7 Cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
 
-            <!-- Result Overview / Factorability Banner -->
-            <div id="status-banner" class="rounded-2xl p-5 border flex items-center gap-4 transition-all duration-300">
-                <!-- Populated dynamically -->
+            <!-- Large Main Display: Dynamic Title Card displaying equation again -->
+            <div class="bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 dark:from-blue-900/10 dark:via-indigo-900/10 dark:to-purple-900/10 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-indigo-500/20 text-indigo-500 rounded-lg">
+                        <i class="fa-solid fa-square-root-variable text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="text-[9px] uppercase tracking-widest font-bold text-slate-400 block">Workspace Equation</span>
+                        <div id="equation-header-display" class="text-xl font-black math-font tracking-wide">
+                            <!-- Syncs with left side -->
+                        </div>
+                    </div>
+                </div>
+                <!-- Interactive status banner/pill inside header -->
+                <span id="header-status-pill" class="text-xs px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold border border-slate-300 dark:border-slate-700">
+                    Solving Mode
+                </span>
             </div>
 
-            <!-- Box Method & Calculations Grid -->
-            <div id="visualizer-content" class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!-- Workspace Cards Container -->
+            <div id="workspace-grid" class="flex flex-col gap-6">
 
-                <!-- Factor Search List (Spreadsheet Column Match) -->
-                <div class="md:col-span-5 bg-slate-950/40 border border-slate-800 rounded-2xl p-5 flex flex-col h-[400px]">
-                    <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-2">
-                        <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                            <i class="fa-solid fa-table-list text-emerald-400"></i> Factor List
+                <!-- Stage 2: Rectangular Multiplication Chart Widget (Hides/Shows) -->
+                <div id="grid-widget-container" class="bg-white dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
+                        <h3 class="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-chess-board text-indigo-500"></i> Interactive Multiplication Chart
                         </h3>
-                        <span id="factor-search-target" class="text-xs text-emerald-400 font-mono">ac = 80, b = -21</span>
+                        <span id="grid-ac-target" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 font-mono">ac = 80, b = -21</span>
                     </div>
-                    <div class="overflow-y-auto flex-grow custom-scrollbar pr-2 space-y-1 text-sm text-slate-300 font-mono" id="factor-list-container">
-                        <!-- Populated dynamically with factors -->
+
+                    <!-- Scrollable table container to handle any device size -->
+                    <div class="overflow-x-auto custom-scrollbar flex justify-center py-2" id="grid-scroll-wrapper">
+                        <!-- Renders dynamic factor rectangle -->
+                        <div id="multiplication-grid" class="inline-block"></div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+                        <p class="text-center sm:text-left">
+                            💡 Locate the glowing cells showing product <span class="font-bold text-indigo-500 font-mono">|ac|</span>. Click the cell whose row/column headers add or subtract to reach coefficient <span class="text-emerald-500 font-bold font-mono">b</span>.
+                        </p>
+                        <!-- Prime Exit route button -->
+                        <button id="btn-prime-exit" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-500/15 dark:bg-amber-500/10 hover:bg-amber-500/25 dark:hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/30 transition-all flex items-center justify-center gap-1.5 shadow-sm shrink-0">
+                            <i class="fa-solid fa-triangle-exclamation"></i> No Factor Match (Trinomial is Prime)
+                        </button>
                     </div>
                 </div>
 
-                <!-- Interactive 2x2 Box -->
-                <div class="md:col-span-7 bg-slate-950/40 border border-slate-800 rounded-2xl p-5 flex flex-col justify-center items-center">
-                    <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-6 self-start flex items-center gap-1.5">
-                        <i class="fa-solid fa-table-cells-large text-purple-400"></i> The 2x2 Box Method
-                    </h3>
+                <!-- Interactive 2x2 Area Model (Always visible) -->
+                <div class="bg-white dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex flex-col justify-center items-center shadow-sm">
+                    <div class="w-full flex items-center justify-between mb-6 border-b border-slate-100 dark:border-slate-800 pb-2">
+                        <h3 class="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-table-cells-large text-purple-500"></i> The 2x2 Area Model
+                        </h3>
+                        <span id="grid-cell-counter" class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold border border-slate-200 dark:border-slate-700">0/4 Cells Placed</span>
+                    </div>
 
-                    <!-- The Grid container of GCFs and cells -->
-                    <div class="relative grid grid-cols-3 grid-rows-3 gap-2 w-72 h-72 text-center text-sm font-bold select-none mb-4">
+                    <!-- The Interactive Grid (Slightly larger cell sizes for teaching) -->
+                    <div class="relative grid grid-cols-3 grid-rows-3 gap-2 w-80 h-80 text-center text-sm font-extrabold select-none mb-6">
                         <!-- Top-Left Spacer -->
                         <div></div>
 
-                        <!-- Col 1 GCF -->
-                        <div id="gcf-col-1" class="flex items-center justify-center text-blue-400 border border-blue-500/30 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 transition-all font-mono">2x</div>
-
-                        <!-- Col 2 GCF -->
-                        <div id="gcf-col-2" class="flex items-center justify-center text-blue-400 border border-blue-500/30 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 transition-all font-mono">-5</div>
-
-                        <!-- Row 1 GCF -->
-                        <div id="gcf-row-1" class="flex items-center justify-center text-emerald-400 border border-emerald-500/30 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 transition-all font-mono">x</div>
-
-                        <!-- Top-Left Cell: ax² -->
-                        <div id="cell-tl" class="flex flex-col items-center justify-center bg-slate-800 border border-slate-700 rounded-xl text-white font-mono shadow-inner">
-                            <span class="text-lg">2x²</span>
-                            <span class="text-[10px] text-slate-500 font-sans font-normal uppercase">ax²</span>
+                        <!-- Col 1 GCF Slot -->
+                        <div id="gcf-col-1" class="flex flex-col items-center justify-center border-2 border-dashed border-slate-350 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 text-slate-450 dark:text-slate-500 hover:border-blue-500 hover:text-blue-500 cursor-pointer transition-all font-mono text-sm shadow-sm relative">
+                            <span class="text-xs scale-90 text-slate-400">Col 1 GCF</span>
+                            <span class="text-md font-bold text-blue-600 dark:text-blue-400">?</span>
                         </div>
 
-                        <!-- Top-Right Cell: Mx -->
-                        <div id="cell-tr" class="flex flex-col items-center justify-center bg-slate-800 border border-slate-700 rounded-xl text-slate-300 font-mono shadow-inner">
-                            <span class="text-lg">-5x</span>
-                            <span class="text-[10px] text-slate-500 font-sans font-normal uppercase">Mx</span>
+                        <!-- Col 2 GCF Slot -->
+                        <div id="gcf-col-2" class="flex flex-col items-center justify-center border-2 border-dashed border-slate-350 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 text-slate-450 dark:text-slate-500 hover:border-blue-500 hover:text-blue-500 cursor-pointer transition-all font-mono text-sm shadow-sm relative">
+                            <span class="text-xs scale-90 text-slate-400">Col 2 GCF</span>
+                            <span class="text-md font-bold text-blue-600 dark:text-blue-400">?</span>
                         </div>
 
-                        <!-- Row 2 GCF -->
-                        <div id="gcf-row-2" class="flex items-center justify-center text-emerald-400 border border-emerald-500/30 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 transition-all font-mono">-8</div>
-
-                        <!-- Bottom-Left Cell: Nx -->
-                        <div id="cell-bl" class="flex flex-col items-center justify-center bg-slate-800 border border-slate-700 rounded-xl text-slate-300 font-mono shadow-inner">
-                            <span class="text-lg">-16x</span>
-                            <span class="text-[10px] text-slate-500 font-sans font-normal uppercase">Nx</span>
+                        <!-- Row 1 GCF Slot -->
+                        <div id="gcf-row-1" class="flex flex-col items-center justify-center border-2 border-dashed border-slate-350 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 text-slate-450 dark:text-slate-500 hover:border-emerald-500 hover:text-emerald-500 cursor-pointer transition-all font-mono text-sm shadow-sm relative">
+                            <span class="text-xs scale-90 text-slate-400">Row 1 GCF</span>
+                            <span class="text-md font-bold text-emerald-600 dark:text-emerald-400">?</span>
                         </div>
 
-                        <!-- Bottom-Right Cell: c -->
-                        <div id="cell-br" class="flex flex-col items-center justify-center bg-slate-800 border border-slate-700 rounded-xl text-white font-mono shadow-inner">
-                            <span class="text-lg">40</span>
-                            <span class="text-[10px] text-slate-500 font-sans font-normal uppercase">c</span>
+                        <!-- Cell 1: ax² (Top-Left Cell) -->
+                        <div id="cell-tl" class="flex flex-col items-center justify-center border-2 border-dashed border-blue-400/50 dark:border-blue-500/20 rounded-2xl bg-blue-500/5 hover:bg-blue-500/10 transition-all font-mono shadow-sm cursor-pointer relative overflow-hidden group">
+                            <span class="text-2xl font-black text-blue-600 dark:text-blue-400">?</span>
+                            <span class="text-[9px] text-slate-400 uppercase tracking-wider absolute bottom-1.5">ax² Box</span>
+                        </div>
+
+                        <!-- Cell 2: Mx (Top-Right Cell) -->
+                        <div id="cell-tr" class="flex flex-col items-center justify-center border-2 border-dashed border-emerald-400/30 dark:border-emerald-500/10 rounded-2xl bg-emerald-500/5 hover:bg-emerald-500/10 transition-all font-mono shadow-sm cursor-pointer relative overflow-hidden group">
+                            <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">?</span>
+                            <span class="text-[9px] text-slate-400 uppercase tracking-wider absolute bottom-1.5">Mx Box</span>
+                        </div>
+
+                        <!-- Row 2 GCF Slot -->
+                        <div id="gcf-row-2" class="flex flex-col items-center justify-center border-2 border-dashed border-slate-350 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 text-slate-450 dark:text-slate-500 hover:border-emerald-500 hover:text-emerald-500 cursor-pointer transition-all font-mono text-sm shadow-sm relative">
+                            <span class="text-xs scale-90 text-slate-400">Row 2 GCF</span>
+                            <span class="text-md font-bold text-emerald-600 dark:text-emerald-400">?</span>
+                        </div>
+
+                        <!-- Cell 3: Nx (Bottom-Left Cell) -->
+                        <div id="cell-bl" class="flex flex-col items-center justify-center border-2 border-dashed border-emerald-400/30 dark:border-emerald-500/10 rounded-2xl bg-emerald-500/5 hover:bg-emerald-500/10 transition-all font-mono shadow-sm cursor-pointer relative overflow-hidden group">
+                            <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">?</span>
+                            <span class="text-[9px] text-slate-400 uppercase tracking-wider absolute bottom-1.5">Nx Box</span>
+                        </div>
+
+                        <!-- Cell 4: c (Bottom-Right Cell) -->
+                        <div id="cell-br" class="flex flex-col items-center justify-center border-2 border-dashed border-purple-400/50 dark:border-purple-500/20 rounded-2xl bg-purple-500/5 hover:bg-purple-500/10 transition-all font-mono shadow-sm cursor-pointer relative overflow-hidden group">
+                            <span class="text-2xl font-black text-purple-600 dark:text-purple-400">?</span>
+                            <span class="text-[9px] text-slate-400 uppercase tracking-wider absolute bottom-1.5">c Box</span>
                         </div>
                     </div>
 
-                    <div class="text-xs text-slate-400 text-center max-w-xs mt-2">
-                        <span class="text-emerald-400 font-bold">Side items</span> are GCFs of rows; <span class="text-blue-400 font-bold">Top items</span> are GCFs of columns. Multiplying these gives the final binomials.
+                    <!-- Conventional Parentheses Output Target (Stage 4 Transition) -->
+                    <div id="parenthesis-transfer-section" class="w-full mt-2 pt-4 border-t border-slate-100 dark:border-slate-800 text-center space-y-3">
+                        <span class="text-[10px] uppercase font-black tracking-widest text-slate-400 block">Factored Binomials</span>
+                        <div id="parentheses-target-box" class="text-3xl font-black math-font py-3 tracking-wide text-slate-300 dark:text-slate-600 select-none flex items-center justify-center gap-1.5">
+                            <span>(</span>
+                            <span id="paren-part-1" class="text-slate-400 dark:text-slate-650 px-2 py-0.5 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg text-lg min-w-[70px] inline-block font-sans">Row GCF</span>
+                            <span>)(</span>
+                            <span id="paren-part-2" class="text-slate-400 dark:text-slate-650 px-2 py-0.5 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg text-lg min-w-[70px] inline-block font-sans">Col GCF</span>
+                            <span>)</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Step-by-Step Factoring Logic Details -->
-            <div id="steps-card" class="bg-slate-950/40 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h3 class="text-md font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-graduation-cap text-indigo-400"></i> Mathematical Grouping Breakdown
-                </h3>
-                <div class="space-y-4 text-sm text-slate-300" id="step-by-step-text">
-                    <!-- Populated dynamically -->
+                <!-- Step-by-Step Factoring Logic Details & Quadratic Fallback Summary -->
+                <div id="status-detailed-card" class="bg-white dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+                    <h3 class="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap text-indigo-500"></i> Mathematical Grouping Breakdown
+                    </h3>
+                    <div id="step-by-step-text" class="text-xs text-slate-500 dark:text-slate-400 space-y-3 leading-relaxed">
+                        <!-- Mathematical walkthrough filled in dynamically -->
+                    </div>
                 </div>
-            </div>
 
+            </div>
         </section>
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-800 bg-slate-950/40 py-6 mt-12 text-center text-xs text-slate-500">
-        <div class="max-w-6xl mx-auto px-4">
-            <p>Mathematics algorithm ported directly from the "Algebra II Factoring and Roots Helper" Workbook [1].</p>
-            <p class="mt-1">Designed for quick local double-clicks or free instant hosting with GitHub Pages.</p>
+    <footer class="border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-950/40 py-6 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 space-y-1">
+            <p>Mathematics algorithm ported from the "Algebra II Factoring and Roots Helper" Workbook [1].</p>
+            <p>Designed for local double-clicks, classroom smart boards, and immediate hosting with GitHub Pages.</p>
         </div>
     </footer>
 
     <!-- App JavaScript Logic -->
     <script>
-        // DOM Elements
-        const inputA = document.getElementById('coeff-a');
-        const inputB = document.getElementById('coeff-b');
-        const inputC = document.getElementById('coeff-c');
-        const valA = document.getElementById('val-a');
-        const valB = document.getElementById('val-b');
-        const valC = document.getElementById('val-c');
-        const equationDisplay = document.getElementById('equation-display');
-        const statusBanner = document.getElementById('status-banner');
-        const factorSearchTarget = document.getElementById('factor-search-target');
-        const factorListContainer = document.getElementById('factor-list-container');
-        const visualizerContent = document.getElementById('visualizer-content');
-        const stepByStepText = document.getElementById('step-by-step-text');
+        // DOM Inputs
+        const numA = document.getElementById('num-a');
+        const sliderA = document.getElementById('slider-a');
+        const numB = document.getElementById('num-b');
+        const sliderB = document.getElementById('slider-b');
+        const numC = document.getElementById('num-c');
+        const sliderC = document.getElementById('slider-c');
 
-        // Box Cells
+        const btnGenerate = document.getElementById('btn-generate');
+        const btnPrimeExit = document.getElementById('btn-prime-exit');
+
+        const equationDisplay = document.getElementById('equation-display');
+        const equationHeaderDisplay = document.getElementById('equation-header-display');
+        const overallGcfHint = document.getElementById('overall-gcf-hint');
+        const activeStageIndicator = document.getElementById('active-stage-indicator');
+        const stageInstructionsText = document.getElementById('stage-instructions-text');
+        const headerStatusPill = document.getElementById('header-status-pill');
+
+        // Stage controls widgets
+        const draggableBlocksArea = document.getElementById('draggable-blocks-area');
+        const blockAx2 = document.getElementById('block-ax2');
+        const blockAx2Text = document.getElementById('block-ax2').querySelector('span');
+        const blockC = document.getElementById('block-c');
+        const blockCText = document.getElementById('block-c').querySelector('span');
+
+        const gcfSelectorsArea = document.getElementById('gcf-selectors-area');
+        const gcfOptionButtons = document.getElementById('gcf-option-buttons');
+
+        const parenthesesSnapArea = document.getElementById('parentheses-snap-area');
+        const snapRowBtn = document.getElementById('snap-row-btn');
+        const snapColBtn = document.getElementById('snap-col-btn');
+
+        // Widgets
+        const gridWidgetContainer = document.getElementById('grid-widget-container');
+        const gridAcTarget = document.getElementById('grid-ac-target');
+        const multiplicationGrid = document.getElementById('multiplication-grid');
+        const stepByStepText = document.getElementById('step-by-step-text');
+        const gridCellCounter = document.getElementById('grid-cell-counter');
+
+        const parenPart1 = document.getElementById('paren-part-1');
+        const parenPart2 = document.getElementById('paren-part-2');
+        const parenthesesTargetBox = document.getElementById('parentheses-target-box');
+
+        // Theme Toggle Elements
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleIcon = document.getElementById('theme-toggle-icon');
+
+        // Area Model cells
         const gcfCol1 = document.getElementById('gcf-col-1');
         const gcfCol2 = document.getElementById('gcf-col-2');
         const gcfRow1 = document.getElementById('gcf-row-1');
         const gcfRow2 = document.getElementById('gcf-row-2');
-        const cellTl = document.getElementById('cell-tl').querySelector('span');
-        const cellTr = document.getElementById('cell-tr').querySelector('span');
-        const cellBl = document.getElementById('cell-bl').querySelector('span');
-        const cellBr = document.getElementById('cell-br').querySelector('span');
 
-        // Helper: GCD/GCF Calculation
+        const cellTl = document.getElementById('cell-tl');
+        const cellTr = document.getElementById('cell-tr');
+        const cellBl = document.getElementById('cell-bl');
+        const cellBr = document.getElementById('cell-br');
+
+        // --- GAME STATE VARIABLES ---
+        let currentStage = 1; // 1 to 5
+        let isWorkspacePrime = false;
+
+        // Placement state
+        let selectedBlockType = null; // 'ax2' or 'c'
+        let hasPlacedAx2 = false;
+        let hasPlacedC = false;
+
+        // Factor selection state
+        let hasSelectedGridFactors = false;
+        let factorsM = 0;
+        let factorsN = 0;
+
+        // GCF solution target state
+        let selectedGCFSlotId = null; // 'row1', 'row2', 'col1', 'col2'
+        let solvedGCFValues = { row1: null, row2: null, col1: null, col2: null };
+        let correctGCFAnswers = { row1: '', row2: '', col1: '', col2: '' };
+
+        // Parenthesis snapping state
+        let hasSnappedRowBinomial = false;
+        let hasSnappedColBinomial = false;
+
+        // Overall algebraic values computed
+        let valA = 2, valB = -21, valC = 40, valAC = 80;
+        let computedOverallGCF = 1;
+
+        // GCF terms representation strings
+        let factorBinomialRow = '';
+        let factorBinomialCol = '';
+
+        // --- Theme Toggling Logic ---
+        function getTheme() {
+            if (localStorage.getItem('theme')) return localStorage.getItem('theme');
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                themeToggleIcon.className = "fa-solid fa-sun text-lg text-yellow-400";
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                themeToggleIcon.className = "fa-solid fa-moon text-lg text-slate-650";
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        setTheme(getTheme());
+        themeToggleBtn.addEventListener('click', () => {
+            setTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+        });
+
+        // --- GCD / GCF Calculations ---
         function getGCD(x, y) {
             x = Math.abs(x);
             y = Math.abs(y);
@@ -240,36 +490,101 @@
             return x;
         }
 
-        // Apply pre-set templates
+        // --- Generator Engine (Classroom-friendly randomizer) ---
+        function generatePracticeProblem() {
+            // 80% Factorable, 20% Prime
+            const makeFactorable = Math.random() < 0.8;
+
+            if (makeFactorable) {
+                // Generate product of two clean binomials: a*(dx + e)*(fx + g)
+                const mult = Math.random() < 0.4 ? 1 : (Math.random() < 0.5 ? 2 : 3);
+                const d = Math.floor(Math.random() * 3) + 1; // 1 to 3
+                const f = Math.floor(Math.random() * 2) + 1; // 1 to 2
+
+                // Keep constants relatively small
+                const e = (Math.floor(Math.random() * 8) + 1) * (Math.random() < 0.5 ? 1 : -1);
+                const g = (Math.floor(Math.random() * 8) + 1) * (Math.random() < 0.5 ? 1 : -1);
+
+                const finalA = mult * d * f;
+                const finalB = mult * (d * g + e * f);
+                const finalC = mult * e * g;
+
+                // Clamp check to ensure it fits our range [-50, 50]
+                if (Math.abs(finalA) <= 50 && Math.abs(finalB) <= 50 && Math.abs(finalC) <= 50 && finalA !== 0) {
+                    applyPreset(finalA, finalB, finalC);
+                    return;
+                }
+            }
+
+            // Prime Generator / Fallback
+            for (let attempt = 0; attempt < 50; attempt++) {
+                const randA = (Math.floor(Math.random() * 5) + 1) * (Math.random() < 0.3 ? -1 : 1);
+                const randB = Math.floor(Math.random() * 20) - 10;
+                const randC = Math.floor(Math.random() * 20) - 10;
+
+                // Verify is prime (no integer factor pair matches b)
+                if (randA !== 0) {
+                    const ac = randA * randC;
+                    let hasMatch = false;
+                    for (let i = -Math.abs(ac); i <= Math.abs(ac); i++) {
+                        if (i === 0) continue;
+                        if (ac % i === 0 && (i + (ac / i) === randB)) {
+                            hasMatch = true;
+                            break;
+                        }
+                    }
+                    if (!hasMatch) {
+                        applyPreset(randA, randB, randC);
+                        return;
+                    }
+                }
+            }
+            // Absolute backup
+            applyPreset(2, 4, -9);
+        }
+
+        btnGenerate.addEventListener('click', generatePracticeProblem);
+
+        // Apply input values to widgets
         function applyPreset(a, b, c) {
-            inputA.value = a;
-            inputB.value = b;
-            inputC.value = c;
+            numA.value = a;
+            sliderA.value = a;
+            numB.value = b;
+            sliderB.value = b;
+            numC.value = c;
+            sliderC.value = c;
+
+            resetGameStages();
             calculate();
         }
 
-        // Format a single term for display
-        function formatTerm(coeff, variable, isLeading = false) {
-            if (coeff === 0) return '';
-            let sign = coeff > 0 ? ' + ' : ' - ';
-            if (isLeading) {
-                sign = coeff > 0 ? '' : '-';
+        // --- Format helper tools ---
+        function formatColoredQuadratic(a, b, c) {
+            if (a === 0) return 'Linear equation (a = 0)';
+
+            let termA = ``;
+            if (a === 1) termA = `<span class="text-blue-600 dark:text-blue-400">x²</span>`;
+            else if (a === -1) termA = `<span class="text-blue-600 dark:text-blue-400">-x²</span>`;
+            else termA = `<span class="text-blue-600 dark:text-blue-400">${a}x²</span>`;
+
+            let termB = ``;
+            if (b !== 0) {
+                const sign = b > 0 ? ' + ' : ' - ';
+                const absB = Math.abs(b);
+                const valStr = absB === 1 ? 'x' : `${absB}x`;
+                termB = `${sign}<span class="text-emerald-600 dark:text-emerald-400">${valStr}</span>`;
             }
-            const absCoeff = Math.abs(coeff);
-            let coeffStr = absCoeff === 1 && variable !== '' ? '' : absCoeff;
-            return `${sign}${coeffStr}${variable}`;
+
+            let termC = ``;
+            if (c !== 0) {
+                const sign = c > 0 ? ' + ' : ' - ';
+                termC = `${sign}<span class="text-purple-600 dark:text-purple-400">${Math.abs(c)}</span>`;
+            }
+
+            return `${termA}${termB}${termC}`;
         }
 
-        // Format trinomial formula string
-        function formatQuadratic(a, b, c) {
-            const partA = formatTerm(a, 'x²', true);
-            const partB = formatTerm(b, 'x');
-            const partC = formatTerm(c, '');
-            return (partA + partB + partC) || '0';
-        }
-
-        // Format a binomial term beautifully
-        function formatBinomial(coeff, constant) {
+        function formatSimpleMathBinomial(coeff, constant) {
             if (coeff === 0) return constant.toString();
             const termX = coeff === 1 ? 'x' : (coeff === -1 ? '-x' : `${coeff}x`);
             if (constant === 0) return termX;
@@ -277,316 +592,860 @@
             return `${termX}${sign}${Math.abs(constant)}`;
         }
 
-        // Primary math logic
+        // --- Main controller of the stage machinery ---
+        function resetGameStages() {
+            currentStage = 1;
+            selectedBlockType = null;
+            hasPlacedAx2 = false;
+            hasPlacedC = false;
+            hasSelectedGridFactors = false;
+            selectedGCFSlotId = null;
+            solvedGCFValues = { row1: null, row2: null, col1: null, col2: null };
+            correctGCFAnswers = { row1: '', row2: '', col1: '', col2: '' };
+            hasSnappedRowBinomial = false;
+            hasSnappedColBinomial = false;
+
+            parenPart1.textContent = 'Row GCF';
+            parenPart1.className = "text-slate-400 dark:text-slate-650 px-2 py-0.5 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg text-lg min-w-[70px] inline-block font-sans";
+            parenPart2.textContent = 'Col GCF';
+            parenPart2.className = "text-slate-400 dark:text-slate-650 px-2 py-0.5 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg text-lg min-w-[70px] inline-block font-sans";
+            parenthesesTargetBox.className = "text-3xl font-black math-font py-3 tracking-wide text-slate-350 dark:text-slate-650 select-none flex items-center justify-center gap-1.5";
+
+            // Reset UI structures
+            cellTl.innerHTML = `<span class="text-2xl font-black text-blue-600 dark:text-blue-400">?</span><span class="text-[9px] text-slate-400 uppercase tracking-wider absolute bottom-1.5">ax² Box</span>`;
+            cellTl.className = "flex flex-col items-center justify-center border-2 border-dashed border-blue-400/50 dark:border-blue-500/20 rounded-2xl bg-blue-500/5 hover:bg-blue-500/10 transition-all font-mono shadow-sm cursor-pointer relative overflow-hidden group";
+
+            cellTr.innerHTML = `<span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">?</span><span class="text-[9px] text-slate-400 uppercase tracking-wider absolute bottom-1.5">Mx Box</span>`;
+            cellTr.className = "flex flex-col items-center justify-center border-2 border-dashed border-emerald-400/30 dark:border-emerald-500/10 rounded-2xl bg-emerald-500/5 hover:bg-emerald-500/10 transition-all font-mono shadow-sm cursor-pointer relative overflow-hidden group";
+
+            cellBl.innerHTML = `<span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">?</span><span class="text-[9px] text-slate-400 uppercase tracking-wider absolute bottom-1.5">Nx Box</span>`;
+            cellBl.className = "flex flex-col items-center justify-center border-2 border-dashed border-emerald-400/30 dark:border-emerald-500/10 rounded-2xl bg-emerald-500/5 hover:bg-emerald-500/10 transition-all font-mono shadow-sm cursor-pointer relative overflow-hidden group";
+
+            cellBr.innerHTML = `<span class="text-2xl font-black text-purple-600 dark:text-purple-400">?</span><span class="text-[9px] text-slate-400 uppercase tracking-wider absolute bottom-1.5">c Box</span>`;
+            cellBr.className = "flex flex-col items-center justify-center border-2 border-dashed border-purple-400/50 dark:border-purple-500/20 rounded-2xl bg-purple-500/5 hover:bg-purple-500/10 transition-all font-mono shadow-sm cursor-pointer relative overflow-hidden group";
+
+            resetGCFBorders();
+        }
+
+        function resetGCFBorders() {
+            gcfCol1.innerHTML = `<span class="text-xs scale-90 text-slate-400">Col 1 GCF</span><span class="text-md font-bold text-blue-600 dark:text-blue-400">?</span>`;
+            gcfCol1.className = "flex flex-col items-center justify-center border-2 border-dashed border-slate-350 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 text-slate-450 dark:text-slate-500 hover:border-blue-500 hover:text-blue-500 cursor-pointer transition-all font-mono text-sm shadow-sm relative";
+
+            gcfCol2.innerHTML = `<span class="text-xs scale-90 text-slate-400">Col 2 GCF</span><span class="text-md font-bold text-blue-600 dark:text-blue-400">?</span>`;
+            gcfCol2.className = "flex flex-col items-center justify-center border-2 border-dashed border-slate-350 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 text-slate-450 dark:text-slate-500 hover:border-blue-500 hover:text-blue-500 cursor-pointer transition-all font-mono text-sm shadow-sm relative";
+
+            gcfRow1.innerHTML = `<span class="text-xs scale-90 text-slate-400">Row 1 GCF</span><span class="text-md font-bold text-emerald-600 dark:text-emerald-400">?</span>`;
+            gcfRow1.className = "flex flex-col items-center justify-center border-2 border-dashed border-slate-350 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 text-slate-450 dark:text-slate-500 hover:border-emerald-500 hover:text-emerald-500 cursor-pointer transition-all font-mono text-sm shadow-sm relative";
+
+            gcfRow2.innerHTML = `<span class="text-xs scale-90 text-slate-400">Row 2 GCF</span><span class="text-md font-bold text-emerald-600 dark:text-emerald-400">?</span>`;
+            gcfRow2.className = "flex flex-col items-center justify-center border-2 border-dashed border-slate-350 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 text-slate-450 dark:text-slate-500 hover:border-emerald-500 hover:text-emerald-500 cursor-pointer transition-all font-mono text-sm shadow-sm relative";
+        }
+
+        // Synchronize numeric controls and trigger calculation
+        function registerBiDirectionalSync(numEl, sliderEl) {
+            sliderEl.addEventListener('input', (e) => {
+                numEl.value = e.target.value;
+                resetGameStages();
+                calculate();
+            });
+
+            numEl.addEventListener('input', (e) => {
+                let val = parseInt(e.target.value);
+                if (isNaN(val)) return;
+                if (val < -50) val = -50;
+                if (val > 50) val = 50;
+                sliderEl.value = val;
+                resetGameStages();
+                calculate();
+            });
+
+            numEl.addEventListener('change', (e) => {
+                let val = parseInt(e.target.value);
+                if (isNaN(val)) val = 0;
+                numEl.value = val;
+                sliderEl.value = val;
+                resetGameStages();
+                calculate();
+            });
+        }
+
+        registerBiDirectionalSync(numA, sliderA);
+        registerBiDirectionalSync(numB, sliderB);
+        registerBiDirectionalSync(numC, sliderC);
+
+        // --- Core Math Logic & Stage Processing ---
         function calculate() {
-            // Get current inputs
-            const a = parseInt(inputA.value) || 0;
-            const b = parseInt(inputB.value) || 0;
-            const c = parseInt(inputC.value) || 0;
+            valA = parseInt(numA.value) || 0;
+            valB = parseInt(numB.value) || 0;
+            valC = parseInt(numC.value) || 0;
 
-            // Sync visual feedback sliders/values
-            valA.textContent = a;
-            valB.textContent = b;
-            valC.textContent = c;
+            valAC = valA * valC;
 
-            // Render current equation
-            const formattedEquation = formatQuadratic(a, b, c);
-            equationDisplay.textContent = formattedEquation;
+            // Update formula displays
+            const coloredEquation = formatColoredQuadratic(valA, valB, valC);
+            equationDisplay.innerHTML = coloredEquation;
+            equationHeaderDisplay.innerHTML = coloredEquation;
 
-            // Zero check
-            if (a === 0) {
-                showLinearSolver(b, c);
+            // Display overall initial GCF hint if present
+            computedOverallGCF = getGCD(valA, getGCD(valB, valC));
+            if (valA !== 0 && computedOverallGCF > 1) {
+                overallGcfHint.classList.remove('hidden');
+                overallGcfHint.querySelector('span').textContent = `💡 Hint: All coefficients share a Greatest Common Factor of ${computedOverallGCF}. Remember to account for this at the final stage!`;
+            } else {
+                overallGcfHint.classList.add('hidden');
+            }
+
+            // Zero safety check
+            if (valA === 0) {
+                handleLinearSolverFallback();
                 return;
             }
 
-            const ac = a * c;
-            factorSearchTarget.textContent = `ac = ${ac}, b = ${b}`;
-
-            // Find matching factors M and N
-            // (M * N = ac) and (M + N = b)
-            let matchingM = null;
-            let matchingN = null;
+            // Detect if factorable over integers
+            let checkM = null, checkN = null;
             let isFactorable = false;
-            let factorListHTML = '';
+            const absAc = Math.abs(valAC);
 
-            const absAc = Math.abs(ac);
-            const factorPairs = [];
-
-            // Special case for ac = 0
-            if (ac === 0) {
-                matchingM = b;
-                matchingN = 0;
+            if (valAC === 0) {
+                checkM = valB;
+                checkN = 0;
                 isFactorable = true;
-                factorPairs.push([b, 0]);
             } else {
-                // Find and list factor pairs of ac
                 for (let i = -absAc; i <= absAc; i++) {
                     if (i === 0) continue;
-                    if (ac % i === 0) {
-                        const companion = ac / i;
-                        // Avoid duplicates in the array listing
-                        if (!factorPairs.some(p => p[0] === companion && p[1] === i)) {
-                            factorPairs.push([i, companion]);
-                        }
-                        if (i + companion === b && !isFactorable) {
-                            matchingM = i;
-                            matchingN = companion;
+                    if (valAC % i === 0) {
+                        const companion = valAC / i;
+                        if (i + companion === valB) {
+                            checkM = i;
+                            checkN = companion;
                             isFactorable = true;
+                            break;
                         }
                     }
                 }
             }
 
-            // Build visual factor list table
-            if (factorPairs.length > 0) {
-                factorListHTML = `<table class="w-full text-left text-xs text-slate-400">
-                    <thead class="text-[10px] text-slate-500 uppercase font-sans border-b border-slate-800">
-                        <tr>
-                            <th class="pb-2">Factor 1</th>
-                            <th class="pb-2">Factor 2</th>
-                            <th class="pb-2">Product</th>
-                            <th class="pb-2">Sum (vs b)</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-                factorPairs.forEach(pair => {
-                    const isMatch = isFactorable &&
-                        ((pair[0] === matchingM && pair[1] === matchingN) ||
-                         (pair[0] === matchingN && pair[1] === matchingM));
-                    const sum = pair[0] + pair[1];
-                    const rowClass = isMatch
-                        ? 'bg-emerald-500/10 text-emerald-400 font-semibold border-y border-emerald-500/30'
-                        : 'hover:bg-slate-800/50 border-b border-slate-900';
+            isWorkspacePrime = !isFactorable;
 
-                    factorListHTML += `<tr class="${rowClass}">
-                        <td class="py-2.5 px-1">${pair[0]}</td>
-                        <td class="py-2.5 px-1">${pair[1]}</td>
-                        <td class="py-2.5 px-1">${pair[0] * pair[1]}</td>
-                        <td class="py-2.5 px-1 flex items-center gap-1">
-                            ${sum} ${isMatch ? '<span class="text-[9px] px-1 py-0.5 rounded bg-emerald-500 text-slate-950 font-sans font-black uppercase">MATCH</span>' : ''}
-                        </td>
-                    </tr>`;
+            // Generate Multiplication Grid
+            buildCompactMultiplicationGrid(valAC, checkM, checkN);
+
+            // Execute Stage Manager update
+            processStageManager();
+        }
+
+        // --- Renders Compact Rectangular multiplication chart ---
+        function buildCompactMultiplicationGrid(ac, matchM, matchN) {
+            multiplicationGrid.innerHTML = '';
+            const absAc = Math.abs(ac);
+
+            if (ac === 0) {
+                multiplicationGrid.innerHTML = `<p class="text-xs italic text-slate-400 py-3">ac = 0. Factors are simply b (${valB}) and 0.</p>`;
+                return;
+            }
+
+            // Determine positive factors of |ac|
+            const factors = [];
+            for (let i = 1; i <= Math.sqrt(absAc); i++) {
+                if (absAc % i === 0) {
+                    factors.push(i);
+                }
+            }
+
+            // Row headers: factors <= sqrt(ac)
+            const rowFactors = factors;
+            // Column headers: companion factor partners
+            const colFactors = rowFactors.map(f => absAc / f).reverse();
+
+            // Create table elements
+            const table = document.createElement('table');
+            table.className = "border-collapse border-2 border-slate-300 dark:border-slate-800 text-xs font-mono font-bold";
+
+            // 1. Header row
+            const trHeader = document.createElement('tr');
+            // Empty top-left spacer corner
+            const thCorner = document.createElement('th');
+            thCorner.className = "p-2 bg-slate-100 dark:bg-slate-950 text-slate-450 dark:text-slate-650 border border-slate-200 dark:border-slate-800 text-[10px] uppercase font-sans";
+            thCorner.innerHTML = "×";
+            trHeader.appendChild(thCorner);
+
+            colFactors.forEach(colVal => {
+                const th = document.createElement('th');
+                th.className = "p-2.5 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-350 border border-slate-200 dark:border-slate-800 font-extrabold text-sm text-center min-w-[50px]";
+                th.textContent = colVal;
+                trHeader.appendChild(th);
+            });
+            table.appendChild(trHeader);
+
+            // 2. Build rows
+            rowFactors.forEach(rowVal => {
+                const tr = document.createElement('tr');
+                // Row header element
+                const thRowHeader = document.createElement('th');
+                thRowHeader.className = "p-2.5 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-350 border border-slate-200 dark:border-slate-800 font-extrabold text-sm text-center";
+                thRowHeader.textContent = rowVal;
+                tr.appendChild(thRowHeader);
+
+                colFactors.forEach(colVal => {
+                    const cellVal = rowVal * colVal;
+                    const td = document.createElement('td');
+                    td.className = "p-2.5 border border-slate-200 dark:border-slate-800 text-center text-slate-600 dark:text-slate-400 select-none relative min-w-[50px] transition-all";
+                    td.textContent = cellVal;
+
+                    // If cell equals our absolute ac target, make it GLOW
+                    if (cellVal === absAc) {
+                        td.classList.add('glowing-cell', 'cursor-pointer', 'font-black', 'text-indigo-600', 'dark:text-indigo-400');
+
+                        // Check if this particular pair adds or subtracts to b
+                        // Support signed combinations: (r, c), (-r, -c), (r, -c), (-r, c)
+                        const testPairs = [
+                            { m: rowVal, n: colVal },
+                            { m: -rowVal, n: -colVal },
+                            { m: rowVal, n: -colVal },
+                            { m: -rowVal, n: colVal }
+                        ];
+
+                        const matchingCombination = testPairs.find(p => (p.m * p.n === ac) && (p.m + p.n === valB));
+
+                        td.addEventListener('click', () => {
+                            if (currentStage !== 2) {
+                                alert("Step 1 must be completed first! Place ax² and c into the area model.");
+                                return;
+                            }
+
+                            if (matchingCombination) {
+                                // Correct selection! Unlock and transition diagonal cells
+                                handleSuccessfulFactorClick(matchingCombination.m, matchingCombination.n);
+                            } else {
+                                alert(`These factors multiply to ${absAc}, but they don't add or subtract to reach coefficient b = ${valB}. Read the Sign Rule on the left to help narrow it down!`);
+                            }
+                        });
+                    }
+
+                    tr.appendChild(td);
                 });
-                factorListHTML += `</tbody></table>`;
-                factorListContainer.innerHTML = factorListHTML;
-            } else {
-                factorListContainer.innerHTML = `<div class="text-slate-500 text-xs py-8 text-center italic">No integer factors found.</div>`;
-            }
+                table.appendChild(tr);
+            });
 
-            if (isFactorable) {
-                renderFactorableSolution(a, b, c, matchingM, matchingN);
-            } else {
-                renderPrimeSolution(a, b, c);
+            multiplicationGrid.appendChild(table);
+            gridAcTarget.innerHTML = `Product <span class="text-indigo-500 font-bold">ac = ${ac}</span>, Sum <span class="text-emerald-500 font-bold">b = ${valB}</span>`;
+        }
+
+        // --- Stage State Management Loop ---
+        function processStageManager() {
+            // Setup base indicators
+            activeStageIndicator.textContent = `Stage ${currentStage}/5`;
+
+            // Reset stage widgets displays
+            draggableBlocksArea.classList.add('hidden');
+            gridWidgetContainer.classList.add('hidden');
+            gcfSelectorsArea.classList.add('hidden');
+            parenthesesSnapArea.classList.add('hidden');
+
+            switch (currentStage) {
+                case 1: // Stage 1: Placement of ax^2 and c
+                    headerStatusPill.textContent = "Setting Up Cells";
+                    headerStatusPill.className = "text-xs px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/20";
+                    gridCellCounter.textContent = `${(hasPlacedAx2?1:0) + (hasPlacedC?1:0)}/2 Base Placed`;
+
+                    stageInstructionsText.innerHTML = `
+                        <strong>Stage 1: Position your Base Blocks</strong><br>
+                        Click on the colored blocks below to select them, then click on their correct squares inside the 2x2 Area Model grid on the right:<br>
+                        - <span class="text-blue-600 dark:text-blue-400 font-bold">Leading Term (ax²)</span> belongs in the <strong>Top-Left</strong> box.<br>
+                        - <span class="text-purple-600 dark:text-purple-400 font-bold">Constant Term (c)</span> belongs in the <strong>Bottom-Right</strong> box.
+                    `;
+                    draggableBlocksArea.classList.remove('hidden');
+                    blockAx2Text.textContent = `${valA}x²`;
+                    blockCText.textContent = `${valC}`;
+
+                    // Highlight selected block buttons
+                    blockAx2.className = selectedBlockType === 'ax2'
+                        ? "px-4 py-2 bg-blue-600 text-white font-mono font-black text-sm rounded-xl shadow-lg border-2 border-white ring-2 ring-blue-500"
+                        : "px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-mono font-bold text-sm rounded-xl shadow-md border border-blue-400";
+
+                    blockC.className = selectedBlockType === 'c'
+                        ? "px-4 py-2 bg-purple-600 text-white font-mono font-black text-sm rounded-xl shadow-lg border-2 border-white ring-2 ring-purple-500"
+                        : "px-4 py-2 bg-purple-50 hover:bg-purple-600 text-white font-mono font-bold text-sm rounded-xl shadow-md border border-purple-400";
+
+                    // Bind active placement click handlers
+                    cellTl.onclick = () => handleCellPlacementClick('tl');
+                    cellBr.onclick = () => handleCellPlacementClick('br');
+                    cellTr.onclick = () => alert("Not yet! Diagonal squares are reserved for splitting terms in Stage 2.");
+                    cellBl.onclick = () => alert("Not yet! Diagonal squares are reserved for splitting terms in Stage 2.");
+
+                    // Verify progression
+                    if (hasPlacedAx2 && hasPlacedC) {
+                        currentStage = 2;
+                        processStageManager();
+                    }
+                    break;
+
+                case 2: // Stage 2: Finding factor pairs
+                    headerStatusPill.textContent = "Searching Factors";
+                    headerStatusPill.className = "text-xs px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold border border-indigo-200 dark:border-indigo-500/20";
+                    gridCellCounter.textContent = "2/4 Base Placed";
+
+                    gridWidgetContainer.classList.remove('hidden');
+
+                    // Calculate sign explanation text based on product ac and sum b
+                    let signRuleHTML = '';
+                    const productAc = valA * valC;
+                    if (productAc > 0) {
+                        const targetSign = valB >= 0 ? "positive (+)" : "negative (-)";
+                        const matchSign = valB >= 0 ? "positive" : "negative";
+                        signRuleHTML = `
+                            <div class="p-3.5 rounded-xl border border-indigo-200 dark:border-indigo-550/20 bg-indigo-50/20 dark:bg-indigo-950/5 space-y-1.5">
+                                <span class="font-extrabold text-indigo-600 dark:text-indigo-400 block uppercase tracking-wider text-xs"><i class="fa-solid fa-calculator"></i> Active Sign Rule</span>
+                                <p class="text-xs">
+                                    Since product <strong class="text-indigo-500 font-mono">ac = ${productAc}</strong> is positive, factors <strong>M</strong> and <strong>N</strong> must have the <strong>same sign</strong>.
+                                </p>
+                                <p class="text-xs">
+                                    Since coefficient <strong class="text-emerald-500 font-mono">b = ${valB}</strong> is ${targetSign}, both factors must be <span class="font-bold underline text-emerald-500 dark:text-emerald-400">${matchSign}</span>.
+                                </p>
+                            </div>
+                        `;
+                    } else {
+                        const targetSign = valB >= 0 ? "positive (+)" : "negative (-)";
+                        const dominantColor = valB >= 0 ? "positive" : "negative";
+                        signRuleHTML = `
+                            <div class="p-3.5 rounded-xl border border-indigo-200 dark:border-indigo-550/20 bg-indigo-50/20 dark:bg-indigo-950/5 space-y-1.5">
+                                <span class="font-extrabold text-indigo-600 dark:text-indigo-400 block uppercase tracking-wider text-xs"><i class="fa-solid fa-calculator"></i> Active Sign Rule</span>
+                                <p class="text-xs">
+                                    Since product <strong class="text-indigo-500 font-mono">ac = ${productAc}</strong> is negative, factors <strong>M</strong> and <strong>N</strong> must have <strong>different signs</strong>.
+                                </p>
+                                <p class="text-xs">
+                                    This means they will subtract to reach <strong>b</strong>. The factor with the larger absolute value takes the sign of <strong>b</strong> (<span class="font-bold underline text-emerald-500">${dominantColor}</span>).
+                                </p>
+                            </div>
+                        `;
+                    }
+
+                    stageInstructionsText.innerHTML = `
+                        <strong>Stage 2: Trace the Factors</strong><br>
+                        Analyze the glowing numbers in the multiplication grid on the right to search for coefficients.
+                        ${signRuleHTML}
+                    `;
+
+                    // Remove stage 1 click listeners
+                    cellTl.onclick = null;
+                    cellBr.onclick = null;
+                    break;
+
+                case 3: // Stage 3: GCF border extraction
+                    headerStatusPill.textContent = "Extracting GCF borders";
+                    headerStatusPill.className = "text-xs px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-200 dark:border-emerald-550/20";
+                    gridCellCounter.textContent = "4/4 Cells Placed";
+
+                    gcfSelectorsArea.classList.remove('hidden');
+
+                    // Calculate row and column GCF values mathematically
+                    const row1GCF_Coeff = Math.sign(valA) * getGCD(valA, factorsM);
+                    const col1GCF_Coeff = valA / row1GCF_Coeff;
+                    const col2GCF_Const = factorsM / row1GCF_Coeff;
+                    const row2GCF_Const = factorsN / col1GCF_Coeff;
+
+                    correctGCFAnswers.row1 = formatSimpleMathBinomial(row1GCF_Coeff, 0);
+                    correctGCFAnswers.row2 = row2GCF_Const >= 0 ? `+${row2GCF_Const}` : `${row2GCF_Const}`;
+                    correctGCFAnswers.col1 = formatSimpleMathBinomial(col1GCF_Coeff, 0);
+                    correctGCFAnswers.col2 = col2GCF_Const >= 0 ? `+${col2GCF_Const}` : `${col2GCF_Const}`;
+
+                    // Update instruction tips
+                    stageInstructionsText.innerHTML = `
+                        <strong>Stage 3: Calculate GCF Borders</strong><br>
+                        Click on one of the four dashed GCF borders on the Area Model on the right. Then, click the correct Greatest Common Factor button below to assign it.
+                    `;
+
+                    // Build dynamic multiple choice buttons for factors to keep Chromebook touch friendly
+                    buildGCFCandidateButtons(row1GCF_Coeff, row2GCF_Const, col1GCF_Coeff, col2GCF_Const);
+
+                    // Setup active borders click listeners
+                    setupGCFBorderClickListeners();
+                    break;
+
+                case 4: // Stage 4: Parenthesis transfer
+                    headerStatusPill.textContent = "Transferring Binomials";
+                    headerStatusPill.className = "text-xs px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 font-bold border border-purple-200 dark:border-purple-500/20";
+                    gridCellCounter.textContent = "Borders Complete";
+
+                    parenthesesSnapArea.classList.remove('hidden');
+
+                    factorBinomialRow = formatSimpleMathBinomial(
+                        Math.sign(valA) * getGCD(valA, factorsM),
+                        factorsN / (valA / (Math.sign(valA) * getGCD(valA, factorsM)))
+                    );
+                    factorBinomialCol = formatSimpleMathBinomial(
+                        valA / (Math.sign(valA) * getGCD(valA, factorsM)),
+                        factorsM / (Math.sign(valA) * getGCD(valA, factorsM))
+                    );
+
+                    stageInstructionsText.innerHTML = `
+                        <strong>Stage 4: Parentheses Transfer</strong><br>
+                        To finalize the factoring equation, transfer the row and column binomial expressions into conventional form below:<br>
+                        - Row Binomial: <strong class="text-emerald-500 font-mono">${factorBinomialRow}</strong><br>
+                        - Column Binomial: <strong class="text-blue-500 font-mono">${factorBinomialCol}</strong><br><br>
+                        Click both transfer buttons below to snap them into place!
+                    `;
+
+                    // Remove Stage 3 border click listeners
+                    gcfRow1.onclick = null; gcfRow2.onclick = null;
+                    gcfCol1.onclick = null; gcfCol2.onclick = null;
+
+                    // Bind snap button click listeners
+                    snapRowBtn.onclick = () => {
+                        parenPart1.textContent = factorBinomialRow;
+                        parenPart1.className = "text-emerald-600 dark:text-emerald-400 px-3 py-1.5 border border-emerald-500/30 rounded-xl font-bold bg-emerald-500/5 font-mono text-xl inline-block transition-all";
+                        hasSnappedRowBinomial = true;
+                        checkStage4Progression();
+                    };
+
+                    snapColBtn.onclick = () => {
+                        parenPart2.textContent = factorBinomialCol;
+                        parenPart2.className = "text-blue-600 dark:text-blue-400 px-3 py-1.5 border border-blue-500/30 rounded-xl font-bold bg-blue-500/5 font-mono text-xl inline-block transition-all";
+                        hasSnappedColBinomial = true;
+                        checkStage4Progression();
+                    };
+                    break;
+
+                case 5: // Stage 5: GCF overall warning & Victory page
+                    headerStatusPill.textContent = "Factoring Solved!";
+                    headerStatusPill.className = "text-xs px-3 py-1 rounded-full bg-emerald-500 text-white font-bold";
+                    gridCellCounter.textContent = "Excellent Job!";
+
+                    let finalGCFSimplifyHTML = '';
+                    if (computedOverallGCF > 1) {
+                        const finalA_divided = valA / computedOverallGCF;
+                        const finalB_divided = valB / computedOverallGCF;
+                        const finalC_divided = valC / computedOverallGCF;
+
+                        // Calculate standard factored parameters divided by GCF
+                        let finalRowCoeff = Math.sign(valA) * getGCD(valA, factorsM);
+                        let finalColCoeff = valA / finalRowCoeff;
+                        let finalColConst = factorsM / finalRowCoeff;
+                        let finalRowConst = factorsN / finalColCoeff;
+
+                        // Check if GCF factor can be mathematically extracted from Row or Column binomial
+                        let reducedRowCoeff = finalRowCoeff;
+                        let reducedRowConst = finalRowConst;
+                        let reducedColCoeff = finalColCoeff;
+                        let reducedColConst = finalColConst;
+
+                        let factorExtracted = false;
+                        let extractionGCD = getGCD(finalRowCoeff, finalRowConst);
+                        if (extractionGCD > 1) {
+                            reducedRowCoeff /= extractionGCD;
+                            reducedRowConst /= extractionGCD;
+                            factorExtracted = true;
+                        }
+
+                        let extractionGCD2 = getGCD(finalColCoeff, finalColConst);
+                        if (extractionGCD2 > 1) {
+                            reducedColCoeff /= extractionGCD2;
+                            reducedColConst /= extractionGCD2;
+                            factorExtracted = true;
+                        }
+
+                        const finalPart1 = formatSimpleMathBinomial(reducedRowCoeff, reducedRowConst);
+                        const finalPart2 = formatSimpleMathBinomial(reducedColCoeff, reducedColConst);
+
+                        finalGCFSimplifyHTML = `
+                            <div class="mt-4 p-4 rounded-xl border-2 border-dashed border-yellow-500/40 bg-yellow-500/10 text-slate-800 dark:text-slate-100 space-y-2 text-left">
+                                <h4 class="font-bold text-yellow-600 dark:text-yellow-400 flex items-center gap-1.5 text-sm">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> Check GCF Simplification!
+                                </h4>
+                                <p class="text-xs leading-relaxed">
+                                    Although we successfully factored the trinomial into <code class="font-bold">(${factorBinomialRow})(${factorBinomialCol})</code>, remember that all terms share a common factor of <strong>${computedOverallGCF}</strong>.
+                                </p>
+                                <p class="text-xs leading-relaxed font-semibold">
+                                    We must pull out the GCF to completely simplify our expression. Fully Factored Form:
+                                </p>
+                                <div class="p-2.5 bg-slate-100 dark:bg-slate-900 rounded-lg text-center font-mono text-md text-emerald-600 dark:text-emerald-400 font-black tracking-wide">
+                                    ${computedOverallGCF}(${finalPart1})(${finalPart2})
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    stageInstructionsText.innerHTML = `
+                        <div class="text-center space-y-3">
+                            <span class="text-4xl">🎉</span>
+                            <h3 class="text-md font-bold text-slate-900 dark:text-white">Factoring Solution Complete!</h3>
+                            <p class="text-xs">
+                                Excellent analysis! You successfully solved the trinomial equation. Click <strong>Practice Problem</strong> at the top to try another!
+                            </p>
+                            ${finalGCFSimplifyHTML}
+                        </div>
+                    `;
+
+                    // GCF Border values frozen
+                    setFrozenGCFBorders();
+                    break;
             }
         }
 
-        // Render solution for factorable polynomials
-        function renderFactorableSolution(a, b, c, M, N) {
-            visualizerContent.classList.remove('hidden');
+        function setFrozenGCFBorders() {
+            gcfRow1.textContent = correctGCFAnswers.row1;
+            gcfRow2.textContent = correctGCFAnswers.row2;
+            gcfCol1.textContent = correctGCFAnswers.col1;
+            gcfCol2.textContent = correctGCFAnswers.col2;
 
-            // 1. GCF Extraction logic
-            // Let Box: R1x + R2 and C1x + C2
-            // cell_tl = a (ax^2)
-            // cell_tr = M (Mx)
-            // cell_bl = N (Nx)
-            // cell_br = c (c)
+            gcfRow1.className = "flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 rounded-xl bg-emerald-500/15 font-mono font-bold text-lg";
+            gcfRow2.className = "flex items-center justify-center text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 rounded-xl bg-emerald-500/15 font-mono font-bold text-lg";
+            gcfCol1.className = "flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-500/30 rounded-xl bg-blue-500/15 font-mono font-bold text-lg";
+            gcfCol2.className = "flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-500/30 rounded-xl bg-blue-500/15 font-mono font-bold text-lg";
+        }
 
-            // R1 = GCF of Row 1 (a and M)
-            const r1Coeff = Math.sign(a) * getGCD(a, M);
-            const c1Coeff = a / r1Coeff;
-            const c2Const = M / r1Coeff;
-            const r2Const = N / c1Coeff;
+        // --- Stage 1 Handlers (Click Placement) ---
+        function handleCellPlacementClick(targetId) {
+            if (currentStage !== 1) return;
 
-            // Set Box values
-            cellTl.innerHTML = `${a}x²`;
-            cellTr.innerHTML = `${M}x`;
-            cellBl.innerHTML = `${N}x`;
-            cellBr.innerHTML = `${c}`;
+            if (!selectedBlockType) {
+                alert("Click on one of the floating block buttons below first (e.g. ax² or c) to select it!");
+                return;
+            }
 
-            // Set GCF row/col headers
-            gcfRow1.textContent = formatBinomial(r1Coeff, 0);
-            gcfRow2.textContent = r2Const >= 0 ? `+${r2Const}` : `${r2Const}`;
-            gcfCol1.textContent = formatBinomial(c1Coeff, 0);
-            gcfCol2.textContent = c2Const >= 0 ? `+${c2Const}` : `${c2Const}`;
+            if (selectedBlockType === 'ax2' && targetId === 'tl') {
+                cellTl.innerHTML = `<span class="text-3xl font-black text-blue-600 dark:text-blue-400 font-mono">${valA}x²</span><span class="text-[9px] text-slate-400 uppercase tracking-wider absolute bottom-1.5">ax² Box</span>`;
+                cellTl.className = "flex flex-col items-center justify-center border-2 border-solid border-blue-500 bg-blue-500/10 text-white font-mono shadow-inner relative overflow-hidden group";
+                hasPlacedAx2 = true;
+                selectedBlockType = null;
+                processStageManager();
+            } else if (selectedBlockType === 'c' && targetId === 'br') {
+                cellBr.innerHTML = `<span class="text-3xl font-black text-purple-600 dark:text-purple-400 font-mono">${valC}</span><span class="text-[9px] text-slate-400 uppercase tracking-wider absolute bottom-1.5">c Box</span>`;
+                cellBr.className = "flex flex-col items-center justify-center border-2 border-solid border-purple-500 bg-purple-500/10 text-white font-mono shadow-inner relative overflow-hidden group";
+                hasPlacedC = true;
+                selectedBlockType = null;
+                processStageManager();
+            } else {
+                alert(`Placement error! Remember, leading term ${valA}x² belongs in the top-left box, and constant term ${valC} belongs in the bottom-right box.`);
+            }
+        }
 
-            // Factor blocks
-            const factor1 = formatBinomial(r1Coeff, r2Const);
-            const factor2 = formatBinomial(c1Coeff, c2Const);
+        // Select floating block helper
+        blockAx2.addEventListener('click', () => {
+            if (currentStage !== 1) return;
+            selectedBlockType = 'ax2';
+            processStageManager();
+        });
 
-            // Set banner
-            statusBanner.className = "rounded-2xl p-5 border border-emerald-500/20 bg-emerald-500/10 text-slate-100 flex items-center gap-4 transition-all duration-300";
-            statusBanner.innerHTML = `
-                <div class="p-3 bg-emerald-500 text-slate-950 rounded-xl">
-                    <i class="fa-solid fa-circle-check text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-white text-md">Trinomial Successfully Factored!</h3>
-                    <p class="text-sm font-semibold text-emerald-400 mt-0.5 font-mono">(${factor1})(${factor2})</p>
-                </div>
-            `;
+        blockC.addEventListener('click', () => {
+            if (currentStage !== 1) return;
+            selectedBlockType = 'c';
+            processStageManager();
+        });
 
-            // Step-by-Step Explanation Text
+        // --- Stage 2 Successful Selection ---
+        function handleSuccessfulFactorClick(m, n) {
+            factorsM = m;
+            factorsN = n;
+            hasSelectedGridFactors = true;
+
+            // Animate flying diagonal values
+            cellTr.innerHTML = `<span class="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">${m}x</span><span class="text-[9px] text-slate-400 uppercase tracking-wider absolute bottom-1.5">Mx Box</span>`;
+            cellTr.className = "flex flex-col items-center justify-center border-2 border-solid border-emerald-500 bg-emerald-500/10 text-white font-mono shadow-inner relative overflow-hidden group animate-bounce";
+
+            cellBl.innerHTML = `<span class="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono">${n}x</span><span class="text-[9px] text-slate-400 uppercase tracking-wider absolute bottom-1.5">Nx Box</span>`;
+            cellBl.className = "flex flex-col items-center justify-center border-2 border-solid border-emerald-500 bg-emerald-500/10 text-white font-mono shadow-inner relative overflow-hidden group animate-bounce";
+
+            // Briefly stop bounce animations
+            setTimeout(() => {
+                cellTr.classList.remove('animate-bounce');
+                cellBl.classList.remove('animate-bounce');
+            }, 1000);
+
+            // GCF Calculation breakdown walkthrough
+            const row1GCF_Coeff = Math.sign(valA) * getGCD(valA, m);
+            const col1GCF_Coeff = valA / row1GCF_Coeff;
+            const col2GCF_Const = m / row1GCF_Coeff;
+            const row2GCF_Const = n / col1GCF_Coeff;
+
+            const fac1 = formatSimpleMathBinomial(row1GCF_Coeff, row2GCF_Const);
+            const fac2 = formatSimpleMathBinomial(col1GCF_Coeff, col2GCF_Const);
+
             stepByStepText.innerHTML = `
-                <div class="space-y-4">
-                    <div class="flex items-start gap-2">
-                        <span class="flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-[10px] text-white font-bold mt-0.5">1</span>
-                        <div>
-                            <span class="font-semibold text-white">Find product and target sum:</span>
-                            <p class="text-xs text-slate-400 mt-1">
-                                Product <code class="bg-slate-900 px-1 py-0.5 rounded text-blue-400">a × c = ${a} × ${c} = ${a*c}</code>.
-                                We seek two integers whose product is <code class="text-blue-400">${a*c}</code> and whose sum is coefficient <code class="bg-slate-900 px-1 py-0.5 rounded text-emerald-400">b = ${b}</code>.
-                            </p>
-                        </div>
+                <div class="space-y-3 font-mono text-[11px] text-slate-600 dark:text-slate-350">
+                    <div class="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
+                        <span>Target ac Product</span>
+                        <span class="font-bold text-indigo-500">${valA * valC}</span>
                     </div>
-                    <div class="flex items-start gap-2">
-                        <span class="flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-[10px] text-white font-bold mt-0.5">2</span>
-                        <div>
-                            <span class="font-semibold text-white">Identify correct factors:</span>
-                            <p class="text-xs text-slate-400 mt-1">
-                                Testing factors of ${a*c}... We discover that <code class="bg-slate-900 px-1.5 py-0.5 rounded text-emerald-400">${M}</code> and <code class="bg-slate-900 px-1.5 py-0.5 rounded text-emerald-400">${N}</code> satisfy the criteria:
-                                <br><span class="font-mono text-slate-300 block mt-1">(${M}) × (${N}) = ${M*N} &nbsp;&amp;&nbsp; (${M}) + (${N}) = ${M+N}</span>
-                            </p>
-                        </div>
+                    <div class="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
+                        <span>Target b Sum</span>
+                        <span class="font-bold text-emerald-500">${valB}</span>
                     </div>
-                    <div class="flex items-start gap-2">
-                        <span class="flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-[10px] text-white font-bold mt-0.5">3</span>
-                        <div>
-                            <span class="font-semibold text-white">Populate Box grid:</span>
-                            <p class="text-xs text-slate-400 mt-1">
-                                We divide the center term <code class="text-slate-300">${b}x</code> into <code class="text-emerald-400">${M}x</code> and <code class="text-emerald-400">${N}x</code>, then populate the 2x2 grid.
-                            </p>
-                        </div>
+                    <div class="flex justify-between border-b border-slate-100 dark:border-slate-800 pb-1">
+                        <span>Factor Split Matches</span>
+                        <span class="font-bold text-white">${m} &amp; ${n}</span>
                     </div>
-                    <div class="flex items-start gap-2">
-                        <span class="flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-[10px] text-white font-bold mt-0.5">4</span>
-                        <div>
-                            <span class="font-semibold text-white">Extract GCFs:</span>
-                            <ul class="text-xs text-slate-400 list-disc ml-4 space-y-1 mt-1">
-                                <li>GCF of Row 1 (${a}x² and ${M}x) = <code class="bg-slate-900 px-1 text-emerald-300">${formatBinomial(r1Coeff, 0)}</code></li>
-                                <li>GCF of Row 2 (${N}x and ${c}) = <code class="bg-slate-900 px-1 text-emerald-300">${r2Const >= 0 ? '+' : ''}${r2Const}</code></li>
-                                <li>GCF of Col 1 (${a}x² and ${N}x) = <code class="bg-slate-900 px-1 text-blue-300">${formatBinomial(c1Coeff, 0)}</code></li>
-                                <li>GCF of Col 2 (${M}x and ${c}) = <code class="bg-slate-900 px-1 text-blue-300">${c2Const >= 0 ? '+' : ''}${c2Const}</code></li>
-                            </ul>
-                        </div>
+                    <div class="pt-2">
+                        <span class="font-semibold block mb-1 uppercase text-[9px] text-slate-400 font-sans tracking-wide">Box Setup Equation Split:</span>
+                        <code class="block p-1.5 bg-slate-100 dark:bg-slate-900 rounded font-bold">${valA}x² + (${m}x + ${n}x) + ${valC}</code>
                     </div>
                 </div>
             `;
+
+            alert(`Match found! The factors are splitting into ${m}x and ${n}x and moving into place. Proceed to Stage 3!`);
+            currentStage = 3;
+            processStageManager();
         }
 
-        // Render solution for Prime Trinomials (Fallback to Quadratic Formula)
-        function renderPrimeSolution(a, b, c) {
-            // Apply styling changes to status banner
-            statusBanner.className = "rounded-2xl p-5 border border-yellow-500/20 bg-yellow-500/10 text-slate-100 flex items-center gap-4 transition-all duration-300";
-            statusBanner.innerHTML = `
-                <div class="p-3 bg-yellow-500 text-slate-950 rounded-xl">
-                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-white text-md">Prime Trinomial (Not Factorable over Integers)</h3>
-                    <p class="text-xs text-slate-400 mt-0.5">No factor pair of a×c adds up to b. Resolving using the Quadratic Formula...</p>
-                </div>
-            `;
+        // --- Stage 2 Prime Exit solver route ---
+        btnPrimeExit.addEventListener('click', () => {
+            if (currentStage !== 2) {
+                alert("The prime checker is only accessible during Stage 2: Finding factors.");
+                return;
+            }
 
-            // Clear visual box method headers or set to empty
-            cellTl.innerHTML = `${a}x²`;
+            if (isWorkspacePrime) {
+                // Correct! Solve using Quadratic formula fallback
+                handlePrimeSolverFallback();
+            } else {
+                alert("Incorrect! This trinomial actually has integer factors. Check the glowing multiplication cells again!");
+            }
+        });
+
+        // --- Stage 3 Handlers (Greatest Common Factors Buttons) ---
+        function buildGCFCandidateButtons(row1, row2, col1, col2) {
+            gcfOptionButtons.innerHTML = '';
+
+            // Generate list of unique candidate answers based on correct solutions
+            const correctSet = new Set([
+                row1.toString(),
+                row1 === 1 ? 'x' : (row1 === -1 ? '-x' : `${row1}x`),
+                col1.toString(),
+                col1 === 1 ? 'x' : (col1 === -1 ? '-x' : `${col1}x`),
+                row2 >= 0 ? `+${row2}` : `${row2}`,
+                col2 >= 0 ? `+${col2}` : `${col2}`
+            ]);
+
+            // Add basic mathematical distractors
+            const distractors = ['+1', '-1', '+2', '-2', '3x', '+4', '-5', 'x', '+10'];
+            distractors.forEach(d => {
+                if (correctSet.size < 10) correctSet.add(d);
+            });
+
+            // Convert to array and shuffle
+            const candidates = Array.from(correctSet).sort(() => Math.random() - 0.5);
+
+            candidates.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = "px-3 py-1.5 rounded-lg bg-slate-150 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-mono font-bold transition-all shadow-sm border border-slate-300 dark:border-slate-700";
+                btn.textContent = option;
+
+                btn.addEventListener('click', () => {
+                    if (!selectedGCFSlotId) {
+                        alert("Select a dashed GCF slot on the border of the Area Model grid first!");
+                        return;
+                    }
+                    verifyGCFAssignment(option);
+                });
+
+                gcfOptionButtons.appendChild(btn);
+            });
+        }
+
+        function setupGCFBorderClickListeners() {
+            gcfRow1.onclick = () => selectGCFSlot('row1', gcfRow1);
+            gcfRow2.onclick = () => selectGCFSlot('row2', gcfRow2);
+            gcfCol1.onclick = () => selectGCFSlot('col1', gcfCol1);
+            gcfCol2.onclick = () => selectGCFSlot('col2', gcfCol2);
+        }
+
+        function selectGCFSlot(slotId, element) {
+            selectedGCFSlotId = slotId;
+
+            // Clear prior active border indicator classes
+            gcfRow1.classList.remove('ring-2', 'ring-emerald-500');
+            gcfRow2.classList.remove('ring-2', 'ring-emerald-500');
+            gcfCol1.classList.remove('ring-2', 'ring-blue-500');
+            gcfCol2.classList.remove('ring-2', 'ring-blue-500');
+
+            const ringColor = slotId.startsWith('row') ? 'ring-emerald-500' : 'ring-blue-500';
+            element.classList.add('ring-2', ringColor);
+        }
+
+        function verifyGCFAssignment(enteredVal) {
+            const correctVal = correctGCFAnswers[selectedGCFSlotId];
+
+            // Normalize values for x strings representation (e.g. '+2x' vs '2x' or '1x' vs 'x')
+            const normalize = (s) => s.replace(/^\+/, '').replace(/^1x$/, 'x').trim();
+
+            if (normalize(enteredVal) === normalize(correctVal)) {
+                solvedGCFValues[selectedGCFSlotId] = enteredVal;
+
+                // Update physical slot display
+                const targetEl = document.getElementById(`gcf-${selectedGCFSlotId}`);
+                const colorTheme = selectedGCFSlotId.startsWith('row') ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10' : 'text-blue-600 dark:text-blue-400 bg-blue-500/10';
+
+                targetEl.innerHTML = `<span class="text-xs scale-90 text-slate-400">${selectedGCFSlotId.toUpperCase()}</span><span class="text-lg font-black font-mono">${enteredVal}</span>`;
+                targetEl.className = `flex flex-col items-center justify-center border-2 border-solid border-slate-350 dark:border-slate-700 rounded-xl ${colorTheme} transition-all font-mono text-sm shadow-inner`;
+                targetEl.onclick = null; // Unbind click listener
+
+                // Remove highlight ring indicators
+                targetEl.classList.remove('ring-2', 'ring-emerald-500', 'ring-blue-500');
+                selectedGCFSlotId = null;
+
+                // Check Stage Progression
+                checkGCFStageProgression();
+            } else {
+                alert(`Incorrect GCF! Test another candidate that divides the cells in this row or column.`);
+            }
+        }
+
+        function checkGCFStageProgression() {
+            const complete = Object.values(solvedGCFValues).every(v => v !== null);
+            if (complete) {
+                alert("Excellent math skills! All greatest common factors are assigned. Moving to Parenthesis Transfer!");
+                currentStage = 4;
+                processStageManager();
+            }
+        }
+
+        // --- Stage 4 Handlers ---
+        function checkStage4Progression() {
+            if (hasSnappedRowBinomial && hasSnappedColBinomial) {
+                // Success confetti celebration!
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+
+                parenthesesTargetBox.className = "text-3xl font-extrabold math-font py-3 tracking-wide text-slate-900 dark:text-white select-none flex items-center justify-center gap-1 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl animate-pulse";
+                currentStage = 5;
+                processStageManager();
+            }
+        }
+
+
+        // --- Fallback Solver Pages (Prime or Linear) ---
+        function handlePrimeSolverFallback() {
+            currentStage = 5; // Direct exit
+            activeStageIndicator.textContent = "Prime Formula Route";
+            headerStatusPill.textContent = "Prime Equation Resolved";
+            headerStatusPill.className = "text-xs px-3 py-1 rounded-full bg-amber-500 text-white font-bold";
+            gridCellCounter.textContent = "Quadratic Fallback";
+
+            gridWidgetContainer.classList.add('hidden');
+            draggableBlocksArea.classList.add('hidden');
+            gcfSelectorsArea.classList.add('hidden');
+            parenthesesSnapArea.classList.add('hidden');
+
+            cellTl.innerHTML = `<span class="text-3xl font-black text-blue-600 dark:text-blue-400 font-mono">${valA}x²</span>`;
+            cellBr.innerHTML = `<span class="text-3xl font-black text-purple-600 dark:text-purple-400 font-mono">${valC}</span>`;
             cellTr.innerHTML = "-";
             cellBl.innerHTML = "-";
-            cellBr.innerHTML = `${c}`;
 
-            gcfRow1.textContent = "";
-            gcfRow2.textContent = "";
-            gcfCol1.textContent = "";
-            gcfCol2.textContent = "";
+            resetGCFBorders();
 
-            // Quadratic formula calculations (Matches "Quadratic Formula" sheet [3])
-            const discriminant = (b * b) - (4 * a * c);
-            const axis = -b / (2 * a);
+            // Calculate Discriminant (Matches spreadsheet [3])
+            const discriminant = (valB * valB) - (4 * valA * valC);
+            const axis = -valB / (2 * valA);
 
             let rootText = "";
             if (discriminant < 0) {
-                // Complex Roots
                 const realPart = axis.toFixed(3);
-                const imagPart = (Math.sqrt(-discriminant) / (2 * a)).toFixed(3);
-                rootText = `<span class="text-yellow-400 font-semibold font-mono">x = ${realPart} ± ${imagPart}i</span> (Complex Conjugates)`;
+                const imagPart = (Math.sqrt(-discriminant) / (2 * valA)).toFixed(3);
+                rootText = `<span class="text-amber-500 font-bold font-mono">x = ${realPart} ± ${imagPart}i</span> (Complex Roots)`;
             } else if (discriminant === 0) {
-                rootText = `<span class="text-yellow-400 font-semibold font-mono">x = ${axis.toFixed(3)}</span> (One Real Double Root)`;
+                rootText = `<span class="text-amber-500 font-bold font-mono">x = ${axis.toFixed(3)}</span> (One Double Root)`;
             } else {
-                const root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
-                const root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
-                rootText = `<span class="text-yellow-400 font-semibold font-mono">x₁ = ${root1.toFixed(3)}</span> &nbsp;or&nbsp; <span class="text-yellow-400 font-semibold font-mono">x₂ = ${root2.toFixed(3)}</span>`;
+                const r1 = (-valB + Math.sqrt(discriminant)) / (2 * valA);
+                const r2 = (-valB - Math.sqrt(discriminant)) / (2 * valA);
+                rootText = `<span class="text-amber-500 font-bold font-mono">x₁ = ${r1.toFixed(3)}</span> or <span class="text-amber-500 font-bold font-mono">x₂ = ${r2.toFixed(3)}</span>`;
             }
 
-            stepByStepText.innerHTML = `
-                <div class="space-y-4">
-                    <p class="text-xs text-slate-400 leading-relaxed">
-                        Since this polynomial cannot be factored by integers using the box method, we fall back to the quadratic formula template:
+            stageInstructionsText.innerHTML = `
+                <div class="text-center space-y-2">
+                    <span class="text-3xl">⚠️</span>
+                    <h3 class="text-md font-bold text-slate-900 dark:text-white">Prime Quadratic Verified!</h3>
+                    <p class="text-xs">
+                        This expression cannot be factored over integers. Falling back to the quadratic formula calculations...
                     </p>
-                    <div class="bg-slate-900 border border-slate-850 p-4 rounded-xl space-y-2 text-xs font-mono">
-                        <div>a = ${a}, b = ${b}, c = ${c}</div>
-                        <div>b² = (${b})² = ${b*b}</div>
-                        <div>-4ac = -4(${a})(${c}) = ${-4*a*c}</div>
-                        <div>Discriminant (b² - 4ac) = ${discriminant}</div>
-                        <div>Axis of Symmetry (-b / 2a) = ${axis.toFixed(3)}</div>
-                        <div class="pt-2 border-t border-slate-800 mt-2 text-sm">
-                            <span class="text-slate-400 block mb-1">Roots:</span>
-                            ${rootText}
-                        </div>
+                </div>
+            `;
+
+            stepByStepText.innerHTML = `
+                <div class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl space-y-2 text-xs font-mono text-slate-600 dark:text-slate-300 shadow-inner">
+                    <div class="text-sm font-bold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-1 flex items-center gap-1.5 uppercase tracking-wide">
+                        <i class="fa-solid fa-square-root-variable text-blue-500"></i> Quadratic Formula Steps
+                    </div>
+                    <div>a = ${valA}, b = ${valB}, c = ${valC}</div>
+                    <div>b² = (${valB})² = ${valB * valB}</div>
+                    <div>-4ac = -4(${valA})(${valC}) = ${-4 * valA * valC}</div>
+                    <div class="font-bold text-slate-800 dark:text-white">Discriminant (b² - 4ac) = ${discriminant}</div>
+                    <div>Axis of Symmetry (-b/2a) = ${axis.toFixed(3)}</div>
+                    <div class="pt-2 border-t border-slate-200 dark:border-slate-800 mt-2 text-sm">
+                        <span class="text-slate-500 dark:text-slate-400 block mb-1">Calculated Roots:</span>
+                        ${rootText}
                     </div>
                 </div>
             `;
+
+            parenPart1.textContent = "N/A";
+            parenPart2.textContent = "Prime";
+            parenthesesTargetBox.className = "text-3xl font-black math-font py-3 tracking-wide text-amber-500/70 select-none flex items-center justify-center gap-1 border border-dashed border-amber-500/20 rounded-2xl bg-amber-500/5";
         }
 
-        // Linear equations handler
-        function showLinearSolver(b, c) {
-            statusBanner.className = "rounded-2xl p-5 border border-blue-500/20 bg-blue-500/10 text-slate-100 flex items-center gap-4";
-            statusBanner.innerHTML = `
-                <div class="p-3 bg-blue-500 text-slate-950 rounded-xl">
-                    <i class="fa-solid fa-arrow-trend-up text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-white text-md">Linear Equation Detected</h3>
-                    <p class="text-xs text-slate-400 mt-0.5">Coefficient a is 0. Factoring reduces to extraction of greatest common factor.</p>
-                </div>
-            `;
+        function handleLinearSolverFallback() {
+            currentStage = 5;
+            activeStageIndicator.textContent = "Linear Formula Route";
+            headerStatusPill.textContent = "Linear Equation Detected";
+            headerStatusPill.className = "text-xs px-3 py-1 rounded-full bg-blue-500 text-white font-bold";
+            gridCellCounter.textContent = "Linear GCF solver";
 
-            factorListContainer.innerHTML = `<div class="text-slate-500 text-xs py-8 text-center italic">Not a quadratic equation (a = 0).</div>`;
+            gridWidgetContainer.classList.add('hidden');
+            draggableBlocksArea.classList.add('hidden');
+            gcfSelectorsArea.classList.add('hidden');
+            parenthesesSnapArea.classList.add('hidden');
+
             cellTl.innerHTML = "0";
+            cellBr.innerHTML = `<span class="text-3xl font-black text-purple-650 dark:text-purple-400 font-mono">${valC}</span>`;
             cellTr.innerHTML = "-";
             cellBl.innerHTML = "-";
-            cellBr.innerHTML = `${c}`;
 
-            gcfRow1.textContent = "";
-            gcfRow2.textContent = "";
-            gcfCol1.textContent = "";
-            gcfCol2.textContent = "";
+            resetGCFBorders();
 
-            if (b === 0) {
-                stepByStepText.innerHTML = `<p class="text-xs text-slate-400">The expression is a constant value: <code class="bg-slate-900 px-1 py-0.5 rounded text-white">${c}</code>.</p>`;
+            if (valB === 0) {
+                stageInstructionsText.innerHTML = `
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        The expression is a constant value: <code class="bg-slate-100 dark:bg-slate-900 px-1.5 py-0.5 rounded text-slate-800 dark:text-white font-mono font-bold">${valC}</code>.
+                    </p>
+                `;
+                stepByStepText.textContent = "No variable present to factor.";
             } else {
-                const gcf = getGCD(b, c);
-                const factB = b / gcf;
-                const factC = c / gcf;
+                const gcf = getGCD(valB, valC);
+                const factB = valB / gcf;
+                const factC = valC / gcf;
                 const sign = factC >= 0 ? ' + ' : ' - ';
-                stepByStepText.innerHTML = `
+
+                stageInstructionsText.innerHTML = `
                     <div class="space-y-2">
-                        <span class="font-semibold text-white">GCF Extraction:</span>
-                        <p class="text-xs text-slate-400">
-                            Expression: <code class="bg-slate-900 px-1 py-0.5 rounded text-white">${b}x ${c >= 0 ? '+' : ''} ${c}</code>
-                            <br>GCF of coefficients is <code class="text-blue-400">${gcf}</code>.
-                            <br>Factored Form: <code class="text-emerald-400 font-mono font-bold">${gcf}(${factB}x ${sign}${Math.abs(factC)})</code>
+                        <span class="font-bold text-slate-900 dark:text-white text-xs block">Linear extraction resolved:</span>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Since coefficient a is 0, factorization simplifies to finding the Greatest Common Factor of terms: <code class="bg-slate-100 dark:bg-slate-900 px-1 py-0.5 rounded text-white font-mono">${valB}x ${valC >= 0 ? '+' : ''} ${valC}</code>.
                         </p>
                     </div>
                 `;
+
+                stepByStepText.innerHTML = `
+                    <div class="bg-slate-100 dark:bg-slate-900 p-4 border border-slate-200 dark:border-slate-800 rounded-xl space-y-1 text-xs font-mono">
+                        <div>GCF of terms: <code class="text-blue-500 font-bold">${gcf}</code></div>
+                        <div class="font-bold text-slate-800 dark:text-white">Factored Form:</div>
+                        <div class="p-2 bg-white dark:bg-slate-950 rounded border border-slate-200 dark:border-slate-800 text-center font-bold text-emerald-500 mt-1">
+                            ${gcf}(${factB}x ${sign}${Math.abs(factC)})
+                        </div>
+                    </div>
+                `;
             }
+
+            parenPart1.textContent = "N/A";
+            parenPart2.textContent = "Linear";
+            parenthesesTargetBox.className = "text-3xl font-black math-font py-3 tracking-wide text-blue-500/70 select-none flex items-center justify-center gap-1 border border-dashed border-blue-500/20 rounded-2xl bg-blue-500/5";
         }
 
-        // Initialize Calculation on page load
+
+        // --- Initialize calculations on load ---
         calculate();
 
-        // Event listeners for responsive automatic updates
-        inputA.addEventListener('input', calculate);
-        inputB.addEventListener('input', calculate);
-        inputC.addEventListener('input', calculate);
     </script>
 </body>
 </html>
