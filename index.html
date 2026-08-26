@@ -7,7 +7,7 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght=400;500&family=Inter:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -40,16 +40,17 @@
     </header>
 
     <!-- Main Content Layout -->
-    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 flex flex-col gap-8">
-        
-        <!-- Top Part: Controls and Area Model Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <!-- Left Column: Inputs & Instructions (5 Cols) -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8">
+
+        <!-- Main Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+            <!-- LEFT COLUMN: Dynamic Stages & Controls (Scrollable/Changes per stage) (5 Cols) -->
             <section class="lg:col-span-5 flex flex-col gap-6">
+
                 <!-- Control Panel Card -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-extrabold text-slate-950 flex items-center gap-2">
                             <i class="fa-solid fa-sliders text-blue-500"></i> Control Panel
                         </h2>
@@ -58,17 +59,17 @@
                         </button>
                     </div>
 
-                    <!-- Force a = 1 Checkbox -->
-                    <div class="mb-6 p-3 bg-slate-100 rounded-xl border border-slate-200 flex items-center gap-2.5">
-                        <input type="checkbox" id="force-a-one" class="w-4 h-4 text-blue-600 bg-slate-50 border-slate-300 rounded focus:ring-blue-500">
-                        <label for="force-a-one" class="text-sm font-bold text-slate-800 cursor-pointer">Force a = 1 (Simple Quadratics)</label>
-                    </div>
-                    
                     <div class="flex flex-col gap-6">
                         <!-- Coefficient A Group -->
                         <div class="space-y-1.5">
                             <div class="flex justify-between items-center">
-                                <label for="num-a" class="text-sm font-black uppercase tracking-wide text-slate-900">Coefficient a</label>
+                                <div class="flex items-center gap-2">
+                                    <label for="num-a" class="text-sm font-black uppercase tracking-wide text-slate-900">Coefficient a</label>
+                                    <div class="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                                        <input type="checkbox" id="force-a-one" class="w-3.5 h-3.5 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer">
+                                        <label for="force-a-one" class="text-[10px] font-black text-slate-600 cursor-pointer select-none">Force a=1</label>
+                                    </div>
+                                </div>
                                 <input type="number" id="num-a" value="2" class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div id="slider-container-a" class="relative flex items-center">
@@ -81,7 +82,7 @@
                                 <span>+50</span>
                             </div>
                         </div>
-                        
+
                         <!-- Coefficient B Group -->
                         <div class="space-y-1.5">
                             <div class="flex justify-between items-center">
@@ -98,7 +99,7 @@
                                 <span>+50</span>
                             </div>
                         </div>
-                        
+
                         <!-- Coefficient C Group -->
                         <div class="space-y-1.5">
                             <div class="flex justify-between items-center">
@@ -118,7 +119,27 @@
                     </div>
                 </div>
 
-                <!-- Sign Explanation Helper -->
+                <!-- STAGE 1 CARD: Find Overall GCF (Only appears if GCF > 1) -->
+                <div id="gcf-scaffolding-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md hidden">
+                    <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-compress text-blue-500"></i> Stage 1: Find Overall GCF
+                    </h3>
+                    <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                        All three coefficients share a common factor! Identify the **Greatest Common Factor** to divide and simplify before factoring:
+                    </p>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex justify-around text-xs font-mono mb-4 text-slate-700">
+                        <span id="gcf-label-a">a = 4</span>
+                        <span id="gcf-label-b">b = -42</span>
+                        <span id="gcf-label-c">c = 80</span>
+                    </div>
+                    <!-- Selection options -->
+                    <div id="gcf-options-container" class="flex flex-wrap gap-2 justify-center mb-4">
+                        <!-- Populated dynamically -->
+                    </div>
+                    <div id="gcf-explanation" class="text-xs text-slate-500 leading-relaxed text-center"></div>
+                </div>
+
+                <!-- STAGE 2 CARD: Sign Explanation Helper & Guidelines -->
                 <div id="sign-helper-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
                     <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-1.5">
                         <i class="fa-solid fa-graduation-cap text-indigo-500"></i> Pedagogical Sign Rules
@@ -130,70 +151,139 @@
                         <!-- Populated dynamically -->
                     </div>
                 </div>
+
+                <!-- STAGE 3 CARD: Multiplication Chart Selector (Shows when placing split factors) -->
+                <div id="multiplication-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md hidden">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
+                        <div>
+                            <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-table text-indigo-500"></i> Stage 3: Trace Products
+                            </h3>
+                            <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">Click a highlighted value matching absolute product |ac| to select factors.</p>
+                        </div>
+                        <div id="product-target-display" class="px-3 py-1 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl font-mono text-xs font-bold text-center">
+                            Target |ac| = 80
+                        </div>
+                    </div>
+
+                    <!-- Scrollable Grid Wrapper -->
+                    <div class="w-full overflow-x-auto custom-scrollbar">
+                        <div id="multiplication-chart-container" class="flex justify-center min-w-max p-1">
+                            <!-- Dynamically generated continuous chart -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STAGE 4 CARD: Interactive GCF Border Selection Buttons -->
+                <div id="gcf-border-selection-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md hidden">
+                    <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-puzzle-piece text-emerald-500"></i> Stage 4: Solve GCF Borders
+                    </h3>
+                    <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                        First, <strong>click an empty dashed slot</strong> on the outer border of the Area Model. Then, select its matching Greatest Common Factor below:
+                    </p>
+                    <div id="gcf-option-buttons" class="grid grid-cols-5 gap-2 justify-center mb-4">
+                        <!-- Shuffled candidate GCF buttons populated dynamically -->
+                    </div>
+                    <p class="text-[10px] text-slate-400 text-center italic">Each of the 4 borders must divide its row or column cells evenly.</p>
+                </div>
+
+                <!-- STAGE 5 CARD: Parentheses Snap Form Transfer -->
+                <div id="parenthesis-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md hidden">
+                    <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-right-to-bracket text-blue-500"></i> Stage 5: Conventional Form
+                    </h3>
+
+                    <!-- Click binomial outputs -->
+                    <div class="flex items-center justify-center gap-1 text-2xl font-bold math-font py-4 text-slate-400">
+                        <span id="parenthesis-gcf-prefix" class="text-slate-950 hidden"></span>
+                        <span class="text-slate-950">(</span>
+                        <div id="parenthesis-factor-1" class="min-w-[110px] px-3 py-1 border-2 border-dashed border-slate-300 rounded-xl text-center text-slate-300 text-sm select-none cursor-pointer hover:bg-slate-50 transition-all font-mono font-bold">Row Factor</div>
+                        <span class="text-slate-950">)(</span>
+                        <div id="parenthesis-factor-2" class="min-w-[110px] px-3 py-1 border-2 border-dashed border-slate-300 rounded-xl text-center text-slate-300 text-sm select-none cursor-pointer hover:bg-slate-50 transition-all font-mono font-bold">Col Factor</div>
+                        <span class="text-slate-950">)</span>
+                    </div>
+
+                    <p id="parenthesis-tips" class="text-xs text-slate-500 text-center leading-relaxed">Click 'Row Factor' or 'Col Factor' to slide your resolved binomial terms into place!</p>
+                </div>
+
             </section>
-            
-            <!-- Right Column: Interactive Area Model Grid (7 Cols) -->
-            <section class="lg:col-span-7 flex flex-col gap-6">
-                
+
+            <!-- RIGHT COLUMN: Stationary/Fixed Area Model Viewer (lg:sticky top-8) (7 Cols) -->
+            <section class="lg:col-span-7 flex flex-col gap-6 lg:sticky lg:top-8">
+
                 <!-- Active Equation Header -->
-                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-md flex flex-col items-center justify-center gap-3">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-md flex flex-col items-center justify-center gap-2">
                     <span class="text-xs uppercase font-extrabold tracking-widest text-slate-400">Active Polynomial Expression</span>
                     <div id="equation-display" class="text-3xl font-black text-slate-900 math-font py-1">
                         2x² - 21x + 40
                     </div>
                 </div>
 
-                <!-- Draggable Term Cards Container -->
+                <!-- Draggable/Clickable Term Cards Container -->
                 <div id="term-cards-container" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center gap-3">
                     <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Step 1: Place terms into Area Model</span>
                     <div class="flex gap-4">
-                        <div id="card-ax2" class="px-4 py-2 bg-blue-100 border border-blue-300 text-blue-700 font-mono font-bold rounded-xl cursor-pointer shadow-sm hover:scale-105 active:scale-95 transition-all text-sm select-none">2x²</div>
-                        <div id="card-c" class="px-4 py-2 bg-purple-100 border border-purple-300 text-purple-700 font-mono font-bold rounded-xl cursor-pointer shadow-sm hover:scale-105 active:scale-95 transition-all text-sm select-none">40</div>
+                        <!-- High contrast Solid Blue for ax2 -->
+                        <div id="card-ax2" class="px-5 py-2.5 bg-blue-600 text-white font-mono font-bold rounded-xl cursor-pointer shadow-sm hover:bg-blue-700 active:scale-95 transition-all text-sm select-none">2x²</div>
+                        <!-- High contrast Solid Purple for c -->
+                        <div id="card-c" class="px-5 py-2.5 bg-purple-600 text-white font-mono font-bold rounded-xl cursor-pointer shadow-sm hover:bg-purple-700 active:scale-95 transition-all text-sm select-none">40</div>
                     </div>
-                    <p class="text-[11px] text-slate-400 italic">Click on a card to automatically place it in its correct cell.</p>
+                    <p class="text-[11px] text-slate-400 italic text-center">Click on a card to automatically place it in its correct cell.</p>
                 </div>
 
-                <!-- Interactive 2x2 Area Model Area -->
+                <!-- Stationary 2x2 Area Model Grid -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center relative">
-                    <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-6 self-start flex items-center gap-1.5">
-                        <i class="fa-solid fa-table-cells-large text-purple-500"></i> The 2x2 Area Model
-                    </h3>
-                    
+                    <div class="flex w-full items-center justify-between mb-6 border-b border-slate-100 pb-2">
+                        <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-table-cells-large text-purple-500"></i> The 2x2 Area Model
+                        </h3>
+                        <span id="active-status-pill" class="px-2 py-0.5 bg-slate-100 text-slate-500 font-bold tracking-wide uppercase text-[9px] rounded-full border border-slate-200">Stage 1</span>
+                    </div>
+
                     <!-- Grid of GCFs and Area Model cells -->
                     <div class="relative grid grid-cols-3 grid-rows-3 gap-3 w-80 h-80 text-center text-sm font-bold select-none">
                         <!-- Top-Left Spacer -->
                         <div></div>
-                        
+
                         <!-- Col 1 GCF border -->
-                        <div id="gcf-col-1" class="flex items-center justify-center text-blue-600 border border-blue-500/20 rounded-2xl bg-blue-50 transition-all font-mono text-base border-2"></div>
-                        
+                        <div id="gcf-col-1" class="flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50">
+                            <!-- Clickable slot for GCF Border -->
+                        </div>
+
                         <!-- Col 2 GCF border -->
-                        <div id="gcf-col-2" class="flex items-center justify-center text-blue-600 border border-blue-500/20 rounded-2xl bg-blue-50 transition-all font-mono text-base border-2"></div>
-                        
+                        <div id="gcf-col-2" class="flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50">
+                            <!-- Clickable slot for GCF Border -->
+                        </div>
+
                         <!-- Row 1 GCF border -->
-                        <div id="gcf-row-1" class="flex items-center justify-center text-emerald-600 border border-emerald-500/20 rounded-2xl bg-emerald-50 transition-all font-mono text-base border-2"></div>
-                        
+                        <div id="gcf-row-1" class="flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50">
+                            <!-- Clickable slot for GCF Border -->
+                        </div>
+
                         <!-- Cell TL: ax² -->
                         <div id="cell-tl" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-900 font-mono transition-all duration-300">
                             <span class="text-2xl font-black"></span>
                             <span class="text-[9px] text-slate-400 font-sans font-normal uppercase mt-1">ax²</span>
                         </div>
-                        
+
                         <!-- Cell TR: Mx -->
                         <div id="cell-tr" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-600 font-mono transition-all duration-300">
                             <span class="text-2xl font-black"></span>
                             <span class="text-[9px] text-slate-400 font-sans font-normal uppercase mt-1">Mx</span>
                         </div>
-                        
+
                         <!-- Row 2 GCF border -->
-                        <div id="gcf-row-2" class="flex items-center justify-center text-emerald-600 border border-emerald-500/20 rounded-2xl bg-emerald-50 transition-all font-mono text-base border-2"></div>
-                        
+                        <div id="gcf-row-2" class="flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50">
+                            <!-- Clickable slot for GCF Border -->
+                        </div>
+
                         <!-- Cell BL: Nx -->
                         <div id="cell-bl" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-600 font-mono transition-all duration-300">
                             <span class="text-2xl font-black"></span>
                             <span class="text-[9px] text-slate-400 font-sans font-normal uppercase mt-1">Nx</span>
                         </div>
-                        
+
                         <!-- Cell BR: c -->
                         <div id="cell-br" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-900 font-mono transition-all duration-300">
                             <span class="text-2xl font-black"></span>
@@ -201,9 +291,9 @@
                         </div>
                     </div>
 
-                    <!-- Direct Manual Factor Entry Fields (m and n) -->
-                    <div class="mt-6 w-full max-w-sm border-t border-slate-100 pt-5 flex flex-col items-center gap-3">
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Step 2: Input Split Coefficients (M & N)</span>
+                    <!-- Direct Manual Factor Entry Fields (m and n - only appears in Factor Stage) -->
+                    <div id="factor-inputs-row" class="mt-6 w-full max-w-sm border-t border-slate-100 pt-5 flex flex-col items-center gap-3 hidden">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Or Input Split Coefficients Manually</span>
                         <div class="flex items-center gap-3">
                             <div class="flex items-center gap-1.5">
                                 <span class="text-sm font-mono text-emerald-600 font-black">M:</span>
@@ -217,65 +307,14 @@
                                 Apply Factors
                             </button>
                         </div>
-                        <p class="text-[10px] text-slate-400 text-center leading-relaxed">Or click the correct highlighted intersection product in the multiplication table below to populate M and N automatically!</p>
                     </div>
                 </div>
             </section>
         </div>
-
-        <!-- Bottom Part: Full-Width Positive Multiplication Chart Card -->
-        <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md w-full">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
-                <div>
-                    <h3 class="text-md font-extrabold text-slate-900 uppercase tracking-wide flex items-center gap-2">
-                        <i class="fa-solid fa-table text-indigo-500"></i> Positive Multiplication Chart (Factors Search)
-                    </h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Click on any highlighted value matching absolute product |ac| to select that factor row & column.</p>
-                </div>
-                <div id="product-target-display" class="px-4 py-1.5 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl font-mono text-sm font-bold text-center">
-                    Target |ac| = 80
-                </div>
-            </div>
-
-            <!-- Scrollable Grid Wrapper -->
-            <div class="w-full overflow-x-auto">
-                <div id="multiplication-chart-container" class="flex justify-center min-w-max p-2">
-                    <!-- Dynamically generated rectangular positive chart -->
-                </div>
-            </div>
-        </section>
-
-        <!-- Conventional Parentheses Formula Transfer Area -->
-        <section id="parenthesis-section" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center gap-4 transition-all duration-300">
-            <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                <i class="fa-solid fa-arrow-right-to-bracket text-blue-500"></i> Conventional Parenthesis Form
-            </h3>
-            
-            <!-- Drag-like click to fill binomial targets -->
-            <div class="flex items-center justify-center gap-2 text-2xl font-bold math-font py-4 text-slate-400">
-                <span class="text-slate-950">(</span>
-                <div id="parenthesis-factor-1" class="min-w-[120px] px-4 py-1.5 border-2 border-dashed border-slate-300 rounded-xl text-center text-slate-300 text-lg select-none cursor-pointer hover:bg-slate-50 transition-all">Row Factor</div>
-                <span class="text-slate-950">)(</span>
-                <div id="parenthesis-factor-2" class="min-w-[120px] px-4 py-1.5 border-2 border-dashed border-slate-300 rounded-xl text-center text-slate-300 text-lg select-none cursor-pointer hover:bg-slate-50 transition-all">Col Factor</div>
-                <span class="text-slate-950">)</span>
-            </div>
-
-            <!-- Action Tips -->
-            <p id="parenthesis-tips" class="text-xs text-slate-500">Complete the GCF borders on the Area Model first to reveal binomial click triggers.</p>
-
-            <!-- Warning Feedback overall GCF check -->
-            <div id="gcf-feedback-banner" class="hidden max-w-lg w-full rounded-xl border border-yellow-200 bg-yellow-50 p-4 flex gap-3 text-slate-800">
-                <div class="text-yellow-600 text-lg"><i class="fa-solid fa-circle-exclamation"></i></div>
-                <div class="text-xs leading-relaxed">
-                    <span class="font-bold block text-yellow-800 mb-0.5">Teacher's Hint: Complete Simplification Possible!</span>
-                    You factored the polynomial, but notice that one or both parentheses still contain terms sharing a common numerical factor. Try pulling out the greatest common factor across the whole trinomial first to make calculations simpler!
-                </div>
-            </div>
-        </section>
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400">
+    <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
         <div class="max-w-6xl mx-auto px-4">
             <p>Interactive Area Model designed for math worksheets, classroom displays, and Chromebook deployments.</p>
         </div>
@@ -283,13 +322,29 @@
 
     <!-- Interactive App Script -->
     <script>
-        // State Variables
-        let currentStage = 1; // 1: Blank, 2: TL & BR placed, 3: Diagonals placed (M, N), 4: GCFs solved
+        // State Machine Variables
+        let currentStage = 1; // 1: Blank/GCF pre-check, 2: Placements active, 3: Factors active (M/N), 4: Border GCFs active, 5: Parents active
         let placedTL = false;
         let placedBR = false;
+        let isGCFSolved = false;
+        let pulledGCF = 1;
+
         let activeA = 2;
         let activeB = -21;
         let activeC = 40;
+
+        // Simplified active working values
+        let workA = 2;
+        let workB = -21;
+        let workC = 40;
+
+        let factorsM = 0;
+        let factorsN = 0;
+
+        // GCF Border Solutions
+        let correctGCFBorders = { row1: "", row2: "", col1: "", col2: "" };
+        let solvedGCFBorders = { row1: null, row2: null, col1: null, col2: null };
+        let selectedGCFSlotId = null;
 
         // DOM Elements
         const numA = document.getElementById('num-a');
@@ -307,33 +362,52 @@
         const signRulesText = document.getElementById('sign-rules-text');
         const productTargetDisplay = document.getElementById('product-target-display');
         const multiplicationChartContainer = document.getElementById('multiplication-chart-container');
+        const activeStatusPill = document.getElementById('active-status-pill');
 
-        // Card Blocks
+        // Dynamic Stage Cards on Left Panel
+        const gcfScaffoldingCard = document.getElementById('gcf-scaffolding-card');
+        const signHelperCard = document.getElementById('sign-helper-card');
+        const multiplicationCard = document.getElementById('multiplication-card');
+        const gcfBorderSelectionCard = document.getElementById('gcf-border-selection-card');
+        const parenthesisCard = document.getElementById('parenthesis-card');
+
+        // Stage 1 GCF Selection elements
+        const gcfOptionsContainer = document.getElementById('gcf-options-container');
+        const gcfExplanation = document.getElementById('gcf-explanation');
+        const gcfLabelA = document.getElementById('gcf-label-a');
+        const gcfLabelB = document.getElementById('gcf-label-b');
+        const gcfLabelC = document.getElementById('gcf-label-c');
+
+        // Stage 4 GCF Border buttons
+        const gcfOptionButtons = document.getElementById('gcf-option-buttons');
+
+        // Card Blocks on right
         const cardAx2 = document.getElementById('card-ax2');
         const cardC = document.getElementById('card-c');
         const termCardsContainer = document.getElementById('term-cards-container');
 
-        // Box Grid Cells
+        // Area Model Grid Cells
         const cellTl = document.getElementById('cell-tl');
         const cellTr = document.getElementById('cell-tr');
         const cellBl = document.getElementById('cell-bl');
         const cellBr = document.getElementById('cell-br');
-        
+
         const gcfRow1 = document.getElementById('gcf-row-1');
         const gcfRow2 = document.getElementById('gcf-row-2');
         const gcfCol1 = document.getElementById('gcf-col-1');
         const gcfCol2 = document.getElementById('gcf-col-2');
 
-        // Factor entry elements
+        // GCF manual factoring elements on right
+        const factorInputsRow = document.getElementById('factor-inputs-row');
         const inputM = document.getElementById('input-m');
         const inputN = document.getElementById('input-n');
         const btnApplyMn = document.getElementById('btn-apply-mn');
 
-        // Parenthesis items
+        // Stage 5 Parenthesis Elements
+        const parenthesisGCFPrefix = document.getElementById('parenthesis-gcf-prefix');
         const parenthesisFactor1 = document.getElementById('parenthesis-factor-1');
         const parenthesisFactor2 = document.getElementById('parenthesis-factor-2');
         const parenthesisTips = document.getElementById('parenthesis-tips');
-        const gcfFeedbackBanner = document.getElementById('gcf-feedback-banner');
 
         // Greatest Common Factor calculation helper
         function getGCD(x, y) {
@@ -390,7 +464,7 @@
             resetStageAndRecalculate();
         });
 
-        // Standard quadratic formatting strings
+        // Standard trinomial formatting strings
         function formatTerm(coeff, variable, isLeading = false) {
             if (coeff === 0) return '';
             let sign = coeff > 0 ? ' + ' : ' - ';
@@ -402,7 +476,7 @@
             return `${sign}${coeffStr}${variable}`;
         }
 
-        function formatQuadratic(a, b, c) {
+        function formatTrinomial(a, b, c) {
             const partA = formatTerm(a, 'x²', true);
             const partB = formatTerm(b, 'x');
             const partC = formatTerm(c, '');
@@ -422,37 +496,52 @@
             currentStage = 1;
             placedTL = false;
             placedBR = false;
-            
+            isGCFSolved = false;
+            pulledGCF = 1;
+            selectedGCFSlotId = null;
+
+            solvedGCFBorders = { row1: null, row2: null, col1: null, col2: null };
+            correctGCFBorders = { row1: "", row2: "", col1: "", col2: "" };
+
             // Clear Grid labels
             cellTl.querySelector('span').textContent = "";
             cellTr.querySelector('span').textContent = "";
             cellBl.querySelector('span').textContent = "";
             cellBr.querySelector('span').textContent = "";
-            
+
             // Clear Borders
             gcfRow1.textContent = "";
             gcfRow2.textContent = "";
             gcfCol1.textContent = "";
             gcfCol2.textContent = "";
 
-            // Clear borders style classes
+            // Reset borders design styles
             cellTl.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-900 font-mono transition-all duration-300";
             cellBr.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-900 font-mono transition-all duration-300";
             cellTr.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-600 font-mono transition-all duration-300";
             cellBl.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-600 font-mono transition-all duration-300";
+
+            // Reset border click layouts
+            gcfRow1.className = "flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50";
+            gcfRow2.className = "flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50";
+            gcfCol1.className = "flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50";
+            gcfCol2.className = "flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50";
 
             // Reset Cards
             cardAx2.classList.remove('opacity-20', 'pointer-events-none');
             cardC.classList.remove('opacity-20', 'pointer-events-none');
             termCardsContainer.classList.remove('hidden');
 
+            // Reset Parentheses GCF
+            parenthesisGCFPrefix.classList.add('hidden');
+            parenthesisGCFPrefix.textContent = "";
+
             // Clear Parentheses
             parenthesisFactor1.textContent = "Row Factor";
             parenthesisFactor2.textContent = "Col Factor";
-            parenthesisFactor1.className = "min-w-[120px] px-4 py-1.5 border-2 border-dashed border-slate-300 rounded-xl text-center text-slate-300 text-lg select-none cursor-pointer hover:bg-slate-50 transition-all";
-            parenthesisFactor2.className = "min-w-[120px] px-4 py-1.5 border-2 border-dashed border-slate-300 rounded-xl text-center text-slate-300 text-lg select-none cursor-pointer hover:bg-slate-50 transition-all";
+            parenthesisFactor1.className = "min-w-[110px] px-3 py-1 border-2 border-dashed border-slate-300 rounded-xl text-center text-slate-300 text-sm select-none cursor-pointer hover:bg-slate-50 transition-all font-mono font-bold";
+            parenthesisFactor2.className = "min-w-[110px] px-3 py-1 border-2 border-dashed border-slate-300 rounded-xl text-center text-slate-300 text-sm select-none cursor-pointer hover:bg-slate-50 transition-all font-mono font-bold";
             parenthesisTips.textContent = "Complete the GCF borders on the Area Model first to reveal binomial click triggers.";
-            gcfFeedbackBanner.classList.add('hidden');
 
             // Clear input fields
             inputM.value = "";
@@ -469,45 +558,102 @@
 
             // Safe zero fallback validation
             if (activeA === 0) {
-                equationDisplay.textContent = formatQuadratic(0, activeB, activeC);
-                targetDescription.innerHTML = "Quadratic coefficient <code>a</code> cannot be zero for Area Model factoring.";
+                equationDisplay.textContent = formatTrinomial(0, activeB, activeC);
+                targetDescription.innerHTML = "Leading coefficient <code>a</code> cannot be zero for Area Model factoring.";
                 signRulesText.innerHTML = "Please adjust slider <code>a</code> to a non-zero value.";
                 multiplicationChartContainer.innerHTML = "";
+                gcfScaffoldingCard.classList.add('hidden');
                 termCardsContainer.classList.add('hidden');
+                factorInputsRow.classList.add('hidden');
+                multiplicationCard.classList.add('hidden');
+                gcfBorderSelectionCard.classList.add('hidden');
+                parenthesisCard.classList.add('hidden');
                 return;
             }
 
-            // Format text display card
-            equationDisplay.textContent = formatQuadratic(activeA, activeB, activeC);
+            // Calculate overall shared factor
+            let overallGCD = getGCD(activeA, getGCD(activeB, activeC));
 
-            // Update term blocks contents
-            cardAx2.textContent = activeA === 1 ? 'x²' : `${activeA}x²`;
-            cardC.textContent = activeC.toString();
+            // Setup current interactive workspace values based on GCF solution
+            if (overallGCD > 1 && !isGCFSolved) {
+                currentStage = 1;
+                activeStatusPill.textContent = "Stage 1: Find Overall GCF";
+                activeStatusPill.className = "px-2 py-0.5 bg-blue-100 text-blue-600 font-bold tracking-wide uppercase text-[9px] rounded-full border border-blue-200 animate-pulse";
 
-            const ac = activeA * activeC;
+                equationDisplay.textContent = formatTrinomial(activeA, activeB, activeC);
+
+                // Show GCF stage selection card, lock everything else
+                gcfScaffoldingCard.classList.remove('hidden');
+                signHelperCard.classList.add('hidden');
+                termCardsContainer.classList.add('hidden');
+                factorInputsRow.classList.add('hidden');
+                multiplicationCard.classList.add('hidden');
+                gcfBorderSelectionCard.classList.add('hidden');
+                parenthesisCard.classList.add('hidden');
+
+                gcfLabelA.textContent = `a = ${activeA}`;
+                gcfLabelB.textContent = `b = ${activeB}`;
+                gcfLabelC.textContent = `c = ${activeC}`;
+
+                generateGCFOptions(overallGCD);
+
+                // Working variables default to unsimplified until GCF is solved
+                workA = activeA;
+                workB = activeB;
+                workC = activeC;
+                return;
+            } else {
+                // No GCF, or GCF is solved successfully!
+                if (overallGCD === 1) {
+                    isGCFSolved = true;
+                    pulledGCF = 1;
+                    workA = activeA;
+                    workB = activeB;
+                    workC = activeC;
+                    equationDisplay.textContent = formatTrinomial(workA, workB, workC);
+                } else {
+                    // GCF > 1 and solved
+                    pulledGCF = overallGCD;
+                    workA = activeA / pulledGCF;
+                    workB = activeB / pulledGCF;
+                    workC = activeC / pulledGCF;
+                    equationDisplay.textContent = `${pulledGCF}(${formatTrinomial(workA, workB, workC)})`;
+                }
+
+                gcfScaffoldingCard.classList.add('hidden');
+                signHelperCard.classList.remove('hidden');
+            }
+
+            // Update draggable cards to match simplified/work coefficients
+            cardAx2.textContent = workA === 1 ? 'x²' : `${workA}x²`;
+            cardC.textContent = workC.toString();
+
+            const ac = workA * workC;
             const absAc = Math.abs(ac);
+
+            // Trigger visual progress slider rendering
+            manageLayoutProgressFlow();
 
             // 1. Dynamic target descriptions and calculations
             productTargetDisplay.textContent = `Target |ac| = ${absAc}`;
-            targetDescription.innerHTML = `We are looking for two factors of the product <span class="text-indigo-600 font-bold">ac = ${ac}</span> that sum to <span class="text-emerald-600 font-bold">b = ${activeB}</span>.`;
+            targetDescription.innerHTML = `We are looking for two factors of the product <span class="text-indigo-600 font-bold">ac = ${ac}</span> that sum to <span class="text-emerald-600 font-bold">b = ${workB}</span>.`;
 
             // 2. Generate Sign Rules text dynamic guide
             let ruleHTML = "";
             if (ac > 0) {
-                ruleHTML += `<p>🔍 <strong>Sign Rule (ac is positive):</strong> Since the product of active terms is positive, both factors <em>M</em> and <em>N</em> must have the <strong>same sign</strong> (both positive or both negative) to multiply to ${ac}.</p>`;
-                if (activeB > 0) {
-                    ruleHTML += `<p>💡 Since coefficient <em>b</em> is positive (${activeB}), both factors <strong>M and N must be positive</strong>.</p>`;
-                } else if (activeB < 0) {
-                    ruleHTML += `<p>💡 Since coefficient <em>b</em> is negative (${activeB}), both factors <strong>M and N must be negative</strong>.</p>`;
+                ruleHTML += `<p>🔍 <strong>Sign Rule (ac is positive):</strong> Since product <em>ac</em> is positive, factors <em>M</em> and <em>N</em> must have the <strong>same sign</strong> (both positive or both negative) to multiply to ${ac}.</p>`;
+                if (workB > 0) {
+                    ruleHTML += `<p>💡 Since coefficient <em>b</em> is positive (${workB}), <strong>both factors M and N must be positive</strong>.</p>`;
+                } else if (workB < 0) {
+                    ruleHTML += `<p>💡 Since coefficient <em>b</em> is negative (${workB}), <strong>both factors M and N must be negative</strong>.</p>`;
                 } else {
-                    ruleHTML += `<p>💡 Since <em>b</em> is 0, these factors must sum to 0 (which is impossible if ac is positive over integers).</p>`;
+                    ruleHTML += `<p>💡 Since <em>b</em> is 0, factors must sum to 0 (which is impossible if ac is positive over integers).</p>`;
                 }
             } else if (ac < 0) {
-                ruleHTML += `<p>🔍 <strong>Sign Rule (ac is negative):</strong> Since the product of active terms is negative, both factors <em>M</em> and <em>N</em> must have <strong>different signs</strong> (one positive, one negative) to multiply to ${ac}.</p>`;
-                ruleHTML += `<p>💡 This means their values will subtract to reach <em>b</em>. The factor with the larger absolute value will take the sign of coefficient <strong>b (${activeB >= 0 ? '+' : '-'})</strong>.</p>`;
+                ruleHTML += `<p>🔍 <strong>Sign Rule (ac is negative):</strong> Since product <em>ac</em> is negative, factors <em>M</em> and <em>N</em> must have <strong>different signs</strong> (one positive, one negative) to multiply to ${ac}.</p>`;
+                ruleHTML += `<p>💡 This means their values will subtract to reach <em>b</em>. The factor with the larger absolute value will take the sign of coefficient <strong>b (${workB >= 0 ? '+' : '-'})</strong>.</p>`;
             } else {
-                // ac = 0
-                ruleHTML += `<p>Since ac is 0, the factors are simply ${activeB} and 0.</p>`;
+                ruleHTML += `<p>Since ac is 0, the factors are simply ${workB} and 0.</p>`;
             }
             signRulesText.innerHTML = ruleHTML;
 
@@ -515,60 +661,98 @@
             generatePositiveMultiplicationChart(absAc);
         }
 
-        // Generates compact positive rectangular factor table
+        // Generates GCF Choice Buttons dynamically
+        function generateGCFOptions(correctGCF) {
+            gcfOptionsContainer.innerHTML = "";
+
+            // Build candidates list: 1, correctGCF, and a distractor divisor or multiplier
+            const candidates = new Set([1, correctGCF]);
+            if (correctGCF % 2 === 0) {
+                candidates.add(2);
+            }
+            candidates.add(correctGCF * 2);
+            candidates.add(correctGCF + 1);
+
+            const optionsArray = Array.from(candidates).filter(v => v > 0 && v <= 50).slice(0, 4);
+            optionsArray.sort((a, b) => a - b);
+
+            optionsArray.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "px-4 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-95";
+                btn.textContent = opt === 1 ? "1 (No GCF)" : opt.toString();
+                btn.onclick = () => checkGCFSelection(opt, correctGCF);
+                gcfOptionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkGCFSelection(selected, correct) {
+            if (selected === correct) {
+                isGCFSolved = true;
+                gcfScaffoldingCard.classList.add('bg-emerald-50', 'border-emerald-300');
+                gcfExplanation.innerHTML = `<span class="text-emerald-700 font-bold"><i class="fa-solid fa-circle-check"></i> Correct! The overall GCF is ${correct}. Simplifying standard terms...</span>`;
+
+                setTimeout(() => {
+                    gcfScaffoldingCard.classList.remove('bg-emerald-50', 'border-emerald-300');
+                    gcfExplanation.innerHTML = "";
+                    calculate();
+                }, 1000);
+            } else {
+                gcfExplanation.innerHTML = `<span class="text-red-600 font-bold"><i class="fa-solid fa-circle-xmark"></i> Incorrect GCF. Try finding the greatest integer that divides all three evenly!</span>`;
+            }
+        }
+
+        // Generates complete positive continuous rectangular factor table without skipping rows or columns!
         function generatePositiveMultiplicationChart(absAc) {
             multiplicationChartContainer.innerHTML = "";
             if (absAc === 0) {
-                multiplicationChartContainer.innerHTML = `<div class="text-slate-400 italic text-sm py-4">Target product ac is 0. No chart needed.</div>`;
                 return;
             }
 
-            // Calculate positive factors
-            const factors = [];
-            for (let i = 1; i <= Math.sqrt(absAc); i++) {
-                if (absAc % i === 0) {
-                    factors.push(i);
-                }
+            // Row headers are completely continuous from 1 up to sqrt(absAc)
+            const maxRowFactor = Math.floor(Math.sqrt(absAc));
+            const rowHeaders = [];
+            for (let i = 1; i <= maxRowFactor; i++) {
+                rowHeaders.push(i);
             }
 
-            if (factors.length === 0) return;
-
-            // Row Headers (Factors less than or equal to sqrt(ac))
-            const rowHeaders = [...factors];
-            // Col Headers (Companion factors)
-            const colHeaders = factors.map(f => absAc / f).reverse();
+            // Column headers are completely continuous from 1 up to absAc
+            const maxColFactor = absAc;
+            const colHeaders = [];
+            for (let j = 1; j <= maxColFactor; j++) {
+                colHeaders.push(j);
+            }
 
             // Construct HTML table dynamically
-            let tableHTML = `<table class="border-collapse border-2 border-slate-200 text-sm font-mono shadow-sm">
+            let tableHTML = `<table class="border-collapse border-2 border-slate-200 text-xs font-mono shadow-sm">
                 <thead>
                     <tr class="bg-slate-100">
-                        <th class="border-2 border-slate-200 px-3 py-2 text-slate-500 font-sans text-xs">×</th>`;
-            
+                        <th class="border-2 border-slate-200 px-2.5 py-1.5 text-slate-500 font-sans text-[10px]">×</th>`;
+
             // Col Headers
             colHeaders.forEach(col => {
-                tableHTML += `<th class="border-2 border-slate-200 px-3 py-2 text-indigo-600 bg-indigo-50/50">${col}</th>`;
+                tableHTML += `<th class="border-2 border-slate-200 px-2.5 py-1.5 text-indigo-600 bg-indigo-50/50">${col}</th>`;
             });
             tableHTML += `</tr></thead><tbody>`;
 
-            // BodyRows
+            // Body Rows
             rowHeaders.forEach(row => {
                 tableHTML += `<tr>
-                    <td class="border-2 border-slate-200 px-3 py-2 bg-indigo-50/50 text-indigo-600 font-bold text-center">${row}</td>`;
+                    <td class="border-2 border-slate-200 px-2.5 py-1.5 bg-indigo-50/50 text-indigo-600 font-bold text-center">${row}</td>`;
                 colHeaders.forEach(col => {
                     const product = row * col;
                     const isTargetMatch = (product === absAc);
-                    
-                    let cellClass = "border-2 border-slate-200 px-4 py-2.5 text-center text-slate-400 cursor-not-allowed";
+
+                    let cellClass = "border border-slate-200 px-2.5 py-1.5 text-center text-slate-300 bg-white";
                     let actionAttr = "";
 
                     if (isTargetMatch) {
-                        cellClass = "border-2 border-emerald-300 px-4 py-2.5 text-center text-emerald-700 bg-emerald-50 font-black cursor-pointer hover:bg-emerald-100/80 hover:scale-105 active:scale-95 transition-all shadow-inner relative overflow-hidden group";
+                        cellClass = "border-2 border-emerald-300 px-2.5 py-1.5 text-center text-emerald-700 bg-emerald-50 font-black cursor-pointer hover:bg-emerald-100 hover:scale-105 active:scale-95 transition-all shadow-inner relative overflow-hidden group";
                         actionAttr = `onclick="selectChartFactors(${row}, ${col})"`;
                     }
-                    
+
                     tableHTML += `<td class="${cellClass}" ${actionAttr}>
                         ${product}
-                        ${isTargetMatch ? '<span class="absolute inset-x-0 bottom-0 text-[7px] text-emerald-600 uppercase tracking-widest font-bold opacity-0 group-hover:opacity-100 transition-opacity">Select</span>' : ''}
+                        ${isTargetMatch ? '<span class="absolute inset-x-0 bottom-0 text-[6px] text-emerald-600 uppercase tracking-widest font-black opacity-0 group-hover:opacity-100 transition-opacity">Select</span>' : ''}
                     </td>`;
                 });
                 tableHTML += `</tr>`;
@@ -580,33 +764,29 @@
 
         // Triggers when student clicks a highlighted matching product on chart
         function selectChartFactors(f1, f2) {
-            // Prompt them with target values matching signs from input boxes
-            const ac = activeA * activeC;
+            const ac = workA * workC;
             let m = f1;
             let n = f2;
 
-            // Deduce signs automatically based on mathematics rules to help bridge understanding
+            // Deduce signs automatically based on math sign logic rules to populate M/N values
             if (ac > 0) {
-                if (activeB < 0) {
+                if (workB < 0) {
                     m = -f1;
                     n = -f2;
                 }
             } else {
                 // ac < 0, factors must be of opposite signs
-                // One is positive, one is negative, sum must equal b
-                if ((f1 - f2) === activeB) {
+                if ((f1 - f2) === workB) {
                     m = f1;
                     n = -f2;
-                } else if ((-f1 + f2) === activeB) {
+                } else if ((-f1 + f2) === workB) {
                     m = -f1;
                     n = f2;
-                } else if ((f2 - f1) === activeA) {
-                    // fallback checks
                 } else {
-                    // If student clicks, populate positive values into their inputs to let them play with signs
+                    // Populate positive values to let students adjust signs manually
                     inputM.value = f1;
                     inputN.value = f2;
-                    alert(`You selected absolute factor values: ${f1} and ${f2}. Now add positive or negative signs in the M and N boxes to make them sum to b (${activeB})!`);
+                    alert(`You selected absolute factor values: ${f1} and ${f2}. Now add positive/negative signs in the M and N boxes to sum to b (${workB})!`);
                     return;
                 }
             }
@@ -618,18 +798,18 @@
 
         // Card Click Handler to place terms
         cardAx2.addEventListener('click', () => {
-            if (placedTL) return;
-            cellTl.querySelector('span').textContent = activeA === 1 ? 'x²' : `${activeA}x²`;
-            cellTl.className = "flex flex-col items-center justify-center bg-blue-50 border border-blue-400 rounded-2xl text-blue-700 font-mono transition-all duration-300";
+            if (placedTL || currentStage !== 2) return;
+            cellTl.querySelector('span').textContent = workA === 1 ? 'x²' : `${workA}x²`;
+            cellTl.className = "flex flex-col items-center justify-center bg-blue-50 border border-blue-400 rounded-2xl text-blue-700 font-mono transition-all duration-300 shadow-sm";
             cardAx2.classList.add('opacity-20', 'pointer-events-none');
             placedTL = true;
             checkStage1Completion();
         });
 
         cardC.addEventListener('click', () => {
-            if (placedBR) return;
-            cellBr.querySelector('span').textContent = activeC.toString();
-            cellBr.className = "flex flex-col items-center justify-center bg-purple-50 border border-purple-400 rounded-2xl text-purple-700 font-mono transition-all duration-300";
+            if (placedBR || currentStage !== 2) return;
+            cellBr.querySelector('span').textContent = workC.toString();
+            cellBr.className = "flex flex-col items-center justify-center bg-purple-50 border border-purple-400 rounded-2xl text-purple-700 font-mono transition-all duration-300 shadow-sm";
             cardC.classList.add('opacity-20', 'pointer-events-none');
             placedBR = true;
             checkStage1Completion();
@@ -637,8 +817,9 @@
 
         function checkStage1Completion() {
             if (placedTL && placedBR) {
-                currentStage = 2;
+                currentStage = 3;
                 termCardsContainer.classList.add('hidden');
+                calculate(); // refresh layout stages view
             }
         }
 
@@ -655,91 +836,252 @@
 
         // Primary factor verification and diagonal rendering
         function triggerFactorApplication(m, n) {
-            if (!placedTL || !placedBR) {
-                alert("Please click/place your ax² and c term cards into the Area Model first!");
+            if (currentStage !== 3) {
+                alert("Please complete the previous stages first!");
                 return;
             }
 
-            const ac = activeA * activeC;
-            if ((m * n !== ac) || (m + n !== activeB)) {
-                alert(`Incorrect factors! The numbers ${m} and ${n} must satisfy both conditions:\n\n1. M * N = ac (${ac})\n2. M + N = b (${activeB})\n\nCheck your calculation or trace the highlighted path on the multiplication table!`);
+            const ac = workA * workC;
+            if ((m * n !== ac) || (m + n !== workB)) {
+                alert(`Incorrect factors! The numbers ${m} and ${n} must satisfy both conditions:\n\n1. M * N = ac (${ac})\n2. M + N = b (${workB})\n\nCheck your calculation or trace the highlighted path on the multiplication table!`);
                 return;
             }
+
+            factorsM = m;
+            factorsN = n;
 
             // Set diagonal split values inside grid cells
             cellTr.querySelector('span').textContent = m === 1 ? 'x' : (m === -1 ? '-x' : `${m}x`);
-            cellTr.className = "flex flex-col items-center justify-center bg-emerald-50 border border-emerald-400 rounded-2xl text-emerald-700 font-mono transition-all duration-300";
-            
+            cellTr.className = "flex flex-col items-center justify-center bg-emerald-50 border border-emerald-400 rounded-2xl text-emerald-700 font-mono transition-all duration-300 shadow-sm";
+
             cellBl.querySelector('span').textContent = n === 1 ? 'x' : (n === -1 ? '-x' : `${n}x`);
-            cellBl.className = "flex flex-col items-center justify-center bg-emerald-50 border border-emerald-400 rounded-2xl text-emerald-700 font-mono transition-all duration-300";
-
-            currentStage = 3;
-            solveBordersGCF(m, n);
-        }
-
-        // Automatically extracts border GCF values mathematically
-        function solveBordersGCF(M, N) {
-            const r1Coeff = Math.sign(activeA) * getGCD(activeA, M);
-            const c1Coeff = activeA / r1Coeff;
-            const c2Const = M / r1Coeff;
-            const r2Const = N / c1Coeff;
-
-            // Render edge headers with custom typography
-            gcfRow1.textContent = formatBinomial(r1Coeff, 0);
-            gcfRow2.textContent = r2Const >= 0 ? `+${r2Const}` : `${r2Const}`;
-            gcfCol1.textContent = formatBinomial(c1Coeff, 0);
-            gcfCol2.textContent = c2Const >= 0 ? `+${c2Const}` : `${c2Const}`;
+            cellBl.className = "flex flex-col items-center justify-center bg-emerald-50 border border-emerald-400 rounded-2xl text-emerald-700 font-mono transition-all duration-300 shadow-sm";
 
             currentStage = 4;
 
-            // Setup parenthesis inputs clickable
-            const factor1 = formatBinomial(r1Coeff, r2Const);
-            const factor2 = formatBinomial(c1Coeff, c2Const);
+            // Setup interactive Border click listeners
+            setupGCFBorderClickListeners();
+            calculate(); // refresh layout view to reveal borders stage selection
+        }
 
-            parenthesisTips.textContent = "Excellent! Row GCFs and Column GCFs calculated. Click 'Row Factor' or 'Col Factor' to slide them into the parentheses!";
-            
-            parenthesisFactor1.classList.add('border-emerald-500', 'text-emerald-700', 'hover:bg-emerald-50');
-            parenthesisFactor1.addEventListener('click', () => {
-                parenthesisFactor1.textContent = factor1;
-                parenthesisFactor1.className = "min-w-[120px] px-4 py-1.5 border-2 border-emerald-500 rounded-xl text-center text-emerald-700 bg-emerald-50 font-mono font-bold text-lg transition-all";
-                checkVictory(factor1, factor2);
+        // Set up click events on row and column outer slots of Area Model
+        function setupGCFBorderClickListeners() {
+            gcfRow1.onclick = () => selectGCFBorderSlot('row1', gcfRow1);
+            gcfRow2.onclick = () => selectGCFBorderSlot('row2', gcfRow2);
+            gcfCol1.onclick = () => selectGCFBorderSlot('col1', gcfCol1);
+            gcfCol2.onclick = () => selectGCFBorderSlot('col2', gcfCol2);
+        }
+
+        function selectGCFBorderSlot(slotId, element) {
+            if (currentStage !== 4) return;
+            selectedGCFSlotId = slotId;
+
+            // Clear prior active border indicator ring classes
+            gcfRow1.classList.remove('ring-4', 'ring-emerald-500', 'border-emerald-500');
+            gcfRow2.classList.remove('ring-4', 'ring-emerald-500', 'border-emerald-500');
+            gcfCol1.classList.remove('ring-4', 'ring-blue-500', 'border-blue-500');
+            gcfCol2.classList.remove('ring-4', 'ring-blue-500', 'border-blue-500');
+
+            const ringColor = slotId.startsWith('row') ? 'ring-4 ring-emerald-500 border-emerald-500' : 'ring-4 ring-blue-500 border-blue-500';
+            element.classList.add(...ringColor.split(' '));
+        }
+
+        // Verification assigned GCF option to active border slot
+        function verifyGCFAssignment(enteredVal) {
+            const correctVal = correctGCFBorders[selectedGCFSlotId];
+
+            const normalize = (s) => s.replace(/^\+/, '').replace(/^1x$/, 'x').trim();
+
+            if (normalize(enteredVal) === normalize(correctVal)) {
+                solvedGCFBorders[selectedGCFSlotId] = enteredVal;
+
+                // Update physical slot cell content inside grid border
+                const targetEl = document.getElementById(`gcf-${selectedGCFSlotId}`);
+                const isRow = selectedGCFSlotId.startsWith('row');
+                const themeClass = isRow
+                    ? 'text-emerald-700 border-emerald-400 bg-emerald-50 border-2 font-bold'
+                    : 'text-blue-700 border-blue-400 bg-blue-50 border-2 font-bold';
+
+                targetEl.innerHTML = `<span class="text-[9px] uppercase font-normal text-slate-400 absolute top-1">${selectedGCFSlotId.toUpperCase()}</span><span class="text-base font-black font-mono pt-2">${enteredVal}</span>`;
+                targetEl.className = `flex flex-col items-center justify-center rounded-2xl relative shadow-inner transition-all font-mono ${themeClass}`;
+                targetEl.onclick = null; // Unbind selection listener
+
+                selectedGCFSlotId = null;
+
+                // Check progression
+                checkGCFBordersProgression();
+            } else {
+                alert(`Incorrect GCF! Test another candidate that divides both elements in this row or column evenly.`);
+            }
+        }
+
+        function checkGCFBordersProgression() {
+            const allSolved = Object.values(solvedGCFBorders).every(v => v !== null);
+            if (allSolved) {
+                currentStage = 5;
+                calculate(); // Reveal Stage 5 Parental Transfer
+            }
+        }
+
+        // Stage 4 GCF Border Selection buttons dynamic builder (10 candidates shuffled)
+        function buildGCFCandidateButtons(row1, row2, col1, col2) {
+            gcfOptionButtons.innerHTML = '';
+
+            // Build the set of correct answers
+            const correctSet = new Set([row1, row2, col1, col2]);
+
+            // Plausible sign/numerical distractors to fill 10 choices
+            const distractors = [
+                '+1', '-1', '+2', '-2', '+3', '-3', '+4', '-4', '+5', '-5', '+6', '-6',
+                'x', '-x', '2x', '-2x', '3x', '-3x', '4x', '5x', '6x'
+            ];
+
+            distractors.forEach(d => {
+                if (correctSet.size < 10) {
+                    correctSet.add(d);
+                }
             });
 
-            parenthesisFactor2.addEventListener('click', () => {
-                parenthesisFactor2.textContent = factor2;
-                parenthesisFactor2.className = "min-w-[120px] px-4 py-1.5 border-2 border-emerald-500 rounded-xl text-center text-emerald-700 bg-emerald-50 font-mono font-bold text-lg transition-all";
-                checkVictory(factor1, factor2);
+            // Convert to array and shuffle
+            const candidates = Array.from(correctSet).sort(() => Math.random() - 0.5);
+
+            candidates.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = "px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-xs font-mono font-bold transition-all shadow-sm active:scale-95";
+                btn.textContent = option;
+
+                btn.addEventListener('click', () => {
+                    if (!selectedGCFSlotId) {
+                        alert("Please select a dashed outer border slot on the Area Model first!");
+                        return;
+                    }
+                    verifyGCFAssignment(option);
+                });
+                gcfOptionButtons.appendChild(btn);
             });
         }
 
-        function checkVictory(f1, f2) {
-            if (parenthesisFactor1.textContent !== "Row Factor" && parenthesisFactor2.textContent !== "Col Factor") {
-                parenthesisTips.innerHTML = `<span class="text-emerald-600 font-extrabold">🎉 Success! Trinomial Factored Successfully: (${f1})(${f2})</span>`;
-                
-                // Overall GCF Warning checks
-                const overallGCF = getGCD(activeA, getGCD(activeB, activeC));
-                if (overallGCF > 1) {
-                    gcfFeedbackBanner.classList.remove('hidden');
+        // Layout controller to manage visibility of stages container blocks on left panel
+        function manageLayoutProgressFlow() {
+            // Stage 1 GCF precheck is handled separately inside calculate() GCF solve routines
+
+            if (currentStage === 2) {
+                activeStatusPill.textContent = "Stage 2: Place Terms";
+                activeStatusPill.className = "px-2 py-0.5 bg-blue-100 text-blue-600 font-bold tracking-wide uppercase text-[9px] rounded-full border border-blue-200";
+
+                termCardsContainer.classList.remove('hidden');
+                factorInputsRow.classList.add('hidden');
+                multiplicationCard.classList.add('hidden');
+                gcfBorderSelectionCard.classList.add('hidden');
+                parenthesisCard.classList.add('hidden');
+            }
+            else if (currentStage === 3) {
+                activeStatusPill.textContent = "Stage 3: Split Factors";
+                activeStatusPill.className = "px-2 py-0.5 bg-emerald-100 text-emerald-600 font-bold tracking-wide uppercase text-[9px] rounded-full border border-emerald-200";
+
+                termCardsContainer.classList.add('hidden');
+                factorInputsRow.classList.remove('hidden');
+                multiplicationCard.classList.remove('hidden');
+                gcfBorderSelectionCard.classList.add('hidden');
+                parenthesisCard.classList.add('hidden');
+            }
+            else if (currentStage === 4) {
+                activeStatusPill.textContent = "Stage 4: Solve GCF Borders";
+                activeStatusPill.className = "px-2 py-0.5 bg-indigo-100 text-indigo-600 font-bold tracking-wide uppercase text-[9px] rounded-full border border-indigo-200";
+
+                // Calculate correct borders mathematically to setup verification values
+                const r1Coeff = Math.sign(workA) * getGCD(workA, factorsM);
+                const c1Coeff = workA / r1Coeff;
+                const c2Const = factorsM / r1Coeff;
+                const r2Const = factorsN / c1Coeff;
+
+                correctGCFBorders.row1 = formatBinomial(r1Coeff, 0);
+                correctGCFBorders.row2 = r2Const >= 0 ? `+${r2Const}` : `${r2Const}`;
+                correctGCFBorders.col1 = formatBinomial(c1Coeff, 0);
+                correctGCFBorders.col2 = c2Const >= 0 ? `+${c2Const}` : `${c2Const}`;
+
+                // Setup interactive buttons
+                buildGCFCandidateButtons(
+                    correctGCFBorders.row1,
+                    correctGCFBorders.row2,
+                    correctGCFBorders.col1,
+                    correctGCFBorders.col2
+                );
+
+                termCardsContainer.classList.add('hidden');
+                factorInputsRow.classList.add('hidden');
+                multiplicationCard.classList.add('hidden');
+                gcfBorderSelectionCard.classList.remove('hidden');
+                parenthesisCard.classList.add('hidden');
+            }
+            else if (currentStage === 5) {
+                activeStatusPill.textContent = "Stage 5: Final Solution";
+                activeStatusPill.className = "px-2 py-0.5 bg-purple-100 text-purple-600 font-bold tracking-wide uppercase text-[9px] rounded-full border border-purple-200 animate-bounce";
+
+                termCardsContainer.classList.add('hidden');
+                factorInputsRow.classList.add('hidden');
+                multiplicationCard.classList.add('hidden');
+                gcfBorderSelectionCard.classList.add('hidden');
+                parenthesisCard.classList.remove('hidden');
+
+                // Solve final expression elements
+                const r1Coeff = Math.sign(workA) * getGCD(workA, factorsM);
+                const c1Coeff = workA / r1Coeff;
+                const c2Const = factorsM / r1Coeff;
+                const r2Const = factorsN / c1Coeff;
+
+                const factor1 = formatBinomial(r1Coeff, r2Const);
+                const factor2 = formatBinomial(c1Coeff, c2Const);
+
+                // Setup click transfer snappers inside Stage 5 card
+                parenthesisFactor1.onclick = () => {
+                    parenthesisFactor1.textContent = factor1;
+                    parenthesisFactor1.className = "min-w-[110px] px-3 py-1 border-2 border-emerald-500 rounded-xl text-center text-emerald-700 bg-emerald-50 font-mono font-bold text-sm transition-all";
+                    checkVictory(factor1, factor2);
+                };
+
+                parenthesisFactor2.onclick = () => {
+                    parenthesisFactor2.textContent = factor2;
+                    parenthesisFactor2.className = "min-w-[110px] px-3 py-1 border-2 border-emerald-500 rounded-xl text-center text-emerald-700 bg-emerald-50 font-mono font-bold text-sm transition-all";
+                    checkVictory(factor1, factor2);
+                };
+
+                if (pulledGCF > 1) {
+                    parenthesisGCFPrefix.textContent = pulledGCF.toString();
+                    parenthesisGCFPrefix.classList.remove('hidden');
+                } else {
+                    parenthesisGCFPrefix.classList.add('hidden');
                 }
             }
         }
 
-        // Practice Problems Generator Engine
+        function checkVictory(f1, f2) {
+            if (parenthesisFactor1.textContent !== "Row Factor" && parenthesisFactor2.textContent !== "Col Factor") {
+                const finalGCFPrefix = pulledGCF > 1 ? `${pulledGCF}` : "";
+                parenthesisTips.innerHTML = `<span class="text-emerald-600 font-extrabold text-sm block mt-2">🎉 Success! Trinomial Factored Successfully: ${finalGCFPrefix}(${f1})(${f2})</span>`;
+            }
+        }
+
+        // Practice Problems Generator Engine (Guaranteed Factorable)
         btnPractice.onclick = () => {
-            // Define common factor templates (d*x + e)(f*x + g)
             const d = chkForceA.checked ? 1 : Math.floor(Math.random() * 3) + 1;
             const f = chkForceA.checked ? 1 : Math.floor(Math.random() * 2) + 1;
-            
-            // constant terms
-            const e = (Math.floor(Math.random() * 8) + 1) * (Math.random() > 0.5 ? 1 : -1);
-            const g = (Math.floor(Math.random() * 8) + 1) * (Math.random() > 0.5 ? 1 : -1);
 
-            // Compute final standard trinomial components
-            const a = d * f;
-            const b = (d * g) + (e * f);
-            const c = e * g;
+            const e = (Math.floor(Math.random() * 6) + 1) * (Math.random() > 0.5 ? 1 : -1);
+            const g = (Math.floor(Math.random() * 6) + 1) * (Math.random() > 0.5 ? 1 : -1);
 
-            // Check limits bounds protection, fallback simply on fail
+            let a = d * f;
+            let b = (d * g) + (e * f);
+            let c = e * g;
+
+            // 30% chance to multiply by overall GCF scalar if not forcing a = 1
+            if (!chkForceA.checked && Math.random() < 0.3) {
+                const multiplier = Math.floor(Math.random() * 2) + 2;
+                a *= multiplier;
+                b *= multiplier;
+                c *= multiplier;
+            }
+
             if (a >= -50 && a <= 50 && b >= -50 && b <= 50 && c >= -50 && c <= 50 && a !== 0) {
                 numA.value = a;
                 sliderA.value = a;
@@ -749,11 +1091,10 @@
                 sliderC.value = c;
                 resetStageAndRecalculate();
             } else {
-                applyPreset(1, 5, 6);
+                applyPreset(2, -21, 40);
             }
         };
 
-        // Fallback helper preset
         function applyPreset(a, b, c) {
             numA.value = a;
             sliderA.value = a;
