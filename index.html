@@ -23,7 +23,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
         <!-- LEFT COLUMN: Dynamic Stages & Controls (Scrollable/Changes per stage) (5 Cols) -->
-        <section class="lg:col-span-5 flex flex-col gap-6 lg:max-h-[85vh] lg:overflow-y-auto custom-scrollbar pr-1">
+        <section class="lg:col-span-5 flex flex-col gap-6 lg:max-h-[85vh] lg:overflow-y-auto custom-scrollbar pr-1 order-2 lg:order-first">
 
             <!-- Control Panel Card -->
             <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
@@ -175,9 +175,9 @@
                 <div class="flex items-center justify-center gap-1 text-2xl font-bold math-font py-4 text-slate-400">
                     <span id="parenthesis-gcf-prefix" class="text-slate-950 hidden font-bold mr-1"></span>
                     <span class="text-slate-950">(</span>
-                    <div id="parenthesis-factor-1" class="min-w-[110px] px-3 py-1 border-2 border-dashed border-slate-300 rounded-xl text-center text-slate-300 text-sm select-none cursor-pointer hover:bg-slate-50 transition-all font-mono font-bold">Row Factor</div>
+                    <div id="parenthesis-factor-1" class="min-w-[110px] px-3 py-1 border-2 border-dashed border-slate-300 rounded-xl text-center text-slate-300 text-base select-none cursor-pointer hover:bg-slate-50 transition-all font-mono font-bold">Row Factor</div>
                     <span class="text-slate-950">)(</span>
-                    <div id="parenthesis-factor-2" class="min-w-[110px] px-3 py-1 border-2 border-dashed border-slate-300 rounded-xl text-center text-slate-300 text-lg select-none cursor-pointer hover:bg-slate-50 transition-all font-mono font-bold">Col Factor</div>
+                    <div id="parenthesis-factor-2" class="min-w-[110px] px-3 py-1 border-2 border-dashed border-slate-300 rounded-xl text-center text-slate-300 text-base select-none cursor-pointer hover:bg-slate-50 transition-all font-mono font-bold">Col Factor</div>
                     <span class="text-slate-950">)</span>
                 </div>
 
@@ -187,7 +187,7 @@
         </section>
 
         <!-- RIGHT COLUMN: Stationary/Fixed Area Model Viewer (lg:sticky top-8) (7 Cols) -->
-        <section class="lg:col-span-7 flex flex-col gap-6 lg:sticky lg:top-8">
+        <section class="lg:col-span-7 flex flex-col gap-6 lg:sticky lg:top-8 order-1 lg:order-last">
 
             <!-- Active Equation Header -->
             <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-md flex flex-col items-center justify-center gap-2">
@@ -784,7 +784,7 @@
     function placeTL() {
         if (placedTL) return;
         cellTl.querySelector('span').textContent = workA === 1 ? 'x²' : `${workA}x²`;
-        cellTl.className = "flex flex-col items-center justify-center bg-blue-50 border-2 border-blue-400 rounded-2xl text-blue-700 font-mono transition-all duration-300 shadow-sm";
+        cellTl.className = "flex flex-col items-center justify-center bg-blue-50 border-2 border-blue-400 rounded-2xl text-blue-700 font-mono transition-all duration-300 shadow-sm relative";
         cardAx2.classList.add('opacity-20', 'pointer-events-none');
         placedTL = true;
         checkStage1Completion();
@@ -794,7 +794,7 @@
     function placeBR() {
         if (placedBR) return;
         cellBr.querySelector('span').textContent = workC.toString();
-        cellBr.className = "flex flex-col items-center justify-center bg-purple-50 border-2 border-purple-400 rounded-2xl text-purple-700 font-mono transition-all duration-300 shadow-sm";
+        cellBr.className = "flex flex-col items-center justify-center bg-purple-50 border-2 border-purple-400 rounded-2xl text-purple-700 font-mono transition-all duration-300 shadow-sm relative";
         cardC.classList.add('opacity-20', 'pointer-events-none');
         placedBR = true;
         checkStage1Completion();
@@ -836,10 +836,10 @@
             ghostEl.style.pointerEvents = 'none';
             ghostEl.style.zIndex = '1000';
             ghostEl.style.opacity = '0.8';
-            ghostEl.style.left = `${e.touches[0].clientX - 25}px`;
-            ghostEl.style.top = `${e.touches[0].clientY - 15}px`;
+            ghostEl.style.left = `${e.touches[0].clientX - 50}px`;
+            ghostEl.style.top = `${e.touches[0].clientY - 20}px`;
             document.body.appendChild(ghostEl);
-        });
+        }, { passive: false });
 
         cardEl.addEventListener('touchmove', (e) => {
             if (!activeTouch || !ghostEl) return;
@@ -847,12 +847,12 @@
 
             const clientX = e.touches[0].clientX;
             const clientY = e.touches[0].clientY;
-            ghostEl.style.left = `${clientX - 25}px`;
-            ghostEl.style.top = `${clientY - 15}px`;
+            ghostEl.style.left = `${clientX - 50}px`;
+            ghostEl.style.top = `${clientY - 20}px`;
 
             // Add focus border highlight targets on intersections
             highlightActiveTouchDropZones(clientX, clientY, valueType);
-        });
+        }, { passive: false });
 
         cardEl.addEventListener('touchend', (e) => {
             if (!activeTouch) return;
