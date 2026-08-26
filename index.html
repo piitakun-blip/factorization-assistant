@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trinomial Factorization Helper</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .math-font {
+            font-family: 'Fira Code', monospace;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased">
+
+    <!-- Header Section -->
+    <header class="border-b border-slate-800 bg-slate-950/50 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-blue-600/20 text-blue-400 rounded-xl border border-blue-500/30">
+                    <i class="fa-solid fa-square-root-variable text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">Algebra II Factoring Helper</h1>
+                    <p class="text-xs text-slate-400">Interactive Trinomial Box-Method Factorer</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+                <span class="px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300">
+                    <i class="fa-brands fa-github text-sm mr-1"></i> Ready for GitHub Pages
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+        <!-- Left Column: Inputs & Current Equation (4 Cols) -->
+        <section class="lg:col-span-4 flex flex-col gap-6">
+            <!-- Input Card -->
+            <div class="bg-slate-950/40 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
+                <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-blue-400"></i> Coefficients
+                </h2>
+                <p class="text-xs text-slate-400 mb-6">Enter coefficients for the trinomial ax² + bx + c:</p>
+
+                <div class="flex flex-col gap-5">
+                    <!-- Coefficient A -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label for="coeff-a" class="text-xs font-semibold uppercase tracking-wider text-slate-300">Coefficient a</label>
+                            <span id="val-a" class="text-xs font-mono text-blue-400">2</span>
+                        </div>
+                        <input type="number" id="coeff-a" value="2" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                    </div>
+
+                    <!-- Coefficient B -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label for="coeff-b" class="text-xs font-semibold uppercase tracking-wider text-slate-300">Coefficient b</label>
+                            <span id="val-b" class="text-xs font-mono text-emerald-400">-21</span>
+                        </div>
+                        <input type="number" id="coeff-b" value="-21" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                    </div>
+
+                    <!-- Coefficient C -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1.5">
+                            <label for="coeff-c" class="text-xs font-semibold uppercase tracking-wider text-slate-300">Coefficient c</label>
+                            <span id="val-c" class="text-xs font-mono text-purple-400">40</span>
+                        </div>
+                        <input type="number" id="coeff-c" value="40" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
+                    </div>
+                </div>
+
+                <!-- Presets -->
+                <div class="mt-6 pt-6 border-t border-slate-800">
+                    <span class="text-xs font-medium text-slate-400 block mb-2">Preset Examples:</span>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="applyPreset(2, -21, 40)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-white transition-all font-mono">2x² - 21x + 40</button>
+                        <button onclick="applyPreset(6, -7, -5)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-white transition-all font-mono">6x² - 7x - 5</button>
+                        <button onclick="applyPreset(1, 5, 6)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-white transition-all font-mono">x² + 5x + 6</button>
+                        <button onclick="applyPreset(2, 4, -9)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-white transition-all font-mono">2x² + 4x - 9</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Equation Output -->
+            <div class="bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-500/20 rounded-2xl p-6 text-center shadow-lg">
+                <span class="text-xs uppercase font-bold tracking-widest text-blue-400 mb-1 block">Active Polynomial</span>
+                <div id="equation-display" class="text-2xl font-bold tracking-wide text-white math-font py-2">
+                    2x² - 21x + 40
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column: Visualizer (8 Cols) -->
+        <section class="lg:col-span-8 flex flex-col gap-6">
+
+            <!-- Result Overview / Factorability Banner -->
+            <div id="status-banner" class="rounded-2xl p-5 border flex items-center gap-4 transition-all duration-300">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- Box Method & Calculations Grid -->
+            <div id="visualizer-content" class="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+                <!-- Factor Search List (Spreadsheet Column Match) -->
+                <div class="md:col-span-5 bg-slate-950/40 border border-slate-800 rounded-2xl p-5 flex flex-col h-[400px]">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-2">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-table-list text-emerald-400"></i> Factor List
+                        </h3>
+                        <span id="factor-search-target" class="text-xs text-emerald-400 font-mono">ac = 80, b = -21</span>
+                    </div>
+                    <div class="overflow-y-auto flex-grow custom-scrollbar pr-2 space-y-1 text-sm text-slate-300 font-mono" id="factor-list-container">
+                        <!-- Populated dynamically with factors -->
+                    </div>
+                </div>
+
+                <!-- Interactive 2x2 Box -->
+                <div class="md:col-span-7 bg-slate-950/40 border border-slate-800 rounded-2xl p-5 flex flex-col justify-center items-center">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-6 self-start flex items-center gap-1.5">
+                        <i class="fa-solid fa-table-cells-large text-purple-400"></i> The 2x2 Box Method
+                    </h3>
+
+                    <!-- The Grid container of GCFs and cells -->
+                    <div class="relative grid grid-cols-3 grid-rows-3 gap-2 w-72 h-72 text-center text-sm font-bold select-none mb-4">
+                        <!-- Top-Left Spacer -->
+                        <div></div>
+
+                        <!-- Col 1 GCF -->
+                        <div id="gcf-col-1" class="flex items-center justify-center text-blue-400 border border-blue-500/30 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 transition-all font-mono">2x</div>
+
+                        <!-- Col 2 GCF -->
+                        <div id="gcf-col-2" class="flex items-center justify-center text-blue-400 border border-blue-500/30 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 transition-all font-mono">-5</div>
+
+                        <!-- Row 1 GCF -->
+                        <div id="gcf-row-1" class="flex items-center justify-center text-emerald-400 border border-emerald-500/30 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 transition-all font-mono">x</div>
+
+                        <!-- Top-Left Cell: ax² -->
+                        <div id="cell-tl" class="flex flex-col items-center justify-center bg-slate-800 border border-slate-700 rounded-xl text-white font-mono shadow-inner">
+                            <span class="text-lg">2x²</span>
+                            <span class="text-[10px] text-slate-500 font-sans font-normal uppercase">ax²</span>
+                        </div>
+
+                        <!-- Top-Right Cell: Mx -->
+                        <div id="cell-tr" class="flex flex-col items-center justify-center bg-slate-800 border border-slate-700 rounded-xl text-slate-300 font-mono shadow-inner">
+                            <span class="text-lg">-5x</span>
+                            <span class="text-[10px] text-slate-500 font-sans font-normal uppercase">Mx</span>
+                        </div>
+
+                        <!-- Row 2 GCF -->
+                        <div id="gcf-row-2" class="flex items-center justify-center text-emerald-400 border border-emerald-500/30 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 transition-all font-mono">-8</div>
+
+                        <!-- Bottom-Left Cell: Nx -->
+                        <div id="cell-bl" class="flex flex-col items-center justify-center bg-slate-800 border border-slate-700 rounded-xl text-slate-300 font-mono shadow-inner">
+                            <span class="text-lg">-16x</span>
+                            <span class="text-[10px] text-slate-500 font-sans font-normal uppercase">Nx</span>
+                        </div>
+
+                        <!-- Bottom-Right Cell: c -->
+                        <div id="cell-br" class="flex flex-col items-center justify-center bg-slate-800 border border-slate-700 rounded-xl text-white font-mono shadow-inner">
+                            <span class="text-lg">40</span>
+                            <span class="text-[10px] text-slate-500 font-sans font-normal uppercase">c</span>
+                        </div>
+                    </div>
+
+                    <div class="text-xs text-slate-400 text-center max-w-xs mt-2">
+                        <span class="text-emerald-400 font-bold">Side items</span> are GCFs of rows; <span class="text-blue-400 font-bold">Top items</span> are GCFs of columns. Multiplying these gives the final binomials.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step-by-Step Factoring Logic Details -->
+            <div id="steps-card" class="bg-slate-950/40 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <h3 class="text-md font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-indigo-400"></i> Mathematical Grouping Breakdown
+                </h3>
+                <div class="space-y-4 text-sm text-slate-300" id="step-by-step-text">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-950/40 py-6 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-6xl mx-auto px-4">
+            <p>Mathematics algorithm ported directly from the "Algebra II Factoring and Roots Helper" Workbook [1].</p>
+            <p class="mt-1">Designed for quick local double-clicks or free instant hosting with GitHub Pages.</p>
+        </div>
+    </footer>
+
+    <!-- App JavaScript Logic -->
+    <script>
+        // DOM Elements
+        const inputA = document.getElementById('coeff-a');
+        const inputB = document.getElementById('coeff-b');
+        const inputC = document.getElementById('coeff-c');
+        const valA = document.getElementById('val-a');
+        const valB = document.getElementById('val-b');
+        const valC = document.getElementById('val-c');
+        const equationDisplay = document.getElementById('equation-display');
+        const statusBanner = document.getElementById('status-banner');
+        const factorSearchTarget = document.getElementById('factor-search-target');
+        const factorListContainer = document.getElementById('factor-list-container');
+        const visualizerContent = document.getElementById('visualizer-content');
+        const stepByStepText = document.getElementById('step-by-step-text');
+
+        // Box Cells
+        const gcfCol1 = document.getElementById('gcf-col-1');
+        const gcfCol2 = document.getElementById('gcf-col-2');
+        const gcfRow1 = document.getElementById('gcf-row-1');
+        const gcfRow2 = document.getElementById('gcf-row-2');
+        const cellTl = document.getElementById('cell-tl').querySelector('span');
+        const cellTr = document.getElementById('cell-tr').querySelector('span');
+        const cellBl = document.getElementById('cell-bl').querySelector('span');
+        const cellBr = document.getElementById('cell-br').querySelector('span');
+
+        // Helper: GCD/GCF Calculation
+        function getGCD(x, y) {
+            x = Math.abs(x);
+            y = Math.abs(y);
+            while (y) {
+                const temp = y;
+                y = x % y;
+                x = temp;
+            }
+            return x;
+        }
+
+        // Apply pre-set templates
+        function applyPreset(a, b, c) {
+            inputA.value = a;
+            inputB.value = b;
+            inputC.value = c;
+            calculate();
+        }
+
+        // Format a single term for display
+        function formatTerm(coeff, variable, isLeading = false) {
+            if (coeff === 0) return '';
+            let sign = coeff > 0 ? ' + ' : ' - ';
+            if (isLeading) {
+                sign = coeff > 0 ? '' : '-';
+            }
+            const absCoeff = Math.abs(coeff);
+            let coeffStr = absCoeff === 1 && variable !== '' ? '' : absCoeff;
+            return `${sign}${coeffStr}${variable}`;
+        }
+
+        // Format trinomial formula string
+        function formatQuadratic(a, b, c) {
+            const partA = formatTerm(a, 'x²', true);
+            const partB = formatTerm(b, 'x');
+            const partC = formatTerm(c, '');
+            return (partA + partB + partC) || '0';
+        }
+
+        // Format a binomial term beautifully
+        function formatBinomial(coeff, constant) {
+            if (coeff === 0) return constant.toString();
+            const termX = coeff === 1 ? 'x' : (coeff === -1 ? '-x' : `${coeff}x`);
+            if (constant === 0) return termX;
+            const sign = constant > 0 ? ' + ' : ' - ';
+            return `${termX}${sign}${Math.abs(constant)}`;
+        }
+
+        // Primary math logic
+        function calculate() {
+            // Get current inputs
+            const a = parseInt(inputA.value) || 0;
+            const b = parseInt(inputB.value) || 0;
+            const c = parseInt(inputC.value) || 0;
+
+            // Sync visual feedback sliders/values
+            valA.textContent = a;
+            valB.textContent = b;
+            valC.textContent = c;
+
+            // Render current equation
+            const formattedEquation = formatQuadratic(a, b, c);
+            equationDisplay.textContent = formattedEquation;
+
+            // Zero check
+            if (a === 0) {
+                showLinearSolver(b, c);
+                return;
+            }
+
+            const ac = a * c;
+            factorSearchTarget.textContent = `ac = ${ac}, b = ${b}`;
+
+            // Find matching factors M and N
+            // (M * N = ac) and (M + N = b)
+            let matchingM = null;
+            let matchingN = null;
+            let isFactorable = false;
+            let factorListHTML = '';
+
+            const absAc = Math.abs(ac);
+            const factorPairs = [];
+
+            // Special case for ac = 0
+            if (ac === 0) {
+                matchingM = b;
+                matchingN = 0;
+                isFactorable = true;
+                factorPairs.push([b, 0]);
+            } else {
+                // Find and list factor pairs of ac
+                for (let i = -absAc; i <= absAc; i++) {
+                    if (i === 0) continue;
+                    if (ac % i === 0) {
+                        const companion = ac / i;
+                        // Avoid duplicates in the array listing
+                        if (!factorPairs.some(p => p[0] === companion && p[1] === i)) {
+                            factorPairs.push([i, companion]);
+                        }
+                        if (i + companion === b && !isFactorable) {
+                            matchingM = i;
+                            matchingN = companion;
+                            isFactorable = true;
+                        }
+                    }
+                }
+            }
+
+            // Build visual factor list table
+            if (factorPairs.length > 0) {
+                factorListHTML = `<table class="w-full text-left text-xs text-slate-400">
+                    <thead class="text-[10px] text-slate-500 uppercase font-sans border-b border-slate-800">
+                        <tr>
+                            <th class="pb-2">Factor 1</th>
+                            <th class="pb-2">Factor 2</th>
+                            <th class="pb-2">Product</th>
+                            <th class="pb-2">Sum (vs b)</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+                factorPairs.forEach(pair => {
+                    const isMatch = isFactorable &&
+                        ((pair[0] === matchingM && pair[1] === matchingN) ||
+                         (pair[0] === matchingN && pair[1] === matchingM));
+                    const sum = pair[0] + pair[1];
+                    const rowClass = isMatch
+                        ? 'bg-emerald-500/10 text-emerald-400 font-semibold border-y border-emerald-500/30'
+                        : 'hover:bg-slate-800/50 border-b border-slate-900';
+
+                    factorListHTML += `<tr class="${rowClass}">
+                        <td class="py-2.5 px-1">${pair[0]}</td>
+                        <td class="py-2.5 px-1">${pair[1]}</td>
+                        <td class="py-2.5 px-1">${pair[0] * pair[1]}</td>
+                        <td class="py-2.5 px-1 flex items-center gap-1">
+                            ${sum} ${isMatch ? '<span class="text-[9px] px-1 py-0.5 rounded bg-emerald-500 text-slate-950 font-sans font-black uppercase">MATCH</span>' : ''}
+                        </td>
+                    </tr>`;
+                });
+                factorListHTML += `</tbody></table>`;
+                factorListContainer.innerHTML = factorListHTML;
+            } else {
+                factorListContainer.innerHTML = `<div class="text-slate-500 text-xs py-8 text-center italic">No integer factors found.</div>`;
+            }
+
+            if (isFactorable) {
+                renderFactorableSolution(a, b, c, matchingM, matchingN);
+            } else {
+                renderPrimeSolution(a, b, c);
+            }
+        }
+
+        // Render solution for factorable polynomials
+        function renderFactorableSolution(a, b, c, M, N) {
+            visualizerContent.classList.remove('hidden');
+
+            // 1. GCF Extraction logic
+            // Let Box: R1x + R2 and C1x + C2
+            // cell_tl = a (ax^2)
+            // cell_tr = M (Mx)
+            // cell_bl = N (Nx)
+            // cell_br = c (c)
+
+            // R1 = GCF of Row 1 (a and M)
+            const r1Coeff = Math.sign(a) * getGCD(a, M);
+            const c1Coeff = a / r1Coeff;
+            const c2Const = M / r1Coeff;
+            const r2Const = N / c1Coeff;
+
+            // Set Box values
+            cellTl.innerHTML = `${a}x²`;
+            cellTr.innerHTML = `${M}x`;
+            cellBl.innerHTML = `${N}x`;
+            cellBr.innerHTML = `${c}`;
+
+            // Set GCF row/col headers
+            gcfRow1.textContent = formatBinomial(r1Coeff, 0);
+            gcfRow2.textContent = r2Const >= 0 ? `+${r2Const}` : `${r2Const}`;
+            gcfCol1.textContent = formatBinomial(c1Coeff, 0);
+            gcfCol2.textContent = c2Const >= 0 ? `+${c2Const}` : `${c2Const}`;
+
+            // Factor blocks
+            const factor1 = formatBinomial(r1Coeff, r2Const);
+            const factor2 = formatBinomial(c1Coeff, c2Const);
+
+            // Set banner
+            statusBanner.className = "rounded-2xl p-5 border border-emerald-500/20 bg-emerald-500/10 text-slate-100 flex items-center gap-4 transition-all duration-300";
+            statusBanner.innerHTML = `
+                <div class="p-3 bg-emerald-500 text-slate-950 rounded-xl">
+                    <i class="fa-solid fa-circle-check text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-md">Trinomial Successfully Factored!</h3>
+                    <p class="text-sm font-semibold text-emerald-400 mt-0.5 font-mono">(${factor1})(${factor2})</p>
+                </div>
+            `;
+
+            // Step-by-Step Explanation Text
+            stepByStepText.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-start gap-2">
+                        <span class="flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-[10px] text-white font-bold mt-0.5">1</span>
+                        <div>
+                            <span class="font-semibold text-white">Find product and target sum:</span>
+                            <p class="text-xs text-slate-400 mt-1">
+                                Product <code class="bg-slate-900 px-1 py-0.5 rounded text-blue-400">a × c = ${a} × ${c} = ${a*c}</code>.
+                                We seek two integers whose product is <code class="text-blue-400">${a*c}</code> and whose sum is coefficient <code class="bg-slate-900 px-1 py-0.5 rounded text-emerald-400">b = ${b}</code>.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-[10px] text-white font-bold mt-0.5">2</span>
+                        <div>
+                            <span class="font-semibold text-white">Identify correct factors:</span>
+                            <p class="text-xs text-slate-400 mt-1">
+                                Testing factors of ${a*c}... We discover that <code class="bg-slate-900 px-1.5 py-0.5 rounded text-emerald-400">${M}</code> and <code class="bg-slate-900 px-1.5 py-0.5 rounded text-emerald-400">${N}</code> satisfy the criteria:
+                                <br><span class="font-mono text-slate-300 block mt-1">(${M}) × (${N}) = ${M*N} &nbsp;&amp;&nbsp; (${M}) + (${N}) = ${M+N}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-[10px] text-white font-bold mt-0.5">3</span>
+                        <div>
+                            <span class="font-semibold text-white">Populate Box grid:</span>
+                            <p class="text-xs text-slate-400 mt-1">
+                                We divide the center term <code class="text-slate-300">${b}x</code> into <code class="text-emerald-400">${M}x</code> and <code class="text-emerald-400">${N}x</code>, then populate the 2x2 grid.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-[10px] text-white font-bold mt-0.5">4</span>
+                        <div>
+                            <span class="font-semibold text-white">Extract GCFs:</span>
+                            <ul class="text-xs text-slate-400 list-disc ml-4 space-y-1 mt-1">
+                                <li>GCF of Row 1 (${a}x² and ${M}x) = <code class="bg-slate-900 px-1 text-emerald-300">${formatBinomial(r1Coeff, 0)}</code></li>
+                                <li>GCF of Row 2 (${N}x and ${c}) = <code class="bg-slate-900 px-1 text-emerald-300">${r2Const >= 0 ? '+' : ''}${r2Const}</code></li>
+                                <li>GCF of Col 1 (${a}x² and ${N}x) = <code class="bg-slate-900 px-1 text-blue-300">${formatBinomial(c1Coeff, 0)}</code></li>
+                                <li>GCF of Col 2 (${M}x and ${c}) = <code class="bg-slate-900 px-1 text-blue-300">${c2Const >= 0 ? '+' : ''}${c2Const}</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render solution for Prime Trinomials (Fallback to Quadratic Formula)
+        function renderPrimeSolution(a, b, c) {
+            // Apply styling changes to status banner
+            statusBanner.className = "rounded-2xl p-5 border border-yellow-500/20 bg-yellow-500/10 text-slate-100 flex items-center gap-4 transition-all duration-300";
+            statusBanner.innerHTML = `
+                <div class="p-3 bg-yellow-500 text-slate-950 rounded-xl">
+                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-md">Prime Trinomial (Not Factorable over Integers)</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">No factor pair of a×c adds up to b. Resolving using the Quadratic Formula...</p>
+                </div>
+            `;
+
+            // Clear visual box method headers or set to empty
+            cellTl.innerHTML = `${a}x²`;
+            cellTr.innerHTML = "-";
+            cellBl.innerHTML = "-";
+            cellBr.innerHTML = `${c}`;
+
+            gcfRow1.textContent = "";
+            gcfRow2.textContent = "";
+            gcfCol1.textContent = "";
+            gcfCol2.textContent = "";
+
+            // Quadratic formula calculations (Matches "Quadratic Formula" sheet [3])
+            const discriminant = (b * b) - (4 * a * c);
+            const axis = -b / (2 * a);
+
+            let rootText = "";
+            if (discriminant < 0) {
+                // Complex Roots
+                const realPart = axis.toFixed(3);
+                const imagPart = (Math.sqrt(-discriminant) / (2 * a)).toFixed(3);
+                rootText = `<span class="text-yellow-400 font-semibold font-mono">x = ${realPart} ± ${imagPart}i</span> (Complex Conjugates)`;
+            } else if (discriminant === 0) {
+                rootText = `<span class="text-yellow-400 font-semibold font-mono">x = ${axis.toFixed(3)}</span> (One Real Double Root)`;
+            } else {
+                const root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+                const root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+                rootText = `<span class="text-yellow-400 font-semibold font-mono">x₁ = ${root1.toFixed(3)}</span> &nbsp;or&nbsp; <span class="text-yellow-400 font-semibold font-mono">x₂ = ${root2.toFixed(3)}</span>`;
+            }
+
+            stepByStepText.innerHTML = `
+                <div class="space-y-4">
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Since this polynomial cannot be factored by integers using the box method, we fall back to the quadratic formula template:
+                    </p>
+                    <div class="bg-slate-900 border border-slate-850 p-4 rounded-xl space-y-2 text-xs font-mono">
+                        <div>a = ${a}, b = ${b}, c = ${c}</div>
+                        <div>b² = (${b})² = ${b*b}</div>
+                        <div>-4ac = -4(${a})(${c}) = ${-4*a*c}</div>
+                        <div>Discriminant (b² - 4ac) = ${discriminant}</div>
+                        <div>Axis of Symmetry (-b / 2a) = ${axis.toFixed(3)}</div>
+                        <div class="pt-2 border-t border-slate-800 mt-2 text-sm">
+                            <span class="text-slate-400 block mb-1">Roots:</span>
+                            ${rootText}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Linear equations handler
+        function showLinearSolver(b, c) {
+            statusBanner.className = "rounded-2xl p-5 border border-blue-500/20 bg-blue-500/10 text-slate-100 flex items-center gap-4";
+            statusBanner.innerHTML = `
+                <div class="p-3 bg-blue-500 text-slate-950 rounded-xl">
+                    <i class="fa-solid fa-arrow-trend-up text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-md">Linear Equation Detected</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Coefficient a is 0. Factoring reduces to extraction of greatest common factor.</p>
+                </div>
+            `;
+
+            factorListContainer.innerHTML = `<div class="text-slate-500 text-xs py-8 text-center italic">Not a quadratic equation (a = 0).</div>`;
+            cellTl.innerHTML = "0";
+            cellTr.innerHTML = "-";
+            cellBl.innerHTML = "-";
+            cellBr.innerHTML = `${c}`;
+
+            gcfRow1.textContent = "";
+            gcfRow2.textContent = "";
+            gcfCol1.textContent = "";
+            gcfCol2.textContent = "";
+
+            if (b === 0) {
+                stepByStepText.innerHTML = `<p class="text-xs text-slate-400">The expression is a constant value: <code class="bg-slate-900 px-1 py-0.5 rounded text-white">${c}</code>.</p>`;
+            } else {
+                const gcf = getGCD(b, c);
+                const factB = b / gcf;
+                const factC = c / gcf;
+                const sign = factC >= 0 ? ' + ' : ' - ';
+                stepByStepText.innerHTML = `
+                    <div class="space-y-2">
+                        <span class="font-semibold text-white">GCF Extraction:</span>
+                        <p class="text-xs text-slate-400">
+                            Expression: <code class="bg-slate-900 px-1 py-0.5 rounded text-white">${b}x ${c >= 0 ? '+' : ''} ${c}</code>
+                            <br>GCF of coefficients is <code class="text-blue-400">${gcf}</code>.
+                            <br>Factored Form: <code class="text-emerald-400 font-mono font-bold">${gcf}(${factB}x ${sign}${Math.abs(factC)})</code>
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize Calculation on page load
+        calculate();
+
+        // Event listeners for responsive automatic updates
+        inputA.addEventListener('input', calculate);
+        inputB.addEventListener('input', calculate);
+        inputC.addEventListener('input', calculate);
+    </script>
+</body>
+</html>
