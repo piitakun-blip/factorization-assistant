@@ -361,15 +361,15 @@
                     </div>
                     <div class="flex flex-wrap items-center justify-center gap-3">
                         <div id="card-ax2" draggable="true" class="px-5 py-2.5 bg-blue-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-blue-700 active:scale-95 transition-all text-sm select-none touch-action-none">2x²</div>
-                        <div id="card-bx" aria-label="Middle term to split" class="px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none">-21x</div>
+                        <button id="card-bx" type="button" aria-label="Open p q helper for the middle term" aria-expanded="false" aria-controls="multiplication-card" class="px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none cursor-pointer hover:bg-amber-200 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">-21x</button>
                         <div id="card-c" draggable="true" class="px-5 py-2.5 bg-purple-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-purple-700 active:scale-95 transition-all text-sm select-none touch-action-none">40</div>
                     </div>
-                    <p id="term-cards-help" class="text-[11px] text-slate-500 italic text-center">Drag, click, or type directly into the area-model cells. The yellow middle term can be rewritten with the p/q helper whenever you want.</p>
+                    <p id="term-cards-help" class="text-[11px] text-slate-500 italic text-center">Drag, click, or type directly into the area-model cells. Press the yellow middle term to open the p/q helper below.</p>
                 </div>
 
 
                 <!-- STAGE 2: Split the middle term -->
-                <div id="multiplication-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
+                <div id="multiplication-card" class="hidden bg-white border border-amber-200 rounded-2xl p-6 shadow-md">
                     <div id="stage2-sticky-problem" class="stage2-sticky-problem -mx-2 mb-4 px-3 py-2.5 rounded-xl border border-amber-200 bg-white/95 shadow-sm">
                         <div class="flex flex-wrap items-center justify-center gap-2 text-center">
                             <span class="text-[10px] font-bold tracking-wide text-slate-500">current problem</span>
@@ -385,8 +385,13 @@
                             </h3>
                             <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Use this helper whenever it is useful. Find two numbers <span class="font-mono font-bold">p</span> and <span class="font-mono font-bold">q</span> that satisfy both conditions below, or enter middle terms directly in the area model if you already know them.</p>
                         </div>
-                        <div id="product-target-display" class="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-500 rounded-xl font-mono text-xs font-bold text-center">
-                            Find p and q
+                        <div class="flex items-center gap-2 self-start">
+                            <div id="product-target-display" class="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-500 rounded-xl font-mono text-xs font-bold text-center">
+                                Find p and q
+                            </div>
+                            <button id="btn-collapse-pq-helper" type="button" class="w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500" aria-label="Close p q helper" title="Close p/q helper">
+                                <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -891,6 +896,7 @@
         let targetsVerified = false;
         let splitVerified = false;
         let pqExplanationMode = null; // 'sum' or 'product'; visual only, never reveals an unverified numeric target.
+        let pqHelperOpen = false; // The middle-term tile opens this optional helper on demand.
         let placedTR = false;
         let placedBL = false;
         let finalFactorData = null;
@@ -944,6 +950,8 @@
         // Dynamic Stage Cards on Left Panel
         const gcfScaffoldingCard = document.getElementById('gcf-scaffolding-card');
         const multiplicationCard = document.getElementById('multiplication-card');
+        const btnCollapsePqHelper = document.getElementById('btn-collapse-pq-helper');
+        const instructionColumn = document.getElementById('instruction-column');
         const gcfBorderSelectionCard = document.getElementById('gcf-border-selection-card');
         const parenthesisCard = document.getElementById('parenthesis-card');
 
@@ -1046,6 +1054,33 @@
         const furtherFactorCard = document.getElementById('further-factor-card');
         const furtherFactorMessage = document.getElementById('further-factor-message');
         const furtherFactorActions = document.getElementById('further-factor-actions');
+
+        // ----- v57 MIDDLE-TERM → P/Q HELPER DISCLOSURE -----
+        function syncPqHelperVisibility() {
+            if (!multiplicationCard) return;
+            multiplicationCard.classList.toggle('hidden', !pqHelperOpen);
+            cardBx.setAttribute('aria-expanded', pqHelperOpen ? 'true' : 'false');
+        }
+
+        function openPqHelper({ focus = false } = {}) {
+            pqHelperOpen = true;
+            syncPqHelperVisibility();
+            requestAnimationFrame(() => {
+                if (instructionColumn && window.matchMedia('(min-width: 1024px)').matches) {
+                    const targetTop = Math.max(0, multiplicationCard.offsetTop - instructionColumn.offsetTop - 10);
+                    instructionColumn.scrollTo({ top: targetTop, behavior: 'smooth' });
+                } else {
+                    multiplicationCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                if (focus && inputProductTarget && !targetsVerified) inputProductTarget.focus({ preventScroll: true });
+            });
+        }
+
+        function closePqHelper() {
+            pqHelperOpen = false;
+            syncPqHelperVisibility();
+            cardBx.focus({ preventScroll: true });
+        }
 
         // ----- v42 OPEN WORKSPACE HELPERS -----
         function normalizeMathEntry(value) {
@@ -1738,6 +1773,7 @@
             activeStatusPill.className = "px-2 py-0.5 bg-amber-100 text-amber-700 font-bold tracking-wide uppercase text-[9px] rounded-full border border-amber-200";
             termCardsContainer.classList.add('hidden');
             factorInputsRow.classList.add('hidden');
+            pqHelperOpen = true;
             multiplicationCard.classList.remove('hidden');
             gcfBorderSelectionCard.classList.add('hidden');
             parenthesisCard.classList.add('hidden');
@@ -1763,6 +1799,7 @@
             activeStatusPill.textContent = "No Integer Factorization";
             activeStatusPill.className = "px-2 py-0.5 bg-rose-100 text-rose-700 font-bold tracking-wide uppercase text-[9px] rounded-full border border-rose-200";
             factorInputsRow.classList.add('hidden');
+            pqHelperOpen = true;
             multiplicationCard.classList.remove('hidden');
             gcfBorderSelectionCard.classList.add('hidden');
             parenthesisCard.classList.add('hidden');
@@ -1786,6 +1823,7 @@
             signPChoice = signQChoice = null;
             targetsVerified = false;
             splitVerified = false;
+            pqHelperOpen = false;
             factorsP = factorsQ = 0;
             finalFactorData = null;
             finalExtraction = { factor1:1, factor2:1 };
@@ -1800,10 +1838,11 @@
 
             cardAx2.classList.remove('opacity-20','pointer-events-none');
             cardC.classList.remove('opacity-20','pointer-events-none');
-            cardBx.className = 'px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none';
+            cardBx.className = 'px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none cursor-pointer hover:bg-amber-200 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all';
+            syncPqHelperVisibility();
             termCardsContainer.classList.remove('hidden');
             termCardsHeading.textContent = 'Place terms';
-            termCardsHelp.textContent = 'Drag, click, or type directly into the area-model cells. Use the p/q helper only when it helps.';
+            termCardsHelp.textContent = 'Drag, click, or type directly into the area-model cells. Press the yellow middle term to open the p/q helper below.';
 
             parenthesisGCFPrefix.classList.add('hidden');
             parenthesisGCFPrefix.textContent='';
@@ -2520,6 +2559,9 @@
             updateProgressChecklist();
         }
 
+        cardBx.addEventListener('click', () => openPqHelper({ focus: true }));
+        if (btnCollapsePqHelper) btnCollapsePqHelper.addEventListener('click', closePqHelper);
+
         cardPx.addEventListener('click', placeBL);
         cardQx.addEventListener('click', placeTR);
 
@@ -2927,12 +2969,12 @@
             activeStatusPill.textContent='Open workspace';
             activeStatusPill.className='px-2 py-0.5 bg-indigo-100 text-indigo-700 font-bold tracking-wide text-[9px] rounded-full border border-indigo-200';
             termCardsContainer.classList.remove('hidden');
-            multiplicationCard.classList.remove('hidden');
+            syncPqHelperVisibility();
             factorInputsRow.classList.remove('hidden');
             gcfBorderSelectionCard.classList.remove('hidden');
             parenthesisCard.classList.remove('hidden');
             termCardsHeading.textContent='Place terms';
-            termCardsHelp.textContent='Work in any order: drag/click tiles or type directly into any area-model cell. The p/q section and outside-factor section are helpers, not gates.';
+            termCardsHelp.textContent='Start by placing terms in the area model. Press the yellow middle term whenever you want to open the p/q helper below.';
             if (splitVerified) {
                 splitTermPlacement.classList.remove('hidden'); splitTermPlacement.classList.add('flex');
             } else {
