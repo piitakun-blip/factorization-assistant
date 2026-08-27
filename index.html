@@ -1,4 +1,4 @@
-<!-- Trinomial Factorization Helper v51: sticky active polynomial above both columns -->
+<!-- Trinomial Factorization Helper v56: persistent independent scrollbars + corrected mathematical progress monitoring -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -170,9 +170,9 @@
             left: calc(((100% - 24px) / 3) * 2 + 24px);
         }
 
-        /* v54: both desktop workspace columns are equal-height independent
-           scroll panes. Using overflow-y: scroll plus scrollbar-gutter: stable
-           reserves a visible scrollbar track for BOTH columns at all times. */
+        /* v55: both desktop workspace columns are equal-height independent
+           scroll panes. The pane height is viewport-based and does NOT expand
+           while the outer page scrolls, so both scrollbars remain available. */
         .custom-scrollbar {
             scrollbar-width: auto;
             scrollbar-color: rgb(148 163 184) rgb(226 232 240);
@@ -806,7 +806,7 @@
     <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
         <div class="max-w-6xl mx-auto px-4">
-            <p>Interactive Area Model v54 — sticky polynomial with two independent scrollable workspace columns.</p>
+            <p>Interactive Area Model v56 — sticky polynomial, independent scrollbars, and mathematically grounded section progress.</p>
         </div>
     </footer>
 
@@ -826,18 +826,22 @@
             requestAnimationFrame(syncStickyPolynomialOffset);
         }
 
-        // v54: size both independent desktop scroll panes from the available
-        // viewport space beneath the shared sticky polynomial card. Neither
-        // column depends on the other column's content height.
+        // v55: give both desktop columns one fixed viewport-based height.
+        // IMPORTANT: do not recompute this from getBoundingClientRect().top on
+        // page scroll; doing so lets the panes grow as the document moves and
+        // can remove overflow (and therefore a scrollbar).
         const workspaceColumns = document.getElementById('workspace-columns');
         const desktopColumnsQuery = window.matchMedia('(min-width: 1024px)');
+        const activeCardForPaneSizing = document.getElementById('active-equation-card');
 
         function syncWorkspacePaneHeight() {
             if (!workspaceColumns) return;
             if (desktopColumnsQuery.matches) {
-                const top = Math.ceil(workspaceColumns.getBoundingClientRect().top);
-                const bottomBreathingRoom = 16;
-                const available = Math.max(420, window.innerHeight - top - bottomBreathingRoom);
+                const headerHeight = siteHeader ? Math.ceil(siteHeader.getBoundingClientRect().height) : 72;
+                const activeHeight = activeCardForPaneSizing ? Math.ceil(activeCardForPaneSizing.getBoundingClientRect().height) : 110;
+                // main top padding (32) + gap below active card (24) + bottom breathing room (20)
+                const reserved = headerHeight + activeHeight + 76;
+                const available = Math.max(420, window.innerHeight - reserved);
                 document.documentElement.style.setProperty('--workspace-pane-height', `${available}px`);
             } else {
                 document.documentElement.style.removeProperty('--workspace-pane-height');
@@ -846,13 +850,11 @@
 
         if (workspaceColumns) {
             window.addEventListener('resize', syncWorkspacePaneHeight);
-            window.addEventListener('scroll', syncWorkspacePaneHeight, { passive: true });
             if (desktopColumnsQuery.addEventListener) {
                 desktopColumnsQuery.addEventListener('change', syncWorkspacePaneHeight);
             } else if (desktopColumnsQuery.addListener) {
                 desktopColumnsQuery.addListener(syncWorkspacePaneHeight);
             }
-            const activeCardForPaneSizing = document.getElementById('active-equation-card');
             if (activeCardForPaneSizing && 'ResizeObserver' in window) {
                 const paneResizeObserver = new ResizeObserver(syncWorkspacePaneHeight);
                 paneResizeObserver.observe(activeCardForPaneSizing);
@@ -1337,22 +1339,60 @@
         btnExplainPqProduct.addEventListener('click', () => togglePqExplanation('product'));
         btnClosePqExplanation.addEventListener('click', clearPqExplanation);
 
-        function updateProgressChecklist() {
-            const outerDone = placedTL && placedBR;
-            const middleTermsDone = placedBL && placedTR;
-            const areaModelDone = outerDone && middleTermsDone;
-            // The p/q helper is optional. If the student correctly completes both middle-term
-            // cells directly, the mathematical goal of the split has still been achieved.
-            const splitDone = splitVerified || middleTermsDone;
-            const borderCount = Object.values(solvedGCFBorders).filter(v => v !== null).length;
-            const bordersDone = borderCount === 4;
-            const finalDone = finalFactorsRevealed.factor1 && finalFactorsRevealed.factor2;
+        function getLiveProgressState() {
+            // Read the mathematics that is actually visible in the workspace instead of relying
+            // on older stage flags. This prevents a circle from staying green after a student
+            // changes a cell to something that no longer satisfies the model.
+            const tl = parseQuadraticCoefficient(cellTlValue.textContent.trim());
+            const tr = parseLinearCoefficient(cellTrValue.textContent.trim());
+            const bl = parseLinearCoefficient(cellBlValue.textContent.trim());
+            const br = parseConstantValue(cellBrValue.textContent.trim());
 
-            setSectionProgress(progressCircleOuter, outerDone, 'Place terms');
-            setSectionProgress(progressCircleSplit, splitDone, 'Split the middle term');
-            setSectionProgress(progressCircleMiddle, areaModelDone, 'Area model');
-            setSectionProgress(progressCircleBorders, bordersDone, 'Outside factors');
-            setSectionProgress(progressCircleFinal, finalDone, 'Binomial factors');
+            const outerDone = tl === workA && br === workC;
+            const middlePairDone = tr !== null && bl !== null &&
+                (tr + bl === workB) && (tr * bl === workA * workC);
+
+            // The helper is optional. A verified p/q solution counts as completing the split,
+            // and so does a correct pair entered directly into the two middle cells.
+            const splitDone = splitVerified || middlePairDone;
+            const areaModelDone = outerDone && middlePairDone;
+
+            const foundCount = Object.values(foundGCFBorders).filter(v => v !== null).length;
+            const placedCount = Object.values(solvedGCFBorders).filter(v => v !== null).length;
+            const bordersDone = placedCount === 4;
+
+            const finalReady = Boolean(finalFactorData) &&
+                parenthesisFactor1.textContent !== 'Row Factor' &&
+                parenthesisFactor2.textContent !== 'Col Factor' &&
+                !finalEquality.classList.contains('hidden') &&
+                finalEqualityExpression.textContent.trim() !== '';
+
+            return {
+                outerDone,
+                splitDone,
+                areaModelDone,
+                bordersDone,
+                finalDone: finalReady,
+                foundCount,
+                placedCount
+            };
+        }
+
+        function updateProgressChecklist() {
+            const progress = getLiveProgressState();
+
+            setSectionProgress(progressCircleOuter, progress.outerDone, 'Place terms');
+            setSectionProgress(progressCircleSplit, progress.splitDone, 'Split the middle term');
+            setSectionProgress(progressCircleMiddle, progress.areaModelDone, 'Area model');
+            setSectionProgress(progressCircleBorders, progress.bordersDone, 'Outside factors');
+            setSectionProgress(progressCircleFinal, progress.finalDone, 'Binomial factors');
+
+            // Give useful detail without adding another progress card.
+            if (progressCircleBorders && !progress.bordersDone) {
+                const detail = `${progress.foundCount} found • ${progress.placedCount} placed`;
+                progressCircleBorders.setAttribute('aria-label', `Outside factors not complete: ${detail}`);
+                progressCircleBorders.title = `Outside factors: ${detail}`;
+            }
 
             renderOutsideFactorWorkspace();
         }
