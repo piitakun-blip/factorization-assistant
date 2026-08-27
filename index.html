@@ -231,27 +231,27 @@
                             <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                                 <i class="fa-solid fa-scissors text-amber-500"></i> Stage 2: Split the Middle Term
                             </h3>
-                            <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">First determine the product and sum you need. The Calculator and Multiplication chart beside the area model are available whenever you want them.</p>
+                            <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Find two numbers <span class="font-mono font-bold">p</span> and <span class="font-mono font-bold">q</span> that satisfy both conditions below. The Calculator and Multiplication chart beside the area model are available whenever you want them.</p>
                         </div>
                         <div id="product-target-display" class="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-500 rounded-xl font-mono text-xs font-bold text-center">
-                            Determine product &amp; sum
+                            Find p and q
                         </div>
                     </div>
 
                     <div id="target-entry-panel" class="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 mb-4">
                         <div class="grid sm:grid-cols-2 gap-3">
                             <label class="text-xs font-bold text-slate-700">
-                                Product: a × c
+                                Target product: p × q = a × c
                                 <input id="input-product-target" type="number" class="mt-1 w-full px-3 py-2 text-base text-center font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="a × c">
                             </label>
                             <label class="text-xs font-bold text-slate-700">
-                                Sum: b
+                                Target sum: p + q = b
                                 <input id="input-sum-target" type="number" class="mt-1 w-full px-3 py-2 text-base text-center font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="b">
                             </label>
                         </div>
                         <div class="mt-3 flex flex-wrap items-center justify-center gap-3">
-                            <button id="btn-check-targets" type="button" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm">Check product &amp; sum</button>
-                            <span id="target-entry-feedback" class="text-[11px] text-slate-500">Use the trinomial above to determine both values.</span>
+                            <button id="btn-check-targets" type="button" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm">Check targets</button>
+                            <span id="target-entry-feedback" class="text-[11px] text-slate-500">Enter what <span class="font-mono font-bold">p × q</span> must equal and what <span class="font-mono font-bold">p + q</span> must equal.</span>
                         </div>
                     </div>
 
@@ -260,7 +260,42 @@
                     </div>
 
                     <div id="target-description" class="text-xs text-slate-600 font-medium mb-4 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
-                        Enter a × c and b, then search for p and q. Use the optional tools beside the area model whenever they help.
+                        Find the two targets first: <strong>p × q = a × c</strong> and <strong>p + q = b</strong>. Then determine p and q so both equations are true.
+                    </div>
+
+                    <!-- p/q reasoning remains in the left Stage 2 column -->
+                    <div id="factor-inputs-row" class="mt-5 w-full border-t border-amber-100 pt-5 flex flex-col items-center gap-3 hidden">
+                        <div class="text-center">
+                            <span class="text-sm font-extrabold text-slate-800 tracking-wide">Determine p and q</span>
+                            <p class="text-[10px] text-slate-500 mt-1">Use your verified targets. Find the magnitudes first, then choose signs so the final signed values satisfy both equations.</p>
+                            <div class="mt-2 flex flex-wrap items-center justify-center gap-2 text-[11px] font-mono font-bold text-slate-600">
+                                <span id="pq-product-condition" class="px-2 py-1 rounded-lg border border-slate-200 bg-white">p × q = a × c</span>
+                                <span id="pq-sum-condition" class="px-2 py-1 rounded-lg border border-slate-200 bg-white">p + q = b</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 w-full">
+                            <div class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
+                                <label for="input-p" class="text-sm font-mono text-yellow-900 font-black">|p|</label>
+                                <input type="number" min="0" id="input-p" placeholder="5" class="w-24 px-2.5 py-1.5 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
+                                <div class="flex gap-2" aria-label="Choose the sign of p">
+                                    <button type="button" id="btn-p-plus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">+</button>
+                                    <button type="button" id="btn-p-minus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">−</button>
+                                </div>
+                            </div>
+                            <div class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
+                                <label for="input-q" class="text-sm font-mono text-yellow-900 font-black">|q|</label>
+                                <input type="number" min="0" id="input-q" placeholder="16" class="w-24 px-2.5 py-1.5 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
+                                <div class="flex gap-2" aria-label="Choose the sign of q">
+                                    <button type="button" id="btn-q-plus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">+</button>
+                                    <button type="button" id="btn-q-minus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">−</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="btn-apply-pq" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all">
+                            Check signs
+                        </button>
+                        <p id="sign-choice-feedback" class="text-[11px] text-slate-500 text-center min-h-[1.25rem]">Find magnitudes, then choose signs so both target equations are true.</p>
+                        
                     </div>
                 </div>
 
@@ -273,10 +308,6 @@
                     <p class="text-xs text-slate-600 mb-4 leading-relaxed">
                         Determine the factor shared by each pair of cells. You can <strong>type directly into any outside border</strong> and press Enter, or create your own factor tile below and drag it to a border.
                     </p>
-                    <div class="grid grid-cols-2 gap-3 mb-4 text-[11px]">
-                        <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-emerald-800"><strong>Rows = green</strong><br>Factor across each horizontal pair.</div>
-                        <div class="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-blue-800"><strong>Columns = blue</strong><br>Factor down each vertical pair.</div>
-                    </div>
                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
                         <label for="factor-tile-input" class="block text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-2">Optional drag method: make a factor tile</label>
                         <div class="flex flex-wrap items-center gap-2">
@@ -348,6 +379,24 @@
                         </h3>
                         <span id="active-status-pill" class="px-2 py-0.5 bg-slate-100 text-slate-500 font-bold tracking-wide uppercase text-[9px] rounded-full border border-slate-200">Stage 1</span>
                     </div>
+
+                    <!-- Once p and q are verified, show the split beside the area model. -->
+                    <div id="split-term-placement" class="hidden w-full mb-5 rounded-xl border-2 border-yellow-300 bg-yellow-50 px-4 py-4 flex-col items-center gap-3 shadow-sm">
+                        <div class="text-center">
+                            <div class="text-[10px] font-extrabold tracking-wider text-yellow-800">middle term split</div>
+                            <p class="text-[10px] text-slate-500 mt-1">These two signed terms are equivalent to the original <span class="font-mono font-bold">bx</span> term.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 font-mono font-black text-lg text-slate-800">
+                            <div id="split-bx-tile" class="px-4 py-2 bg-yellow-100 text-yellow-900 border-2 border-yellow-400 rounded-xl shadow-sm select-none">bx</div>
+                            <span class="text-slate-500">=</span>
+                            <span class="text-slate-500">(</span>
+                            <div id="card-px" draggable="true" class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none">px</div>
+                            <span class="text-slate-500">+</span>
+                            <div id="card-qx" draggable="true" class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none">qx</div>
+                            <span class="text-slate-500">)</span>
+                        </div>
+                        <p class="text-[10px] text-slate-500 text-center">Drag <span class="font-mono font-bold">px</span> to the lower-left and <span class="font-mono font-bold">qx</span> to the upper-right, or click each yellow tile to snap it into place.</p>
+                    </div>
                     
                     <!-- Grid of GCFs and Area Model cells -->
                     <div class="relative grid grid-cols-3 grid-rows-3 gap-3 w-80 h-80 text-center text-sm font-bold select-none">
@@ -403,42 +452,7 @@
                     </div>
 
                     <!-- Split-coefficient sign decision (Stage 2) -->
-                    <div id="factor-inputs-row" class="mt-6 w-full max-w-md border-t border-slate-100 pt-5 flex flex-col items-center gap-3 hidden">
-                        <div class="text-center">
-                            <span class="text-xs font-bold text-slate-600 tracking-wide">choose the factor pair, then choose the signs</span>
-                            <p class="text-[10px] text-slate-500 mt-1">Enter the positive magnitudes <span class="font-mono font-bold">|p|</span> and <span class="font-mono font-bold">|q|</span>. Then decide whether each value is positive or negative.</p>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4 w-full">
-                            <div class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
-                                <label for="input-p" class="text-sm font-mono text-yellow-900 font-black">|p|</label>
-                                <input type="number" min="0" id="input-p" placeholder="5" class="w-24 px-2.5 py-1.5 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
-                                <div class="flex gap-2" aria-label="Choose the sign of p">
-                                    <button type="button" id="btn-p-plus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">+</button>
-                                    <button type="button" id="btn-p-minus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">−</button>
-                                </div>
-                            </div>
-                            <div class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
-                                <label for="input-q" class="text-sm font-mono text-yellow-900 font-black">|q|</label>
-                                <input type="number" min="0" id="input-q" placeholder="16" class="w-24 px-2.5 py-1.5 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
-                                <div class="flex gap-2" aria-label="Choose the sign of q">
-                                    <button type="button" id="btn-q-plus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">+</button>
-                                    <button type="button" id="btn-q-minus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">−</button>
-                                </div>
-                            </div>
-                        </div>
-                        <button id="btn-apply-pq" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all">
-                            Check signs
-                        </button>
-                        <p id="sign-choice-feedback" class="text-[11px] text-slate-500 text-center min-h-[1.25rem]">Find magnitudes that multiply to |ac|, then choose signs so the signed values also add to b.</p>
-                        <div id="split-term-placement" class="hidden w-full mt-2 pt-4 border-t border-slate-100 flex-col items-center gap-3">
-                            <p class="text-[11px] text-slate-500 text-center">Correct pair. Now place the two signed middle terms into the remaining area-model cells.</p>
-                            <div class="flex gap-3">
-                                <div id="card-px" draggable="true" class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none">px</div>
-                                <div id="card-qx" draggable="true" class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none">qx</div>
-                            </div>
-                            <p class="text-[10px] text-slate-400 italic">Drag px to the lower-left and qx to the upper-right, or click each card to snap it into its assigned cell.</p>
-                        </div>
-                    </div>
+                    
                 </div>
 
                 <!-- STUDENT TOOLS: available throughout the factoring workflow -->
@@ -524,7 +538,7 @@
     <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
         <div class="max-w-6xl mx-auto px-4">
-            <p>Interactive Area Model v38 — student-driven factoring practice for classroom displays and Chromebooks.</p>
+            <p>Interactive Area Model v39 — student-driven factoring practice for classroom displays and Chromebooks.</p>
         </div>
     </footer>
 
@@ -650,7 +664,10 @@
         const btnQPlus = document.getElementById('btn-q-plus');
         const btnQMinus = document.getElementById('btn-q-minus');
         const signChoiceFeedback = document.getElementById('sign-choice-feedback');
+        const pqProductCondition = document.getElementById('pq-product-condition');
+        const pqSumCondition = document.getElementById('pq-sum-condition');
         const splitTermPlacement = document.getElementById('split-term-placement');
+        const splitBxTile = document.getElementById('split-bx-tile');
         const cardPx = document.getElementById('card-px');
         const cardQx = document.getElementById('card-qx');
 
@@ -1113,8 +1130,10 @@
             signPChoice = null;
             signQChoice = null;
             updateSignChoiceButtons();
-            signChoiceFeedback.textContent = 'Find magnitudes that multiply to |ac|, then choose signs so the signed values also add to b.';
+            signChoiceFeedback.textContent = 'Find magnitudes, then choose signs so both target equations are true.';
             signChoiceFeedback.className = 'text-[11px] text-slate-500 text-center min-h-[1.25rem]';
+            if (pqProductCondition) pqProductCondition.textContent = 'p × q = a × c';
+            if (pqSumCondition) pqSumCondition.textContent = 'p + q = b';
             btnApplyPq.disabled = false;
             btnApplyPq.classList.remove('opacity-50');
             splitTermPlacement.classList.add('hidden');
@@ -1123,6 +1142,7 @@
             cardQx.classList.remove('opacity-20', 'pointer-events-none');
             cardPx.textContent = 'px';
             cardQx.textContent = 'qx';
+            splitBxTile.textContent = 'bx';
 
             // Reset Stage 2 target-setting and Stage 3 factor-tile workbench.
             inputProductTarget.value = '';
@@ -1220,13 +1240,15 @@
 
             if (currentStage === 3) {
                 if (!targetsVerified) {
-                    productTargetDisplay.textContent = 'Determine product & sum';
+                    productTargetDisplay.textContent = 'Find p and q';
                     productTargetDisplay.className = 'px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-500 rounded-xl font-mono text-xs font-bold text-center';
-                    targetDescription.innerHTML = `Use the trinomial above. Enter <strong>a × c</strong> and the coefficient <strong>b</strong>, then check both targets.`;
+                    targetDescription.innerHTML = `Determine the two targets first: <strong>p × q = a × c</strong> and <strong>p + q = b</strong>.`;
                 } else {
-                    productTargetDisplay.textContent = `ac = ${ac} • b = ${workB}`;
+                    productTargetDisplay.textContent = `p × q = ${ac}  •  p + q = ${workB}`;
                     productTargetDisplay.className = 'px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl font-mono text-xs font-bold text-center';
-                    targetDescription.innerHTML = `Targets confirmed. Now find integers p and q with product <strong>${ac}</strong> and sum <strong>${workB}</strong>. If you use the multiplication-chart tool, it shows positive factor magnitudes; you determine the signs.`;
+                    if (pqProductCondition) pqProductCondition.textContent = `p × q = ${ac}`;
+                    if (pqSumCondition) pqSumCondition.textContent = `p + q = ${workB}`;
+                    targetDescription.innerHTML = `Targets confirmed. Find <strong>p</strong> and <strong>q</strong> so that <strong>p × q = ${ac}</strong> and <strong>p + q = ${workB}</strong>. If you use the multiplication-chart tool, it shows positive factor magnitudes; you determine the signs.`;
                 }
             }
         }
@@ -1819,6 +1841,7 @@
             placedBL = false;
             cardPx.textContent = p === 1 ? 'x' : (p === -1 ? '-x' : `${p}x`);
             cardQx.textContent = q === 1 ? 'x' : (q === -1 ? '-x' : `${q}x`);
+            splitBxTile.textContent = cardBx.textContent;
             // Re-apply the yellow split-term styling whenever the verified p/q tiles are generated.
             // This prevents earlier state/reset classes from changing their visual meaning.
             const splitTileClass = 'px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none';
@@ -1833,7 +1856,7 @@
             [btnPPlus, btnPMinus, btnQPlus, btnQMinus].forEach(btn => btn.disabled = true);
             btnApplyPq.disabled = true;
             btnApplyPq.classList.add('opacity-50');
-            targetDescription.innerHTML = `Correct: <strong>p = ${p}</strong> and <strong>q = ${q}</strong>. Now place ${cardPx.textContent} and ${cardQx.textContent} into the two open area-model cells.`;
+            targetDescription.innerHTML = `Correct: <strong>p = ${p}</strong> and <strong>q = ${q}</strong>. The yellow split tiles are now beside the area model so you can place them into the two open cells.`;
             updateExpressionProgress();
         }
 
