@@ -30,12 +30,13 @@
         /* Visually separate the four product cells from the outside row/column factors. */
         .area-model-inner-border {
             position: absolute;
-            left: calc((100% - 24px) / 3 + 12px);
-            top: calc((100% - 24px) / 3 + 12px);
-            width: calc(((100% - 24px) / 3) * 2 + 12px);
-            height: calc(((100% - 24px) / 3) * 2 + 12px);
+            /* Leave a visible 6px breathing space between the frame and the 2x2 tiles. */
+            left: calc((100% - 24px) / 3 + 6px);
+            top: calc((100% - 24px) / 3 + 6px);
+            width: calc(((100% - 24px) / 3) * 2 + 24px);
+            height: calc(((100% - 24px) / 3) * 2 + 24px);
             border: 4px solid rgb(71 85 105);
-            border-radius: 18px;
+            border-radius: 20px;
             pointer-events: none;
             z-index: 20;
         }
@@ -101,15 +102,13 @@
                     <div class="flex flex-col gap-6">
                         <!-- Coefficient A Group -->
                         <div class="space-y-1.5">
-                            <div class="flex justify-between items-center gap-3">
+                            <div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
+                                <label for="force-a-one" class="flex items-center justify-center gap-1 bg-slate-100 px-2 py-1 rounded border border-slate-200 text-[10px] font-black text-slate-600 cursor-pointer select-none whitespace-nowrap">
+                                    <input type="checkbox" id="force-a-one" class="w-3.5 h-3.5 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer">
+                                    force a=1
+                                </label>
                                 <label for="num-a" class="text-sm font-black tracking-wide text-slate-900">coefficient a</label>
-                                <div class="flex items-center gap-2">
-                                    <input type="number" id="num-a" value="2" class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <label for="force-a-one" class="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded border border-slate-200 text-[10px] font-black text-slate-600 cursor-pointer select-none whitespace-nowrap">
-                                        <input type="checkbox" id="force-a-one" class="w-3.5 h-3.5 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer">
-                                        force a=1
-                                    </label>
-                                </div>
+                                <input type="number" id="num-a" value="2" class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
                             <div id="slider-container-a" class="relative flex items-center">
                                 <div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-300 pointer-events-none z-0"></div>
@@ -124,7 +123,8 @@
                         
                         <!-- Coefficient B Group -->
                         <div class="space-y-1.5">
-                            <div class="flex justify-between items-center">
+                            <div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
+                                <span aria-hidden="true"></span>
                                 <label for="num-b" class="text-sm font-black tracking-wide text-slate-900">coefficient b</label>
                                 <input type="number" id="num-b" value="-21" class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
@@ -141,7 +141,8 @@
                         
                         <!-- Coefficient C Group -->
                         <div class="space-y-1.5">
-                            <div class="flex justify-between items-center">
+                            <div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
+                                <span aria-hidden="true"></span>
                                 <label for="num-c" class="text-sm font-black tracking-wide text-slate-900">coefficient c</label>
                                 <input type="number" id="num-c" value="40" class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             </div>
