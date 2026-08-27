@@ -1,4 +1,4 @@
-<!-- Trinomial Factorization Helper v43: area-model-anchored p/q reasoning -->
+<!-- Trinomial Factorization Helper v46: generated outside-factor tiles -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -273,7 +273,7 @@
                         <div class="flex items-center gap-2"><span id="progress-dot-outer" class="progress-dot"></span><span id="progress-text-outer">Outer terms: add ax² and c</span></div>
                         <div class="flex items-center gap-2"><span id="progress-dot-split" class="progress-dot"></span><span id="progress-text-split">Middle-term split: find p and q</span></div>
                         <div class="flex items-center gap-2"><span id="progress-dot-middle" class="progress-dot"></span><span id="progress-text-middle">Area model: place px and qx</span></div>
-                        <div class="flex items-center gap-2"><span id="progress-dot-borders" class="progress-dot"></span><span id="progress-text-borders">Outside factors: 0 of 4 verified</span></div>
+                        <div class="flex items-center gap-2"><span id="progress-dot-borders" class="progress-dot"></span><span id="progress-text-borders">Outside factors: 0 found • 0 placed</span></div>
                         <div class="flex items-center gap-2"><span id="progress-dot-final" class="progress-dot"></span><span id="progress-text-final">Factored form: waiting for outside factors</span></div>
                     </div>
                 </div>
@@ -400,7 +400,7 @@
                         <i class="fa-solid fa-border-all text-indigo-500"></i> Outside factors
                     </h3>
                     <p class="text-xs text-slate-600 mb-4 leading-relaxed">
-                        Inspect the two terms in each row and column and determine what factor they share. These pairs update automatically as you fill the area model.
+                        Inspect the two terms in each row and column and determine what factor they share. A correct common factor generates a draggable tile for the area-model border.
                     </p>
 
                     <div id="outside-factor-pairs" class="space-y-4 mb-4">
@@ -474,16 +474,24 @@
                     </div>
 
                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <label for="factor-tile-input" class="block text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-2">Optional drag method: make a factor tile</label>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <input id="factor-tile-input" type="text" inputmode="text" placeholder="e.g. 2x or -5" class="min-w-[150px] flex-1 px-3 py-2 text-sm font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                            <button id="btn-make-factor-tile" type="button" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm">Make draggable tile</button>
+                        <div class="flex items-start justify-between gap-3 flex-wrap">
+                            <div>
+                                <div class="text-[11px] font-bold uppercase tracking-wide text-slate-600">Verified factor tiles</div>
+                                <p class="text-[10px] text-slate-500 mt-1">When you correctly identify a common factor above, its tile appears here. Drag the tile to the matching border of the area model.</p>
+                            </div>
                         </div>
-                        <div id="factor-tile-tray" class="mt-3 flex flex-wrap gap-2 min-h-[38px] items-center">
-                            <span class="text-[10px] text-slate-400 italic">Your factor tiles will appear here.</span>
+                        <div id="factor-tile-tray" class="mt-3 flex flex-wrap gap-2 min-h-[42px] items-center">
+                            <span class="text-[10px] text-slate-400 italic">Correct common factors will generate draggable tiles here.</span>
                         </div>
+                        <details class="mt-3 border-t border-slate-200 pt-3">
+                            <summary class="cursor-pointer text-[10px] font-bold text-slate-500 hover:text-slate-700">Make a scratch factor tile instead</summary>
+                            <div class="flex flex-wrap items-center gap-2 mt-3">
+                                <input id="factor-tile-input" type="text" inputmode="text" placeholder="e.g. 2x or -5" class="min-w-[150px] flex-1 px-3 py-2 text-sm font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                <button id="btn-make-factor-tile" type="button" class="px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-bold shadow-sm">Make scratch tile</button>
+                            </div>
+                        </details>
                     </div>
-                    <p id="border-entry-feedback" class="text-[10px] text-slate-400 text-center italic mt-4">Enter or drag factors at any time. If the needed cell values are not known yet, the entry will stay pending and be checked automatically later.</p>
+                    <p id="border-entry-feedback" class="text-[10px] text-slate-400 text-center italic mt-4">Find a common factor in a row or column to generate its tile, then drag it onto the area-model border. You can still type directly into a border as an alternate method.</p>
                 </div>
 
                 <!-- STAGE 4: Parentheses / conventional form -->
@@ -732,7 +740,7 @@
     <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
         <div class="max-w-6xl mx-auto px-4">
-            <p>Interactive Area Model v45 — non-linear factoring workspace with live row/column outside-factor inspection.</p>
+            <p>Interactive Area Model v46 — verified outside factors generate draggable tiles for placement on the area model.</p>
         </div>
     </footer>
 
@@ -742,6 +750,8 @@
         // State Machine Variables
         let currentStage = 0; // v42 compatibility only: mathematical state, not stage order, controls the workspace
         let pendingBorderEntries = { row1: "", row2: "", col1: "", col2: "" };
+        let pendingBorderSource = { row1: 'workspace', row2: 'workspace', col1: 'workspace', col2: 'workspace' };
+        let foundGCFBorders = { row1: null, row2: null, col1: null, col2: null };
         let borderAttemptState = { row1: 'idle', row2: 'idle', col1: 'idle', col2: 'idle' };
         let finalFactorsRevealed = { factor1: false, factor2: false };
         let placedTL = false;
@@ -1038,7 +1048,10 @@
 
         function clearBorderSolutionsForNewSplit() {
             solvedGCFBorders = { row1:null,row2:null,col1:null,col2:null };
+            foundGCFBorders = { row1:null,row2:null,col1:null,col2:null };
+            pendingBorderSource = { row1:'workspace',row2:'workspace',col1:'workspace',col2:'workspace' };
             borderAttemptState = { row1:'idle',row2:'idle',col1:'idle',col2:'idle' };
+            factorTileTray.innerHTML='<span class="text-[10px] text-slate-400 italic">Correct common factors will generate draggable tiles here.</span>';
             finalFactorData = null;
             finalExtraction = { factor1:1, factor2:1 };
             finalFactorsRevealed = { factor1:false, factor2:false };
@@ -1225,8 +1238,11 @@
             progressTextMiddle.textContent = splitVerified && middleCount === 2 ? 'Area model: both middle terms verified' : `Area model: ${middleCount} of 2 middle terms entered correctly`;
 
             const borderCount = Object.values(solvedGCFBorders).filter(v => v !== null).length;
-            setDot(progressDotBorders, borderCount === 4 ? 'done' : borderCount ? 'partial' : 'todo');
-            progressTextBorders.textContent = `Outside factors: ${borderCount} of 4 verified`;
+            const foundCount = Object.values(foundGCFBorders).filter(v => v !== null).length;
+            setDot(progressDotBorders, borderCount === 4 ? 'done' : (borderCount || foundCount) ? 'partial' : 'todo');
+            progressTextBorders.textContent = borderCount === 4
+                ? 'Outside factors: all 4 placed'
+                : `Outside factors: ${foundCount} found • ${borderCount} placed`;
 
             const finalDone = finalFactorsRevealed.factor1 && finalFactorsRevealed.factor2;
             setDot(progressDotFinal, finalDone ? 'done' : borderCount === 4 ? 'partial' : 'todo');
@@ -1239,7 +1255,7 @@
             for (const slotId of ['row1','row2','col1','col2']) {
                 if (solvedGCFBorders[slotId] !== null) continue;
                 const pending = pendingBorderEntries[slotId];
-                if (pending) verifyGCFAssignmentForSlot(slotId, pending, true);
+                if (pending) verifyGCFAssignmentForSlot(slotId, pending, true, pendingBorderSource[slotId] || 'workspace');
             }
         }
 
@@ -1687,8 +1703,10 @@
             toolChartFeedback.textContent='Enter the product you want to investigate. For a negative product, the chart uses its positive magnitude.';
             resetCalculator();
             factorTileInput.value='';
-            factorTileTray.innerHTML='<span class="text-[10px] text-slate-400 italic">Your factor tiles will appear here.</span>';
-            borderEntryFeedback.textContent='Enter or drag outside factors at any time. Early entries can remain pending.';
+            factorTileTray.innerHTML='<span class="text-[10px] text-slate-400 italic">Correct common factors will generate draggable tiles here.</span>';
+            foundGCFBorders = { row1:null,row2:null,col1:null,col2:null };
+            pendingBorderSource = { row1:'workspace',row2:'workspace',col1:'workspace',col2:'workspace' };
+            borderEntryFeedback.textContent='Find a common factor to generate its tile, then drag it to the matching border. Direct border entry is still available.';
             borderEntryFeedback.className='text-[10px] text-slate-500 text-center italic mt-4';
 
             prepareBorderEntrySlots();
@@ -2407,22 +2425,29 @@
                 ui.term2.textContent = second;
                 const completePair = first !== '?' && second !== '?';
                 const solved = solvedGCFBorders[slotId];
+                const found = foundGCFBorders[slotId];
                 const pending = pendingBorderEntries[slotId];
                 const state = borderAttemptState[slotId];
 
                 if (document.activeElement !== ui.input) {
                     if (solved !== null) ui.input.value = solved;
+                    else if (found !== null) ui.input.value = found;
                     else if (pending) ui.input.value = pending;
                 }
 
-                ui.input.disabled = solved !== null;
-                ui.button.disabled = solved !== null;
-                ui.button.classList.toggle('opacity-50', solved !== null);
-                ui.button.classList.toggle('cursor-not-allowed', solved !== null);
+                const locked = solved !== null || found !== null;
+                ui.input.disabled = locked;
+                ui.button.disabled = locked;
+                ui.button.classList.toggle('opacity-50', locked);
+                ui.button.classList.toggle('cursor-not-allowed', locked);
                 ui.input.classList.remove('ring-2','ring-rose-400','bg-amber-50','border-amber-400','bg-emerald-50','bg-blue-50');
 
                 if (solved !== null) {
-                    ui.status.textContent = `✓ ${borderLabel(slotId)} factor verified`;
+                    ui.status.textContent = `✓ ${borderLabel(slotId)} factor placed on the model`;
+                    ui.status.className = `mt-1 text-[10px] min-h-[14px] font-bold ${slotId.startsWith('row') ? 'text-emerald-700' : 'text-blue-700'}`;
+                    ui.input.classList.add(slotId.startsWith('row') ? 'bg-emerald-50' : 'bg-blue-50');
+                } else if (found !== null) {
+                    ui.status.textContent = `✓ Common factor found — drag the ${found} tile to ${borderLabel(slotId)}.`;
                     ui.status.className = `mt-1 text-[10px] min-h-[14px] font-bold ${slotId.startsWith('row') ? 'text-emerald-700' : 'text-blue-700'}`;
                     ui.input.classList.add(slotId.startsWith('row') ? 'bg-emerald-50' : 'bg-blue-50');
                 } else if (!completePair) {
@@ -2447,7 +2472,7 @@
             for (const slotId of ['row1','row2','col1','col2']) {
                 const ui = outsidePairSlots[slotId];
                 if (!ui || !ui.input || !ui.button) continue;
-                const submit = () => verifyGCFAssignmentForSlot(slotId, ui.input.value);
+                const submit = () => verifyGCFAssignmentForSlot(slotId, ui.input.value, false, 'workspace');
                 ui.input.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
                 ui.input.addEventListener('input', () => {
                     if (borderAttemptState[slotId] === 'wrong') borderAttemptState[slotId] = 'idle';
@@ -2461,15 +2486,19 @@
             if (solvedGCFBorders[slotId] !== null) return;
             const isRow = slotId.startsWith('row');
             const accent = isRow ? 'emerald' : 'blue';
-            element.className = `flex flex-col items-center justify-center border-2 border-dashed border-${accent}-300 rounded-2xl bg-${accent}-50/40 transition-all font-mono cursor-text relative z-10`;
+            const found = foundGCFBorders[slotId] !== null;
+            element.className = found
+                ? `flex flex-col items-center justify-center border-2 border-dashed border-${accent}-500 rounded-2xl bg-${accent}-50 transition-all font-mono cursor-copy relative z-10`
+                : `flex flex-col items-center justify-center border-2 border-dashed border-${accent}-300 rounded-2xl bg-${accent}-50/40 transition-all font-mono cursor-text relative z-10`;
             element.innerHTML = `
                 <span class="text-[9px] uppercase font-sans font-bold text-${accent}-600 mb-1">${borderLabel(slotId)}</span>
-                <input id="border-input-${slotId}" type="text" autocomplete="off" spellcheck="false" placeholder="factor" aria-label="${borderLabel(slotId)} factor" class="w-[76px] px-1.5 py-1 text-center text-sm font-mono font-black bg-white border border-${accent}-300 rounded-md text-${accent}-800 focus:ring-2 focus:ring-${accent}-400 focus:outline-none">
-                <button type="button" id="border-check-${slotId}" class="mt-1 text-[9px] font-bold text-${accent}-700 hover:underline">Check ↵</button>`;
+                ${found ? `<span class="text-[9px] font-sans font-black text-${accent}-700 mb-1">Drop tile here</span>` : ''}
+                <input id="border-input-${slotId}" type="text" autocomplete="off" spellcheck="false" placeholder="${found ? 'or type' : 'factor'}" aria-label="${borderLabel(slotId)} factor" class="w-[76px] px-1.5 py-1 text-center text-sm font-mono font-black bg-white border border-${accent}-300 rounded-md text-${accent}-800 focus:ring-2 focus:ring-${accent}-400 focus:outline-none">
+                <button type="button" id="border-check-${slotId}" class="mt-1 text-[9px] font-bold text-${accent}-700 hover:underline">${found ? 'Check typed' : 'Check ↵'}</button>`;
             const input = document.getElementById(`border-input-${slotId}`);
             const button = document.getElementById(`border-check-${slotId}`);
             if (pendingBorderEntries[slotId]) input.value = pendingBorderEntries[slotId];
-            const submit = () => verifyGCFAssignmentForSlot(slotId, input.value);
+            const submit = () => verifyGCFAssignmentForSlot(slotId, input.value, false, 'border');
             input.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
             button.addEventListener('click', submit);
         }
@@ -2480,23 +2509,61 @@
             renderBorderEntrySlot('col1', gcfCol1);
             renderBorderEntrySlot('col2', gcfCol2);
         }
-        function verifyGCFAssignmentForSlot(slotId, enteredVal, fromRecheck = false) {
+        function markGeneratedFactorTilePlaced(slotId) {
+            const tile = factorTileTray.querySelector(`[data-origin-slot="${slotId}"]`);
+            if (!tile) return;
+            tile.draggable = false;
+            tile.disabled = true;
+            tile.classList.add('opacity-45','cursor-default');
+            tile.classList.remove('cursor-grab','active:cursor-grabbing');
+            tile.setAttribute('aria-label', `${borderLabel(slotId)} factor placed`);
+            const badge = tile.querySelector('[data-tile-state]');
+            if (badge) badge.textContent = 'placed';
+        }
+
+        function createGeneratedFactorTile(slotId, raw) {
+            if (!slotId || foundGCFBorders[slotId] === null) return;
+            const existing = factorTileTray.querySelector(`[data-origin-slot="${slotId}"]`);
+            if (existing) return;
+            if (factorTileTray.querySelector('span.italic')) factorTileTray.innerHTML = '';
+            const isRow = slotId.startsWith('row');
+            const tile = document.createElement('button');
+            tile.type = 'button';
+            tile.draggable = true;
+            tile.dataset.originSlot = slotId;
+            tile.dataset.factorValue = raw;
+            tile.className = isRow
+                ? 'px-3 py-2 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border-2 border-emerald-400 text-sm font-mono font-black shadow-sm cursor-grab active:cursor-grabbing touch-action-none flex items-center gap-2'
+                : 'px-3 py-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 border-2 border-blue-400 text-sm font-mono font-black shadow-sm cursor-grab active:cursor-grabbing touch-action-none flex items-center gap-2';
+            tile.innerHTML = `<span>${escapeHtml(raw)}</span><span class="font-sans text-[9px] font-bold uppercase opacity-70">${borderLabel(slotId)}</span><span data-tile-state class="font-sans text-[9px] font-bold uppercase opacity-60">drag</span>`;
+            tile.setAttribute('aria-label', `${raw}, verified ${borderLabel(slotId)} factor. Drag to the area-model border.`);
+            tile.addEventListener('dragstart', e => {
+                e.dataTransfer.setData('text/factor-tile', raw);
+                e.dataTransfer.setData('text/factor-origin-slot', slotId);
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            setupFactorTileTouchDrag(tile, raw, slotId);
+            factorTileTray.appendChild(tile);
+        }
+
+        function verifyGCFAssignmentForSlot(slotId, enteredVal, fromRecheck = false, source = 'workspace') {
             if (solvedGCFBorders[slotId] !== null) return;
             const entered=normalizeFactorInput(enteredVal);
             if (!entered) return;
             pendingBorderEntries[slotId]=enteredVal.trim();
+            pendingBorderSource[slotId]=source;
             borderAttemptState[slotId]='idle';
             const modelBorderInput = document.getElementById(`border-input-${slotId}`);
-            if (modelBorderInput && document.activeElement !== modelBorderInput) modelBorderInput.value = enteredVal.trim();
+            if (modelBorderInput && document.activeElement !== modelBorderInput && source !== 'workspace') modelBorderInput.value = enteredVal.trim();
 
             if (!computeCorrectBordersFromSplit()) {
                 const input=document.getElementById(`border-input-${slotId}`);
-                if (input) {
+                if (input && source !== 'workspace') {
                     input.value=enteredVal.trim();
                     input.classList.remove('ring-2','ring-rose-400');
                     input.classList.add('bg-amber-50','border-amber-400');
                 }
-                borderEntryFeedback.textContent=`Saved ${enteredVal.trim()} for ${borderLabel(slotId)}. It is pending until p and q / the middle cells determine the row and column relationships.`;
+                borderEntryFeedback.textContent=`Saved ${enteredVal.trim()} for ${borderLabel(slotId)}. It is pending until the middle cells determine the row and column relationships.`;
                 borderEntryFeedback.className='text-[10px] text-amber-700 text-center italic mt-4 font-bold';
                 borderAttemptState[slotId]='pending';
                 updateProgressChecklist();
@@ -2505,20 +2572,34 @@
 
             const correct=normalizeFactorInput(correctGCFBorders[slotId]);
             if (entered===correct) {
-                solvedGCFBorders[slotId]=enteredVal.trim();
+                const displayValue = enteredVal.trim();
+                foundGCFBorders[slotId]=displayValue;
                 pendingBorderEntries[slotId]='';
                 borderAttemptState[slotId]='correct';
+
+                if (source === 'workspace') {
+                    createGeneratedFactorTile(slotId, displayValue);
+                    prepareBorderEntrySlots();
+                    borderEntryFeedback.textContent=`✓ ${borderLabel(slotId)} common factor found. A draggable ${displayValue} tile was generated below.`;
+                    borderEntryFeedback.className=`text-[10px] text-center italic mt-4 ${slotId.startsWith('row')?'text-emerald-700':'text-blue-700'} font-bold`;
+                    renderOutsideFactorWorkspace();
+                    updateProgressChecklist();
+                    return;
+                }
+
+                solvedGCFBorders[slotId]=displayValue;
                 const targetEl=document.getElementById(`gcf-${slotId}`);
                 const isRow=slotId.startsWith('row');
                 const themeClass=isRow ? 'text-emerald-700 border-emerald-500 bg-emerald-50 border-2 font-bold' : 'text-blue-700 border-blue-500 bg-blue-50 border-2 font-bold';
-                targetEl.innerHTML=`<span class="text-[9px] font-normal text-slate-400 absolute top-1">${borderLabel(slotId)}</span><span class="text-base font-black font-mono pt-2">${escapeHtml(enteredVal.trim())}</span>`;
+                targetEl.innerHTML=`<span class="text-[9px] font-normal text-slate-400 absolute top-1">${borderLabel(slotId)}</span><span class="text-base font-black font-mono pt-2">${escapeHtml(displayValue)}</span>`;
                 targetEl.className=`flex flex-col items-center justify-center rounded-2xl relative shadow-inner transition-all font-mono z-10 ${themeClass}`;
-                borderEntryFeedback.textContent=`✓ ${borderLabel(slotId)} is correct.`;
+                markGeneratedFactorTilePlaced(slotId);
+                borderEntryFeedback.textContent=`✓ ${displayValue} placed on ${borderLabel(slotId)}.`;
                 borderEntryFeedback.className=`text-[10px] text-center italic mt-4 ${isRow?'text-emerald-700':'text-blue-700'} font-bold`;
                 checkGCFBordersProgression();
             } else {
                 const input=document.getElementById(`border-input-${slotId}`);
-                if (input) {
+                if (input && source !== 'workspace') {
                     input.value=enteredVal.trim();
                     input.classList.remove('bg-amber-50','border-amber-400');
                     input.classList.add('ring-2','ring-rose-400');
@@ -2539,7 +2620,7 @@
             const value = normalizeFactorInput(raw);
             return /^(?:-?(?:\d+)?x|-?\d+)$/.test(value) && value !== '' && value !== '-';
         }
-        function setupFactorTileTouchDrag(tile, value) {
+        function setupFactorTileTouchDrag(tile, value, originSlot = null) {
             let ghost=null;
             tile.addEventListener('touchstart',e=>{
                 const touch=e.touches[0];
@@ -2556,7 +2637,7 @@
                 for(const [slotId,el] of [['row1',gcfRow1],['row2',gcfRow2],['col1',gcfCol1],['col2',gcfCol2]]) {
                     if(solvedGCFBorders[slotId]!==null) continue;
                     const r=el.getBoundingClientRect();
-                    if(touch.clientX>=r.left&&touch.clientX<=r.right&&touch.clientY>=r.top&&touch.clientY<=r.bottom){verifyGCFAssignmentForSlot(slotId,value);break;}
+                    if(touch.clientX>=r.left&&touch.clientX<=r.right&&touch.clientY>=r.top&&touch.clientY<=r.bottom){verifyGCFAssignmentForSlot(slotId,value,false,'drop');break;}
                 }
             });
         }
@@ -2597,7 +2678,7 @@
             element.addEventListener('drop',e=>{
                 if(solvedGCFBorders[slotId]!==null)return;
                 e.preventDefault(); const value=e.dataTransfer.getData('text/factor-tile');
-                if(value)verifyGCFAssignmentForSlot(slotId,value);
+                if(value)verifyGCFAssignmentForSlot(slotId,value,false,'drop');
             });
         }
         setupGCFBorderDropZone('row1', gcfRow1);
