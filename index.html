@@ -400,8 +400,79 @@
                         <i class="fa-solid fa-border-all text-indigo-500"></i> Outside factors
                     </h3>
                     <p class="text-xs text-slate-600 mb-4 leading-relaxed">
-                        Determine the factor shared by each pair of cells. You can <strong>type directly into any outside border</strong> and press Enter, or create your own factor tile below and drag it to a border.
+                        Inspect the two terms in each row and column and determine what factor they share. These pairs update automatically as you fill the area model.
                     </p>
+
+                    <div id="outside-factor-pairs" class="space-y-4 mb-4">
+                        <div>
+                            <div class="text-[10px] font-extrabold tracking-wide text-emerald-700 mb-2">Rows</div>
+                            <div class="grid gap-2">
+                                <div id="outside-pair-row1" class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-[10px] font-bold text-emerald-700 w-12">Row 1</span>
+                                        <div class="flex items-center gap-1.5 flex-1 min-w-[150px]">
+                                            <span id="outside-row1-term1" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-emerald-200 rounded-lg">?</span>
+                                            <span class="text-emerald-500 font-bold">and</span>
+                                            <span id="outside-row1-term2" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-emerald-200 rounded-lg">?</span>
+                                        </div>
+                                        <span class="text-slate-400">→</span>
+                                        <input id="outside-input-row1" type="text" autocomplete="off" spellcheck="false" placeholder="factor" aria-label="Row 1 common factor" class="w-24 px-2 py-2 text-center text-sm font-mono font-black bg-white border border-emerald-300 rounded-lg text-emerald-800 focus:ring-2 focus:ring-emerald-400 focus:outline-none">
+                                        <button id="outside-check-row1" type="button" class="px-2.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold">Check</button>
+                                    </div>
+                                    <div id="outside-status-row1" class="mt-1 text-[10px] text-emerald-700 min-h-[14px]"></div>
+                                </div>
+                                <div id="outside-pair-row2" class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-[10px] font-bold text-emerald-700 w-12">Row 2</span>
+                                        <div class="flex items-center gap-1.5 flex-1 min-w-[150px]">
+                                            <span id="outside-row2-term1" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-emerald-200 rounded-lg">?</span>
+                                            <span class="text-emerald-500 font-bold">and</span>
+                                            <span id="outside-row2-term2" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-emerald-200 rounded-lg">?</span>
+                                        </div>
+                                        <span class="text-slate-400">→</span>
+                                        <input id="outside-input-row2" type="text" autocomplete="off" spellcheck="false" placeholder="factor" aria-label="Row 2 common factor" class="w-24 px-2 py-2 text-center text-sm font-mono font-black bg-white border border-emerald-300 rounded-lg text-emerald-800 focus:ring-2 focus:ring-emerald-400 focus:outline-none">
+                                        <button id="outside-check-row2" type="button" class="px-2.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold">Check</button>
+                                    </div>
+                                    <div id="outside-status-row2" class="mt-1 text-[10px] text-emerald-700 min-h-[14px]"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-[10px] font-extrabold tracking-wide text-blue-700 mb-2">Columns</div>
+                            <div class="grid gap-2">
+                                <div id="outside-pair-col1" class="rounded-xl border border-blue-200 bg-blue-50/50 p-3">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-[10px] font-bold text-blue-700 w-14">Column 1</span>
+                                        <div class="flex items-center gap-1.5 flex-1 min-w-[150px]">
+                                            <span id="outside-col1-term1" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-blue-200 rounded-lg">?</span>
+                                            <span class="text-blue-500 font-bold">and</span>
+                                            <span id="outside-col1-term2" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-blue-200 rounded-lg">?</span>
+                                        </div>
+                                        <span class="text-slate-400">→</span>
+                                        <input id="outside-input-col1" type="text" autocomplete="off" spellcheck="false" placeholder="factor" aria-label="Column 1 common factor" class="w-24 px-2 py-2 text-center text-sm font-mono font-black bg-white border border-blue-300 rounded-lg text-blue-800 focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                                        <button id="outside-check-col1" type="button" class="px-2.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold">Check</button>
+                                    </div>
+                                    <div id="outside-status-col1" class="mt-1 text-[10px] text-blue-700 min-h-[14px]"></div>
+                                </div>
+                                <div id="outside-pair-col2" class="rounded-xl border border-blue-200 bg-blue-50/50 p-3">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-[10px] font-bold text-blue-700 w-14">Column 2</span>
+                                        <div class="flex items-center gap-1.5 flex-1 min-w-[150px]">
+                                            <span id="outside-col2-term1" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-blue-200 rounded-lg">?</span>
+                                            <span class="text-blue-500 font-bold">and</span>
+                                            <span id="outside-col2-term2" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-blue-200 rounded-lg">?</span>
+                                        </div>
+                                        <span class="text-slate-400">→</span>
+                                        <input id="outside-input-col2" type="text" autocomplete="off" spellcheck="false" placeholder="factor" aria-label="Column 2 common factor" class="w-24 px-2 py-2 text-center text-sm font-mono font-black bg-white border border-blue-300 rounded-lg text-blue-800 focus:ring-2 focus:ring-blue-400 focus:outline-none">
+                                        <button id="outside-check-col2" type="button" class="px-2.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold">Check</button>
+                                    </div>
+                                    <div id="outside-status-col2" class="mt-1 text-[10px] text-blue-700 min-h-[14px]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
                         <label for="factor-tile-input" class="block text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-2">Optional drag method: make a factor tile</label>
                         <div class="flex flex-wrap items-center gap-2">
@@ -661,7 +732,7 @@
     <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
         <div class="max-w-6xl mx-auto px-4">
-            <p>Interactive Area Model v43 — non-linear factoring workspace with area-model-anchored p/q reasoning.</p>
+            <p>Interactive Area Model v45 — non-linear factoring workspace with live row/column outside-factor inspection.</p>
         </div>
     </footer>
 
@@ -671,6 +742,7 @@
         // State Machine Variables
         let currentStage = 0; // v42 compatibility only: mathematical state, not stage order, controls the workspace
         let pendingBorderEntries = { row1: "", row2: "", col1: "", col2: "" };
+        let borderAttemptState = { row1: 'idle', row2: 'idle', col1: 'idle', col2: 'idle' };
         let finalFactorsRevealed = { factor1: false, factor2: false };
         let placedTL = false;
         let placedBR = false;
@@ -761,6 +833,24 @@
         const btnMakeFactorTile = document.getElementById('btn-make-factor-tile');
         const factorTileTray = document.getElementById('factor-tile-tray');
         const borderEntryFeedback = document.getElementById('border-entry-feedback');
+        const outsidePairSlots = {
+            row1: {
+                term1: document.getElementById('outside-row1-term1'), term2: document.getElementById('outside-row1-term2'),
+                input: document.getElementById('outside-input-row1'), button: document.getElementById('outside-check-row1'), status: document.getElementById('outside-status-row1')
+            },
+            row2: {
+                term1: document.getElementById('outside-row2-term1'), term2: document.getElementById('outside-row2-term2'),
+                input: document.getElementById('outside-input-row2'), button: document.getElementById('outside-check-row2'), status: document.getElementById('outside-status-row2')
+            },
+            col1: {
+                term1: document.getElementById('outside-col1-term1'), term2: document.getElementById('outside-col1-term2'),
+                input: document.getElementById('outside-input-col1'), button: document.getElementById('outside-check-col1'), status: document.getElementById('outside-status-col1')
+            },
+            col2: {
+                term1: document.getElementById('outside-col2-term1'), term2: document.getElementById('outside-col2-term2'),
+                input: document.getElementById('outside-input-col2'), button: document.getElementById('outside-check-col2'), status: document.getElementById('outside-status-col2')
+            }
+        };
 
         // Card Blocks on right
         const cardAx2 = document.getElementById('card-ax2');
@@ -948,6 +1038,7 @@
 
         function clearBorderSolutionsForNewSplit() {
             solvedGCFBorders = { row1:null,row2:null,col1:null,col2:null };
+            borderAttemptState = { row1:'idle',row2:'idle',col1:'idle',col2:'idle' };
             finalFactorData = null;
             finalExtraction = { factor1:1, factor2:1 };
             finalFactorsRevealed = { factor1:false, factor2:false };
@@ -1140,6 +1231,7 @@
             const finalDone = finalFactorsRevealed.factor1 && finalFactorsRevealed.factor2;
             setDot(progressDotFinal, finalDone ? 'done' : borderCount === 4 ? 'partial' : 'todo');
             progressTextFinal.textContent = finalDone ? 'Factored form: complete' : (borderCount === 4 ? 'Factored form: ready to reveal/build' : 'Factored form: waiting for outside factors');
+            renderOutsideFactorWorkspace();
         }
 
         function revalidatePendingBorders() {
@@ -1538,6 +1630,7 @@
             solvedGCFBorders = { row1:null,row2:null,col1:null,col2:null };
             correctGCFBorders = { row1:'',row2:'',col1:'',col2:'' };
             pendingBorderEntries = { row1:'',row2:'',col1:'',col2:'' };
+            borderAttemptState = { row1:'idle',row2:'idle',col1:'idle',col2:'idle' };
 
             [cellTlValue,cellTrValue,cellBlValue,cellBrValue].forEach(el => el.textContent='');
             ['tl','tr','bl','br'].forEach(pos => setCellVisual(pos,'empty'));
@@ -2290,6 +2383,80 @@
             return ({ row1: 'Row 1', row2: 'Row 2', col1: 'Column 1', col2: 'Column 2' })[slotId];
         }
 
+        function outsidePairTerms(slotId) {
+            const values = {
+                tl: cellTlValue.textContent.trim() || '?',
+                tr: cellTrValue.textContent.trim() || '?',
+                bl: cellBlValue.textContent.trim() || '?',
+                br: cellBrValue.textContent.trim() || '?'
+            };
+            return ({
+                row1: [values.tl, values.tr],
+                row2: [values.bl, values.br],
+                col1: [values.tl, values.bl],
+                col2: [values.tr, values.br]
+            })[slotId];
+        }
+
+        function renderOutsideFactorWorkspace() {
+            for (const slotId of ['row1','row2','col1','col2']) {
+                const ui = outsidePairSlots[slotId];
+                if (!ui || !ui.term1 || !ui.term2 || !ui.input || !ui.status) continue;
+                const [first, second] = outsidePairTerms(slotId);
+                ui.term1.textContent = first;
+                ui.term2.textContent = second;
+                const completePair = first !== '?' && second !== '?';
+                const solved = solvedGCFBorders[slotId];
+                const pending = pendingBorderEntries[slotId];
+                const state = borderAttemptState[slotId];
+
+                if (document.activeElement !== ui.input) {
+                    if (solved !== null) ui.input.value = solved;
+                    else if (pending) ui.input.value = pending;
+                }
+
+                ui.input.disabled = solved !== null;
+                ui.button.disabled = solved !== null;
+                ui.button.classList.toggle('opacity-50', solved !== null);
+                ui.button.classList.toggle('cursor-not-allowed', solved !== null);
+                ui.input.classList.remove('ring-2','ring-rose-400','bg-amber-50','border-amber-400','bg-emerald-50','bg-blue-50');
+
+                if (solved !== null) {
+                    ui.status.textContent = `✓ ${borderLabel(slotId)} factor verified`;
+                    ui.status.className = `mt-1 text-[10px] min-h-[14px] font-bold ${slotId.startsWith('row') ? 'text-emerald-700' : 'text-blue-700'}`;
+                    ui.input.classList.add(slotId.startsWith('row') ? 'bg-emerald-50' : 'bg-blue-50');
+                } else if (!completePair) {
+                    ui.status.textContent = pending ? 'Saved; waiting for both terms to be known.' : 'One or both terms are still unknown.';
+                    ui.status.className = 'mt-1 text-[10px] min-h-[14px] text-amber-700';
+                    if (pending) ui.input.classList.add('bg-amber-50','border-amber-400');
+                } else if (state === 'wrong') {
+                    ui.status.textContent = 'That factor does not divide both terms correctly.';
+                    ui.status.className = 'mt-1 text-[10px] min-h-[14px] text-rose-600 font-bold';
+                    ui.input.classList.add('ring-2','ring-rose-400');
+                } else if (pending) {
+                    ui.status.textContent = 'Ready to check this common factor.';
+                    ui.status.className = 'mt-1 text-[10px] min-h-[14px] text-slate-500';
+                } else {
+                    ui.status.textContent = 'What factor is common to both terms?';
+                    ui.status.className = `mt-1 text-[10px] min-h-[14px] ${slotId.startsWith('row') ? 'text-emerald-700' : 'text-blue-700'}`;
+                }
+            }
+        }
+
+        function registerOutsidePairControls() {
+            for (const slotId of ['row1','row2','col1','col2']) {
+                const ui = outsidePairSlots[slotId];
+                if (!ui || !ui.input || !ui.button) continue;
+                const submit = () => verifyGCFAssignmentForSlot(slotId, ui.input.value);
+                ui.input.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+                ui.input.addEventListener('input', () => {
+                    if (borderAttemptState[slotId] === 'wrong') borderAttemptState[slotId] = 'idle';
+                    ui.input.classList.remove('ring-2','ring-rose-400');
+                });
+                ui.button.addEventListener('click', submit);
+            }
+        }
+
         function renderBorderEntrySlot(slotId, element) {
             if (solvedGCFBorders[slotId] !== null) return;
             const isRow = slotId.startsWith('row');
@@ -2318,6 +2485,9 @@
             const entered=normalizeFactorInput(enteredVal);
             if (!entered) return;
             pendingBorderEntries[slotId]=enteredVal.trim();
+            borderAttemptState[slotId]='idle';
+            const modelBorderInput = document.getElementById(`border-input-${slotId}`);
+            if (modelBorderInput && document.activeElement !== modelBorderInput) modelBorderInput.value = enteredVal.trim();
 
             if (!computeCorrectBordersFromSplit()) {
                 const input=document.getElementById(`border-input-${slotId}`);
@@ -2328,6 +2498,7 @@
                 }
                 borderEntryFeedback.textContent=`Saved ${enteredVal.trim()} for ${borderLabel(slotId)}. It is pending until p and q / the middle cells determine the row and column relationships.`;
                 borderEntryFeedback.className='text-[10px] text-amber-700 text-center italic mt-4 font-bold';
+                borderAttemptState[slotId]='pending';
                 updateProgressChecklist();
                 return;
             }
@@ -2336,6 +2507,7 @@
             if (entered===correct) {
                 solvedGCFBorders[slotId]=enteredVal.trim();
                 pendingBorderEntries[slotId]='';
+                borderAttemptState[slotId]='correct';
                 const targetEl=document.getElementById(`gcf-${slotId}`);
                 const isRow=slotId.startsWith('row');
                 const themeClass=isRow ? 'text-emerald-700 border-emerald-500 bg-emerald-50 border-2 font-bold' : 'text-blue-700 border-blue-500 bg-blue-50 border-2 font-bold';
@@ -2354,6 +2526,7 @@
                 }
                 borderEntryFeedback.textContent=`Recheck ${borderLabel(slotId)}. That factor does not match the two cells in its row or column.`;
                 borderEntryFeedback.className='text-[10px] text-rose-600 text-center italic mt-4 font-bold';
+                borderAttemptState[slotId]='wrong';
             }
             updateProgressChecklist();
         }
@@ -2523,6 +2696,9 @@
             // Extremely unlikely fallback.
             applyPreset(2, -21, 40);
         };
+
+        registerOutsidePairControls();
+        renderOutsideFactorWorkspace();
 
         // Standard default starting values
         function applyPreset(a, b, c) {
