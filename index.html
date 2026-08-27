@@ -1,4 +1,4 @@
-<!-- Trinomial Factorization Helper v48: full-height column factor drop lanes -->
+<!-- Trinomial Factorization Helper v51: sticky active polynomial above both columns -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -171,7 +171,7 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
 
     <!-- Header Section -->
-    <header class="border-b border-slate-200 bg-white sticky top-0 z-50 shadow-sm">
+    <header id="site-header" class="border-b border-slate-200 bg-white sticky top-0 z-50 shadow-sm">
         <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <div class="p-2.5 bg-blue-600/10 text-blue-600 rounded-xl border border-blue-500/20">
@@ -189,8 +189,25 @@
     </header>
 
     <!-- Main Content Layout -->
-    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 flex flex-col gap-8">
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 flex flex-col gap-6">
         
+        <!-- v51: Shared sticky active polynomial above both columns -->
+        <div id="active-equation-card" class="sticky z-40 bg-white/95 backdrop-blur border border-slate-200 rounded-2xl px-5 py-4 shadow-md flex flex-col items-center justify-center gap-2" style="top: var(--sticky-polynomial-top, 72px);">
+            <div id="original-equation-reference" class="hidden w-full text-center border-b border-slate-100 pb-3 mb-1">
+                <span class="text-[10px] font-extrabold tracking-widest text-slate-400">original trinomial</span>
+                <div id="original-equation-display" class="mt-1 text-base font-bold text-slate-600 math-font">2x² - 21x + 40</div>
+            </div>
+            <span id="active-equation-label" class="text-xs font-extrabold tracking-widest text-slate-400">active polynomial expression</span>
+            <div id="equation-display" class="text-3xl font-black text-slate-900 math-font py-1">
+                2x² - 21x + 40
+            </div>
+            <div id="area-model-expression-reference" class="hidden w-full max-w-2xl mt-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-center">
+                <div class="text-[10px] font-bold tracking-wider text-slate-400">area model represents</div>
+                <div id="area-model-expression-display" class="mt-1 math-font text-sm font-bold text-slate-700"></div>
+            </div>
+        </div>
+
+
         <!-- Top Part: Split-Screen Controls and Area Model Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
@@ -555,25 +572,9 @@
 
             </section>
 
-            <!-- RIGHT COLUMN: Persistent mathematical workspace — expression, area model, and tools (7 Cols) -->
+            <!-- RIGHT COLUMN: Persistent mathematical workspace — area model and tools (7 Cols) -->
             <section id="workspace-column" class="lg:col-span-7 flex flex-col gap-6 order-1 lg:order-last">
                 
-                <!-- Active Equation Header -->
-                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-md flex flex-col items-center justify-center gap-2">
-                    <div id="original-equation-reference" class="hidden w-full text-center border-b border-slate-100 pb-3 mb-1">
-                        <span class="text-[10px] font-extrabold tracking-widest text-slate-400">original trinomial</span>
-                        <div id="original-equation-display" class="mt-1 text-base font-bold text-slate-600 math-font">2x² - 21x + 40</div>
-                    </div>
-                    <span id="active-equation-label" class="text-xs font-extrabold tracking-widest text-slate-400">active polynomial expression</span>
-                    <div id="equation-display" class="text-3xl font-black text-slate-900 math-font py-1">
-                        2x² - 21x + 40
-                    </div>
-                    <div id="area-model-expression-reference" class="hidden w-full max-w-2xl mt-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-center">
-                        <div class="text-[10px] font-bold tracking-wider text-slate-400">area model represents</div>
-                        <div id="area-model-expression-display" class="mt-1 math-font text-sm font-bold text-slate-700"></div>
-                    </div>
-                </div>
-
                 <!-- Stationary 2x2 Area Model Grid -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center relative">
                     <div class="flex w-full items-center justify-between mb-6 border-b border-slate-100 pb-2">
@@ -770,24 +771,38 @@
     <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
         <div class="max-w-6xl mx-auto px-4">
-            <p>Interactive Area Model v49 — the left instructional scrollbar now matches the full height of the right workspace.</p>
+            <p>Interactive Area Model v51 — the active polynomial stays visible above both workspace columns.</p>
         </div>
     </footer>
 
     <!-- Interactive App Script -->
     <script>
 
-        // Keep the left column's scrollbar track aligned with the full height
-        // of the right workspace on desktop. The right column can grow when
-        // tools/explanations open, so a ResizeObserver keeps the heights synced.
+        // v51: keep the shared active-polynomial card directly beneath the sticky site header.
+        const siteHeader = document.getElementById('site-header');
+        function syncStickyPolynomialOffset() {
+            const headerHeight = siteHeader ? Math.ceil(siteHeader.getBoundingClientRect().height) : 72;
+            document.documentElement.style.setProperty('--sticky-polynomial-top', `${headerHeight + 8}px`);
+        }
+        if (siteHeader) {
+            const headerResizeObserver = new ResizeObserver(syncStickyPolynomialOffset);
+            headerResizeObserver.observe(siteHeader);
+            window.addEventListener('resize', syncStickyPolynomialOffset);
+            requestAnimationFrame(syncStickyPolynomialOffset);
+        }
+
+        // Give the left instructional scrollbar extra vertical travel beyond the
+        // right workspace on desktop. The right column can grow when
+        // tools/explanations open, so a ResizeObserver keeps the base height synced.
         const instructionColumn = document.getElementById('instruction-column');
         const workspaceColumn = document.getElementById('workspace-column');
         const desktopColumnsQuery = window.matchMedia('(min-width: 1024px)');
+        const instructionScrollExtension = 220; // px beyond the right workspace
 
         function syncInstructionColumnHeight() {
             if (!instructionColumn || !workspaceColumn) return;
             if (desktopColumnsQuery.matches) {
-                instructionColumn.style.height = `${workspaceColumn.getBoundingClientRect().height}px`;
+                instructionColumn.style.height = `${workspaceColumn.getBoundingClientRect().height + instructionScrollExtension}px`;
                 instructionColumn.style.maxHeight = 'none';
                 instructionColumn.style.overflowY = 'auto';
             } else {
