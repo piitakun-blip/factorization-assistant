@@ -1,4 +1,4 @@
-<!-- Trinomial Factorization Helper v36: always-available student tools -->
+<!-- Trinomial Factorization Helper v42: non-linear open factoring workspace -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,6 +83,35 @@
             position: relative;
             z-index: 1;
         }
+
+        /* v42: every area-model value can be typed directly; stages are guidance, not gates. */
+        .editable-model-value {
+            min-width: 3.5rem;
+            min-height: 2rem;
+            padding: 0.2rem 0.35rem;
+            border-radius: 0.35rem;
+            outline: none;
+            cursor: text;
+            white-space: nowrap;
+        }
+        .editable-model-value:empty::before {
+            content: attr(data-placeholder);
+            color: rgb(148 163 184);
+            font-weight: 500;
+        }
+        .editable-model-value:focus {
+            box-shadow: 0 0 0 2px rgb(99 102 241 / .35);
+            background: rgb(255 255 255 / .8);
+        }
+        .progress-dot {
+            width: .65rem;
+            height: .65rem;
+            border-radius: 9999px;
+            background: rgb(203 213 225);
+            flex: 0 0 auto;
+        }
+        .progress-dot.done { background: rgb(16 185 129); }
+        .progress-dot.partial { background: rgb(245 158 11); }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
@@ -205,20 +234,40 @@
                     <div id="gcf-explanation" class="text-xs text-slate-500 leading-relaxed text-center">No choice is required to continue.</div>
                 </div>
 
+                <!-- v42 NON-LINEAR WORKSPACE PROGRESS: guidance only; nothing is locked by order. -->
+                <div id="workspace-progress-card" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <div class="flex items-start justify-between gap-3 mb-3">
+                        <div>
+                            <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-route text-indigo-500"></i> Workspace progress
+                            </h3>
+                            <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Work in any order. Type directly into the area model, drag tiles, or use the helpers below. The app checks mathematical relationships when enough information is available.</p>
+                        </div>
+                        <span class="px-2 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[9px] font-extrabold tracking-wide whitespace-nowrap">open workspace</span>
+                    </div>
+                    <div class="grid gap-2 text-[11px] text-slate-600">
+                        <div class="flex items-center gap-2"><span id="progress-dot-outer" class="progress-dot"></span><span id="progress-text-outer">Outer terms: add ax² and c</span></div>
+                        <div class="flex items-center gap-2"><span id="progress-dot-split" class="progress-dot"></span><span id="progress-text-split">Middle-term split: find p and q</span></div>
+                        <div class="flex items-center gap-2"><span id="progress-dot-middle" class="progress-dot"></span><span id="progress-text-middle">Area model: place px and qx</span></div>
+                        <div class="flex items-center gap-2"><span id="progress-dot-borders" class="progress-dot"></span><span id="progress-text-borders">Outside factors: 0 of 4 verified</span></div>
+                        <div class="flex items-center gap-2"><span id="progress-dot-final" class="progress-dot"></span><span id="progress-text-final">Factored form: waiting for outside factors</span></div>
+                    </div>
+                </div>
+
                 <!-- Full trinomial term strip. The middle term stays visible until the student splits it. -->
                 <div id="term-cards-container" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center gap-3">
-                    <span id="term-cards-heading" class="text-xs font-bold text-slate-500 uppercase tracking-wide">Stage 1: Place the outer terms</span>
+                    <span id="term-cards-heading" class="text-xs font-bold text-slate-500 uppercase tracking-wide">Place terms</span>
                     <div class="flex flex-wrap items-center justify-center gap-3">
                         <div id="card-ax2" draggable="true" class="px-5 py-2.5 bg-blue-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-blue-700 active:scale-95 transition-all text-sm select-none touch-action-none">2x²</div>
                         <div id="card-bx" aria-label="Middle term to split" class="px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none">-21x</div>
                         <div id="card-c" draggable="true" class="px-5 py-2.5 bg-purple-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-purple-700 active:scale-95 transition-all text-sm select-none touch-action-none">40</div>
                     </div>
-                    <p id="term-cards-help" class="text-[11px] text-slate-500 italic text-center">The middle term stays visible because it must be split before it can enter the model. Drag or click the first and third terms into their cells.</p>
+                    <p id="term-cards-help" class="text-[11px] text-slate-500 italic text-center">Drag, click, or type directly into the area-model cells. The yellow middle term can be rewritten with the p/q helper whenever you want.</p>
                 </div>
 
 
                 <!-- STAGE 2: Split the middle term -->
-                <div id="multiplication-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md hidden">
+                <div id="multiplication-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
                     <div id="stage2-sticky-problem" class="stage2-sticky-problem -mx-2 mb-4 px-3 py-2.5 rounded-xl border border-amber-200 bg-white/95 shadow-sm">
                         <div class="flex flex-wrap items-center justify-center gap-2 text-center">
                             <span class="text-[10px] font-bold tracking-wide text-slate-500">current problem</span>
@@ -229,9 +278,9 @@
                     <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
                         <div>
                             <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-scissors text-amber-500"></i> Stage 2: Split the Middle Term
+                                <i class="fa-solid fa-scissors text-amber-500"></i> p/q helper: Split the Middle Term
                             </h3>
-                            <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Find two numbers <span class="font-mono font-bold">p</span> and <span class="font-mono font-bold">q</span> that satisfy both conditions below. The Calculator and Multiplication chart beside the area model are available whenever you want them.</p>
+                            <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Use this helper whenever it is useful. Find two numbers <span class="font-mono font-bold">p</span> and <span class="font-mono font-bold">q</span> that satisfy both conditions below, or enter middle terms directly in the area model if you already know them.</p>
                         </div>
                         <div id="product-target-display" class="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-500 rounded-xl font-mono text-xs font-bold text-center">
                             Find p and q
@@ -264,7 +313,7 @@
                     </div>
 
                     <!-- p/q reasoning remains in the left Stage 2 column -->
-                    <div id="factor-inputs-row" class="mt-5 w-full border-t border-amber-100 pt-5 flex flex-col items-center gap-3 hidden">
+                    <div id="factor-inputs-row" class="mt-5 w-full border-t border-amber-100 pt-5 flex flex-col items-center gap-3">
                         <div class="text-center">
                             <span class="text-sm font-extrabold text-slate-800 tracking-wide">Determine p and q</span>
                             <p class="text-[10px] text-slate-500 mt-1">Use your verified targets. Find the magnitudes first, then choose signs so the final signed values satisfy both equations.</p>
@@ -301,9 +350,9 @@
 
 
                 <!-- STAGE 3: Student-generated row/column factors -->
-                <div id="gcf-border-selection-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md hidden">
+                <div id="gcf-border-selection-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
                     <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-2 flex items-center gap-1.5">
-                        <i class="fa-solid fa-border-all text-indigo-500"></i> Stage 3: Find the Outside Factors
+                        <i class="fa-solid fa-border-all text-indigo-500"></i> Outside factors
                     </h3>
                     <p class="text-xs text-slate-600 mb-4 leading-relaxed">
                         Determine the factor shared by each pair of cells. You can <strong>type directly into any outside border</strong> and press Enter, or create your own factor tile below and drag it to a border.
@@ -318,13 +367,13 @@
                             <span class="text-[10px] text-slate-400 italic">Your factor tiles will appear here.</span>
                         </div>
                     </div>
-                    <p id="border-entry-feedback" class="text-[10px] text-slate-400 text-center italic mt-4">Each correct entry will lock into its border.</p>
+                    <p id="border-entry-feedback" class="text-[10px] text-slate-400 text-center italic mt-4">Enter or drag factors at any time. If the needed cell values are not known yet, the entry will stay pending and be checked automatically later.</p>
                 </div>
 
                 <!-- STAGE 4: Parentheses / conventional form -->
-                <div id="parenthesis-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md hidden">
+                <div id="parenthesis-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
                     <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                        <i class="fa-solid fa-arrow-right-to-bracket text-blue-500"></i> Stage 4: Conventional Form
+                        <i class="fa-solid fa-arrow-right-to-bracket text-blue-500"></i> Write the binomial factors
                     </h3>
                     
                     <!-- Click binomial outputs -->
@@ -377,7 +426,7 @@
                         <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                             <i class="fa-solid fa-table-cells-large text-purple-500"></i> The 2x2 Area Model
                         </h3>
-                        <span id="active-status-pill" class="px-2 py-0.5 bg-slate-100 text-slate-500 font-bold tracking-wide uppercase text-[9px] rounded-full border border-slate-200">Stage 1</span>
+                        <span id="active-status-pill" class="px-2 py-0.5 bg-slate-100 text-slate-500 font-bold tracking-wide uppercase text-[9px] rounded-full border border-slate-200">Open workspace</span>
                     </div>
 
                     <!-- Once p and q are verified, show the split beside the area model. -->
@@ -398,6 +447,10 @@
                         <p class="text-[10px] text-slate-500 text-center">Drag <span class="font-mono font-bold">px</span> to the lower-left and <span class="font-mono font-bold">qx</span> to the upper-right, or click each yellow tile to snap it into place.</p>
                     </div>
                     
+                    <div class="w-full mb-3 px-3 py-2 rounded-xl border border-indigo-100 bg-indigo-50/40 text-[10px] text-indigo-800 text-center">
+                        <strong>Open workspace:</strong> click a value inside any of the four cells and type a term directly, or drag a matching tile. Press Enter or click away to check it.
+                    </div>
+
                     <!-- Grid of GCFs and Area Model cells -->
                     <div class="relative grid grid-cols-3 grid-rows-3 gap-3 w-80 h-80 text-center text-sm font-bold select-none">
                         <!-- Top-Left Spacer -->
@@ -420,13 +473,13 @@
                         
                         <!-- Cell TL: ax² -->
                         <div id="cell-tl" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-900 font-mono transition-all duration-300 relative">
-                            <span class="text-2xl font-black"></span>
+                            <span id="cell-tl-value" contenteditable="true" role="textbox" aria-label="top-left ax squared term" spellcheck="false" data-placeholder="type ax²" class="editable-model-value text-2xl font-black"></span>
                             <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">ax²</span>
                         </div>
                         
                         <!-- Cell TR: qx -->
                         <div id="cell-tr" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-600 font-mono transition-all duration-300">
-                            <span class="text-2xl font-black"></span>
+                            <span id="cell-tr-value" contenteditable="true" role="textbox" aria-label="top-right qx term" spellcheck="false" data-placeholder="type qx" class="editable-model-value text-2xl font-black"></span>
                             <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">qx</span>
                         </div>
                         
@@ -437,13 +490,13 @@
                         
                         <!-- Cell BL: px -->
                         <div id="cell-bl" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-600 font-mono transition-all duration-300">
-                            <span class="text-2xl font-black"></span>
+                            <span id="cell-bl-value" contenteditable="true" role="textbox" aria-label="bottom-left px term" spellcheck="false" data-placeholder="type px" class="editable-model-value text-2xl font-black"></span>
                             <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">px</span>
                         </div>
                         
                         <!-- Cell BR: c -->
                         <div id="cell-br" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-900 font-mono transition-all duration-300 relative">
-                            <span class="text-2xl font-black"></span>
+                            <span id="cell-br-value" contenteditable="true" role="textbox" aria-label="bottom-right constant term" spellcheck="false" data-placeholder="type c" class="editable-model-value text-2xl font-black"></span>
                             <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">c</span>
                         </div>
 
@@ -544,8 +597,11 @@
 
     <!-- Interactive App Script -->
     <script>
+
         // State Machine Variables
-        let currentStage = 2; // 2: Place terms, 3: Split factors, 4: Border GCFs, 5: Final binomials
+        let currentStage = 0; // v42 compatibility only: mathematical state, not stage order, controls the workspace
+        let pendingBorderEntries = { row1: "", row2: "", col1: "", col2: "" };
+        let finalFactorsRevealed = { factor1: false, factor2: false };
         let placedTL = false;
         let placedBR = false;
         let pulledGCF = 1; // optional overall numerical GCF already factored out
@@ -648,6 +704,20 @@
         const cellTr = document.getElementById('cell-tr');
         const cellBl = document.getElementById('cell-bl');
         const cellBr = document.getElementById('cell-br');
+        const cellTlValue = document.getElementById('cell-tl-value');
+        const cellTrValue = document.getElementById('cell-tr-value');
+        const cellBlValue = document.getElementById('cell-bl-value');
+        const cellBrValue = document.getElementById('cell-br-value');
+        const progressDotOuter = document.getElementById('progress-dot-outer');
+        const progressDotSplit = document.getElementById('progress-dot-split');
+        const progressDotMiddle = document.getElementById('progress-dot-middle');
+        const progressDotBorders = document.getElementById('progress-dot-borders');
+        const progressDotFinal = document.getElementById('progress-dot-final');
+        const progressTextOuter = document.getElementById('progress-text-outer');
+        const progressTextSplit = document.getElementById('progress-text-split');
+        const progressTextMiddle = document.getElementById('progress-text-middle');
+        const progressTextBorders = document.getElementById('progress-text-borders');
+        const progressTextFinal = document.getElementById('progress-text-final');
         
         const gcfRow1 = document.getElementById('gcf-row1');
         const gcfRow2 = document.getElementById('gcf-row2');
@@ -681,6 +751,274 @@
         const furtherFactorCard = document.getElementById('further-factor-card');
         const furtherFactorMessage = document.getElementById('further-factor-message');
         const furtherFactorActions = document.getElementById('further-factor-actions');
+
+        // ----- v42 OPEN WORKSPACE HELPERS -----
+        function normalizeMathEntry(value) {
+            return String(value ?? '')
+                .trim().toLowerCase().replace(/\s+/g, '')
+                .replace(/−/g, '-').replace(/²/g, '^2').replace(/\*\*2/g, '^2');
+        }
+
+        function parseQuadraticCoefficient(value) {
+            const s = normalizeMathEntry(value);
+            const m = s.match(/^([+-]?\d*)x\^2$/);
+            if (!m) return null;
+            if (m[1] === '' || m[1] === '+') return 1;
+            if (m[1] === '-') return -1;
+            const n = Number(m[1]);
+            return Number.isInteger(n) ? n : null;
+        }
+
+        function parseLinearCoefficient(value) {
+            const s = normalizeMathEntry(value);
+            const m = s.match(/^([+-]?\d*)x$/);
+            if (!m) return null;
+            if (m[1] === '' || m[1] === '+') return 1;
+            if (m[1] === '-') return -1;
+            const n = Number(m[1]);
+            return Number.isInteger(n) ? n : null;
+        }
+
+        function parseConstantValue(value) {
+            const s = normalizeMathEntry(value);
+            if (!/^[+-]?\d+$/.test(s)) return null;
+            const n = Number(s);
+            return Number.isInteger(n) ? n : null;
+        }
+
+        function quadraticText(coeff) {
+            if (coeff === 1) return 'x²';
+            if (coeff === -1) return '-x²';
+            return `${coeff}x²`;
+        }
+
+        function linearText(coeff) {
+            if (coeff === 1) return 'x';
+            if (coeff === -1) return '-x';
+            return `${coeff}x`;
+        }
+
+        const neutralCellClass = 'flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-700 font-mono transition-all duration-300 relative';
+        const cellClasses = {
+            tl: {
+                correct: 'flex flex-col items-center justify-center bg-blue-50 border-2 border-blue-400 text-blue-700 font-mono transition-all duration-300 shadow-sm relative',
+                pending: 'flex flex-col items-center justify-center bg-amber-50 border-2 border-amber-300 text-amber-800 font-mono transition-all duration-300 relative',
+                wrong: 'flex flex-col items-center justify-center bg-rose-50 border-2 border-rose-400 text-rose-700 font-mono transition-all duration-300 relative'
+            },
+            br: {
+                correct: 'flex flex-col items-center justify-center bg-purple-50 border-2 border-purple-400 text-purple-700 font-mono transition-all duration-300 shadow-sm relative',
+                pending: 'flex flex-col items-center justify-center bg-amber-50 border-2 border-amber-300 text-amber-800 font-mono transition-all duration-300 relative',
+                wrong: 'flex flex-col items-center justify-center bg-rose-50 border-2 border-rose-400 text-rose-700 font-mono transition-all duration-300 relative'
+            },
+            tr: {
+                correct: 'flex flex-col items-center justify-center bg-yellow-100 border border-solid border-yellow-500 text-yellow-950 font-mono transition-all duration-300 shadow-sm relative',
+                pending: 'flex flex-col items-center justify-center bg-yellow-50 border-2 border-dashed border-yellow-400 text-yellow-900 font-mono transition-all duration-300 relative',
+                wrong: 'flex flex-col items-center justify-center bg-rose-50 border-2 border-rose-400 text-rose-700 font-mono transition-all duration-300 relative'
+            },
+            bl: {
+                correct: 'flex flex-col items-center justify-center bg-yellow-100 border border-solid border-yellow-500 text-yellow-950 font-mono transition-all duration-300 shadow-sm relative',
+                pending: 'flex flex-col items-center justify-center bg-yellow-50 border-2 border-dashed border-yellow-400 text-yellow-900 font-mono transition-all duration-300 relative',
+                wrong: 'flex flex-col items-center justify-center bg-rose-50 border-2 border-rose-400 text-rose-700 font-mono transition-all duration-300 relative'
+            }
+        };
+
+        function setCellVisual(position, status) {
+            const cell = {tl:cellTl,tr:cellTr,bl:cellBl,br:cellBr}[position];
+            cell.className = status === 'empty' ? neutralCellClass : cellClasses[position][status];
+        }
+
+        function setDot(dot, state) {
+            if (!dot) return;
+            dot.className = `progress-dot${state === 'done' ? ' done' : state === 'partial' ? ' partial' : ''}`;
+        }
+
+        function syncTermCards() {
+            cardAx2.classList.toggle('opacity-20', placedTL);
+            cardAx2.classList.toggle('pointer-events-none', placedTL);
+            cardC.classList.toggle('opacity-20', placedBR);
+            cardC.classList.toggle('pointer-events-none', placedBR);
+            cardPx.classList.toggle('opacity-20', placedBL);
+            cardPx.classList.toggle('pointer-events-none', placedBL);
+            cardQx.classList.toggle('opacity-20', placedTR);
+            cardQx.classList.toggle('pointer-events-none', placedTR);
+        }
+
+        function computeCorrectBordersFromSplit() {
+            if (!splitVerified) {
+                correctGCFBorders = { row1:'', row2:'', col1:'', col2:'' };
+                return false;
+            }
+            const r1Coeff = (Math.sign(workA) || 1) * getGCD(workA, factorsQ);
+            if (!r1Coeff) return false;
+            const c1Coeff = workA / r1Coeff;
+            if (!c1Coeff) return false;
+            const c2Const = factorsQ / r1Coeff;
+            const r2Const = factorsP / c1Coeff;
+            if (![c1Coeff,c2Const,r2Const].every(Number.isInteger)) return false;
+            correctGCFBorders.row1 = formatBinomial(r1Coeff, 0);
+            correctGCFBorders.row2 = r2Const >= 0 ? `+${r2Const}` : `${r2Const}`;
+            correctGCFBorders.col1 = formatBinomial(c1Coeff, 0);
+            correctGCFBorders.col2 = c2Const >= 0 ? `+${c2Const}` : `${c2Const}`;
+            return true;
+        }
+
+        function clearBorderSolutionsForNewSplit() {
+            solvedGCFBorders = { row1:null,row2:null,col1:null,col2:null };
+            finalFactorData = null;
+            finalExtraction = { factor1:1, factor2:1 };
+            finalFactorsRevealed = { factor1:false, factor2:false };
+            parenthesisFactor1.textContent = 'Row Factor';
+            parenthesisFactor2.textContent = 'Col Factor';
+            finalEquality.classList.add('hidden');
+            finalEqualityExpression.textContent = '';
+            prepareBorderEntrySlots();
+        }
+
+        function applyVerifiedSplit(p, q, source = 'helper') {
+            const changed = splitVerified && (factorsP !== p || factorsQ !== q);
+            if (changed) clearBorderSolutionsForNewSplit();
+            factorsP = p;
+            factorsQ = q;
+            splitVerified = true;
+            inputP.value = Math.abs(p);
+            inputQ.value = Math.abs(q);
+            signPChoice = p < 0 ? -1 : 1;
+            signQChoice = q < 0 ? -1 : 1;
+            updateSignChoiceButtons();
+            cardPx.textContent = linearText(p);
+            cardQx.textContent = linearText(q);
+            splitBxTile.textContent = cardBx.textContent;
+            const splitTileClass = 'px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none';
+            cardPx.className = splitTileClass;
+            cardQx.className = splitTileClass;
+            splitTermPlacement.classList.remove('hidden');
+            splitTermPlacement.classList.add('flex');
+            cardBx.className = 'px-5 py-2.5 bg-slate-100 text-slate-400 border-2 border-dashed border-slate-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none line-through';
+            signChoiceFeedback.textContent = `✓ p = ${p} and q = ${q}. You may drag the yellow terms or type them directly into the model.`;
+            signChoiceFeedback.className = 'text-[11px] text-emerald-700 text-center min-h-[1.25rem] font-bold';
+            targetDescription.innerHTML = `Current split: <strong>p = ${p}</strong> and <strong>q = ${q}</strong>, so <strong>p × q = ${p*q}</strong> and <strong>p + q = ${p+q}</strong>.`;
+            computeCorrectBordersFromSplit();
+            revalidatePendingBorders();
+            updateExpressionProgress();
+            syncTermCards();
+            updateProgressChecklist();
+        }
+
+        function middleCandidateWorks(value) {
+            const other = workB - value;
+            return value * other === workA * workC;
+        }
+
+        function evaluateMiddleCells() {
+            const pRaw = cellBlValue.textContent.trim();
+            const qRaw = cellTrValue.textContent.trim();
+            const p = pRaw ? parseLinearCoefficient(pRaw) : null;
+            const q = qRaw ? parseLinearCoefficient(qRaw) : null;
+
+            placedBL = false;
+            placedTR = false;
+
+            if (pRaw && p === null) setCellVisual('bl','wrong');
+            else if (!pRaw) setCellVisual('bl','empty');
+            else if (middleCandidateWorks(p)) { placedBL = true; setCellVisual('bl','pending'); }
+            else setCellVisual('bl','wrong');
+
+            if (qRaw && q === null) setCellVisual('tr','wrong');
+            else if (!qRaw) setCellVisual('tr','empty');
+            else if (middleCandidateWorks(q)) { placedTR = true; setCellVisual('tr','pending'); }
+            else setCellVisual('tr','wrong');
+
+            if (p !== null && q !== null && p * q === workA * workC && p + q === workB) {
+                placedBL = true;
+                placedTR = true;
+                setCellVisual('bl','correct');
+                setCellVisual('tr','correct');
+                applyVerifiedSplit(p,q,'direct');
+            } else if (splitVerified) {
+                if (p !== null && p === factorsP) { placedBL = true; setCellVisual('bl','correct'); }
+                if (q !== null && q === factorsQ) { placedTR = true; setCellVisual('tr','correct'); }
+            }
+            syncTermCards();
+            updateExpressionProgress();
+            updateProgressChecklist();
+        }
+
+        function validateAreaCell(position) {
+            if (activeA === 0) return;
+            if (position === 'tl') {
+                const raw = cellTlValue.textContent.trim();
+                if (!raw) { placedTL=false; setCellVisual('tl','empty'); }
+                else if (parseQuadraticCoefficient(raw) === workA) {
+                    placedTL=true; cellTlValue.textContent=quadraticText(workA); setCellVisual('tl','correct');
+                } else { placedTL=false; setCellVisual('tl','wrong'); }
+            } else if (position === 'br') {
+                const raw = cellBrValue.textContent.trim();
+                if (!raw) { placedBR=false; setCellVisual('br','empty'); }
+                else if (parseConstantValue(raw) === workC) {
+                    placedBR=true; cellBrValue.textContent=String(workC); setCellVisual('br','correct');
+                } else { placedBR=false; setCellVisual('br','wrong'); }
+            } else {
+                evaluateMiddleCells();
+                return;
+            }
+            syncTermCards();
+            updateProgressChecklist();
+        }
+
+        function validateAllAreaCells() {
+            validateAreaCell('tl');
+            validateAreaCell('br');
+            evaluateMiddleCells();
+        }
+
+        function attachEditableCell(span, position) {
+            span.addEventListener('keydown', e => {
+                if (e.key === 'Enter') { e.preventDefault(); span.blur(); }
+            });
+            span.addEventListener('paste', e => {
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text');
+                document.execCommand('insertText', false, text);
+            });
+            span.addEventListener('blur', () => validateAreaCell(position));
+            span.addEventListener('input', () => {
+                if (position === 'tl') placedTL=false;
+                if (position === 'br') placedBR=false;
+                if (position === 'tr') placedTR=false;
+                if (position === 'bl') placedBL=false;
+                updateProgressChecklist();
+            });
+        }
+
+        function updateProgressChecklist() {
+            const outerCount = Number(placedTL) + Number(placedBR);
+            setDot(progressDotOuter, outerCount === 2 ? 'done' : outerCount ? 'partial' : 'todo');
+            progressTextOuter.textContent = outerCount === 2 ? 'Outer terms: ax² and c verified' : `Outer terms: ${outerCount} of 2 verified`;
+
+            setDot(progressDotSplit, splitVerified ? 'done' : (targetsVerified || inputP.value || inputQ.value ? 'partial' : 'todo'));
+            progressTextSplit.textContent = splitVerified ? `Middle-term split: p = ${factorsP}, q = ${factorsQ}` : 'Middle-term split: find p and q';
+
+            const middleCount = Number(placedBL) + Number(placedTR);
+            setDot(progressDotMiddle, splitVerified && middleCount === 2 ? 'done' : middleCount ? 'partial' : 'todo');
+            progressTextMiddle.textContent = splitVerified && middleCount === 2 ? 'Area model: both middle terms verified' : `Area model: ${middleCount} of 2 middle terms entered correctly`;
+
+            const borderCount = Object.values(solvedGCFBorders).filter(v => v !== null).length;
+            setDot(progressDotBorders, borderCount === 4 ? 'done' : borderCount ? 'partial' : 'todo');
+            progressTextBorders.textContent = `Outside factors: ${borderCount} of 4 verified`;
+
+            const finalDone = finalFactorsRevealed.factor1 && finalFactorsRevealed.factor2;
+            setDot(progressDotFinal, finalDone ? 'done' : borderCount === 4 ? 'partial' : 'todo');
+            progressTextFinal.textContent = finalDone ? 'Factored form: complete' : (borderCount === 4 ? 'Factored form: ready to reveal/build' : 'Factored form: waiting for outside factors');
+        }
+
+        function revalidatePendingBorders() {
+            if (!computeCorrectBordersFromSplit()) return;
+            for (const slotId of ['row1','row2','col1','col2']) {
+                if (solvedGCFBorders[slotId] !== null) continue;
+                const pending = pendingBorderEntries[slotId];
+                if (pending) verifyGCFAssignmentForSlot(slotId, pending, true);
+            }
+        }
 
         // Greatest Common Factor calculation helper
         function getGCD(x, y) {
@@ -1009,7 +1347,7 @@
         }
 
         function renderSpecialZeroConstantCase() {
-            currentStage = 6;
+            currentStage = 0;
             activeStatusPill.textContent = "Special Case: Factor x";
             activeStatusPill.className = "px-2 py-0.5 bg-amber-100 text-amber-700 font-bold tracking-wide uppercase text-[9px] rounded-full border border-amber-200";
             termCardsContainer.classList.add('hidden');
@@ -1054,115 +1392,78 @@
         // Reset state stage machine whenever input values update
         function resetStageAndRecalculate(preserveAppliedGCF = false) {
             const savedPulledGCF = preserveAppliedGCF ? pulledGCF : 1;
-            currentStage = 2;
-            placedTL = false;
-            placedBR = false;
+            currentStage = 0;
+            placedTL = placedTR = placedBL = placedBR = false;
             pulledGCF = savedPulledGCF;
             selectedGCFSlotId = null;
             selectedAbsPair = null;
-            signPChoice = null;
-            signQChoice = null;
+            signPChoice = signQChoice = null;
             targetsVerified = false;
             splitVerified = false;
-            placedTR = false;
-            placedBL = false;
+            factorsP = factorsQ = 0;
             finalFactorData = null;
-            finalExtraction = { factor1: 1, factor2: 1 };
-            
-            solvedGCFBorders = { row1: null, row2: null, col1: null, col2: null };
-            correctGCFBorders = { row1: "", row2: "", col1: "", col2: "" };
-            
-            // Clear Grid labels
-            cellTl.querySelector('span').textContent = "";
-            cellTr.querySelector('span').textContent = "";
-            cellBl.querySelector('span').textContent = "";
-            cellBr.querySelector('span').textContent = "";
-            
-            // Clear Borders
-            gcfRow1.textContent = "";
-            gcfRow2.textContent = "";
-            gcfCol1.textContent = "";
-            gcfCol2.textContent = "";
+            finalExtraction = { factor1:1, factor2:1 };
+            finalFactorsRevealed = { factor1:false, factor2:false };
+            solvedGCFBorders = { row1:null,row2:null,col1:null,col2:null };
+            correctGCFBorders = { row1:'',row2:'',col1:'',col2:'' };
+            pendingBorderEntries = { row1:'',row2:'',col1:'',col2:'' };
 
-            // Reset borders design styles
-            cellTl.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-900 font-mono transition-all duration-300 relative";
-            cellBr.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-900 font-mono transition-all duration-300 relative";
-            cellTr.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-600 font-mono transition-all duration-300";
-            cellBl.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-600 font-mono transition-all duration-300";
+            [cellTlValue,cellTrValue,cellBlValue,cellBrValue].forEach(el => el.textContent='');
+            ['tl','tr','bl','br'].forEach(pos => setCellVisual(pos,'empty'));
 
-            // Reset border click layouts
-            gcfRow1.className = "flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50";
-            gcfRow2.className = "flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50";
-            gcfCol1.className = "flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50";
-            gcfCol2.className = "flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50";
-
-            // Reset Cards
-            cardAx2.classList.remove('opacity-20', 'pointer-events-none');
-            cardC.classList.remove('opacity-20', 'pointer-events-none');
-            cardBx.className = "px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none";
+            cardAx2.classList.remove('opacity-20','pointer-events-none');
+            cardC.classList.remove('opacity-20','pointer-events-none');
+            cardBx.className = 'px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none';
             termCardsContainer.classList.remove('hidden');
-            termCardsHeading.textContent = 'Stage 1: Place the outer terms';
-            termCardsHelp.textContent = 'The middle term stays visible because it must be split before it can enter the model. Drag or click the first and third terms into their cells.';
+            termCardsHeading.textContent = 'Place terms';
+            termCardsHelp.textContent = 'Drag, click, or type directly into the area-model cells. Use the p/q helper only when it helps.';
 
-            // Reset Parentheses GCF
             parenthesisGCFPrefix.classList.add('hidden');
-            parenthesisGCFPrefix.textContent = "";
-
-            // Clear Parentheses
-            parenthesisFactor1.textContent = "Row Factor";
-            parenthesisFactor2.textContent = "Col Factor";
-            parenthesisFactor1.className = "min-w-[110px] px-3 py-1 border-2 border-dashed border-emerald-300 rounded-xl text-center text-emerald-500 bg-emerald-50/50 text-sm select-none cursor-pointer hover:bg-emerald-50 transition-all font-mono font-bold";
-            parenthesisFactor2.className = "min-w-[110px] px-3 py-1 border-2 border-dashed border-blue-300 rounded-xl text-center text-blue-500 bg-blue-50/50 text-base select-none cursor-pointer hover:bg-blue-50 transition-all font-mono font-bold";
-            parenthesisTips.textContent = "Complete the GCF borders on the Area Model first to reveal binomial click triggers.";
+            parenthesisGCFPrefix.textContent='';
+            parenthesisFactor1.textContent='Row Factor';
+            parenthesisFactor2.textContent='Col Factor';
+            parenthesisFactor1.className='min-w-[110px] px-3 py-1 border-2 border-dashed border-emerald-300 rounded-xl text-center text-emerald-500 bg-emerald-50/50 text-sm select-none font-mono font-bold';
+            parenthesisFactor2.className='min-w-[110px] px-3 py-1 border-2 border-dashed border-blue-300 rounded-xl text-center text-blue-500 bg-blue-50/50 text-base select-none font-mono font-bold';
+            parenthesisTips.textContent='Complete the outside factors in any order. When all four are verified, the two binomials will be ready.';
             furtherFactorCard.classList.add('hidden');
-            furtherFactorActions.innerHTML = '';
+            furtherFactorActions.innerHTML='';
             finalEquality.classList.add('hidden');
-            finalEqualityExpression.textContent = '';
+            finalEqualityExpression.textContent='';
             areaModelExpressionReference.classList.add('hidden');
-            areaModelExpressionDisplay.textContent = '';
+            areaModelExpressionDisplay.textContent='';
 
-            // Clear input fields and split-term placement
-            inputP.value = "";
-            inputQ.value = "";
-            inputP.disabled = false;
-            inputQ.disabled = false;
-            [btnPPlus, btnPMinus, btnQPlus, btnQMinus].forEach(btn => btn.disabled = false);
-            signPChoice = null;
-            signQChoice = null;
+            inputP.value=inputQ.value='';
+            inputP.disabled=inputQ.disabled=false;
+            [btnPPlus,btnPMinus,btnQPlus,btnQMinus].forEach(btn=>btn.disabled=false);
             updateSignChoiceButtons();
-            signChoiceFeedback.textContent = 'Find magnitudes, then choose signs so both target equations are true.';
-            signChoiceFeedback.className = 'text-[11px] text-slate-500 text-center min-h-[1.25rem]';
-            if (pqProductCondition) pqProductCondition.textContent = 'p × q = a × c';
-            if (pqSumCondition) pqSumCondition.textContent = 'p + q = b';
-            btnApplyPq.disabled = false;
+            signChoiceFeedback.textContent='Find magnitudes and choose signs whenever you want to use the p/q helper.';
+            signChoiceFeedback.className='text-[11px] text-slate-500 text-center min-h-[1.25rem]';
+            btnApplyPq.disabled=false;
             btnApplyPq.classList.remove('opacity-50');
             splitTermPlacement.classList.add('hidden');
             splitTermPlacement.classList.remove('flex');
-            cardPx.classList.remove('opacity-20', 'pointer-events-none');
-            cardQx.classList.remove('opacity-20', 'pointer-events-none');
-            cardPx.textContent = 'px';
-            cardQx.textContent = 'qx';
-            splitBxTile.textContent = 'bx';
+            cardPx.textContent='px'; cardQx.textContent='qx'; splitBxTile.textContent='bx';
 
-            // Reset Stage 2 target-setting and Stage 3 factor-tile workbench.
-            inputProductTarget.value = '';
-            inputSumTarget.value = '';
-            inputProductTarget.disabled = false;
-            inputSumTarget.disabled = false;
-            btnCheckTargets.disabled = false;
+            inputProductTarget.value=inputSumTarget.value='';
+            inputProductTarget.disabled=inputSumTarget.disabled=false;
+            btnCheckTargets.disabled=false;
             btnCheckTargets.classList.remove('opacity-50');
-            targetEntryFeedback.textContent = 'Use the trinomial above to determine both values.';
-            targetEntryFeedback.className = 'text-[11px] text-slate-500';
+            targetEntryFeedback.textContent='Optional helper: enter what p × q and p + q should equal.';
+            targetEntryFeedback.className='text-[11px] text-slate-500';
             targetEntryPanel.classList.remove('hidden');
-            toolChartTarget.value = '';
-            multiplicationChartWrapper.classList.add('hidden');
-            multiplicationChartContainer.innerHTML = '';
-            toolChartFeedback.textContent = 'Enter the product you want to investigate. For a negative product, the chart uses its positive magnitude.';
-            resetCalculator();
-            factorTileInput.value = '';
-            factorTileTray.innerHTML = '<span class="text-[10px] text-slate-400 italic">Your factor tiles will appear here.</span>';
-            borderEntryFeedback.textContent = 'Each correct entry will lock into its border.';
+            factorInputsRow.classList.remove('hidden');
 
+            toolChartTarget.value='';
+            multiplicationChartWrapper.classList.add('hidden');
+            multiplicationChartContainer.innerHTML='';
+            toolChartFeedback.textContent='Enter the product you want to investigate. For a negative product, the chart uses its positive magnitude.';
+            resetCalculator();
+            factorTileInput.value='';
+            factorTileTray.innerHTML='<span class="text-[10px] text-slate-400 italic">Your factor tiles will appear here.</span>';
+            borderEntryFeedback.textContent='Enter or drag outside factors at any time. Early entries can remain pending.';
+            borderEntryFeedback.className='text-[10px] text-slate-500 text-center italic mt-4';
+
+            prepareBorderEntrySlots();
             calculate();
         }
 
@@ -1173,84 +1474,57 @@
             activeC = parseInt(numC.value) || 0;
 
             if (activeA === 0) {
-                originalEquationDisplay.textContent = formatTrinomial(0, activeB, activeC);
+                originalEquationDisplay.textContent = formatTrinomial(0,activeB,activeC);
                 originalEquationReference.classList.add('hidden');
-                activeEquationLabel.textContent = 'active polynomial expression';
-                equationDisplay.textContent = formatTrinomial(0, activeB, activeC);
-                areaModelExpressionReference.classList.add('hidden');
-                areaModelExpressionDisplay.textContent = '';
-                termCardsContainer.classList.add('hidden');
-                factorInputsRow.classList.add('hidden');
-                multiplicationCard.classList.remove('hidden');
-                targetEntryPanel.classList.add('hidden');
-                gcfBorderSelectionCard.classList.add('hidden');
-                parenthesisCard.classList.add('hidden');
-                gcfScaffoldingCard.classList.add('hidden');
-                productTargetDisplay.textContent = 'Adjust coefficient a';
-                targetDescription.innerHTML = 'The leading coefficient <code>a</code> must be non-zero to use the quadratic area model.';
-                activeStatusPill.textContent = 'Adjust a';
+                activeEquationLabel.textContent='adjust coefficient a';
+                equationDisplay.textContent=formatTrinomial(0,activeB,activeC);
+                activeStatusPill.textContent='Adjust a';
+                targetDescription.innerHTML='The leading coefficient <code>a</code> must be non-zero to use the quadratic area model.';
+                updateProgressChecklist();
                 return;
             }
 
-            // The outside factor is optional and may be positive or negative.
-            // Keep it only while it divides all original coefficients exactly.
-            if (pulledGCF === 0 || activeA % pulledGCF !== 0 || activeB % pulledGCF !== 0 || activeC % pulledGCF !== 0) {
-                pulledGCF = 1;
-            }
-
-            workA = activeA / pulledGCF;
-            workB = activeB / pulledGCF;
-            workC = activeC / pulledGCF;
+            if (pulledGCF === 0 || activeA % pulledGCF !== 0 || activeB % pulledGCF !== 0 || activeC % pulledGCF !== 0) pulledGCF=1;
+            workA=activeA/pulledGCF;
+            workB=activeB/pulledGCF;
+            workC=activeC/pulledGCF;
             updateExpressionProgress();
             updateStage2ProblemStrip();
 
-            // Common-factor extraction is an optional tool, never a gate. It remains
-            // available after a previous extraction if the current trinomial can simplify again.
-            const currentGCD = getGCD(workA, getGCD(workB, workC)) || 1;
-            const canFactorNegativeOne = workA < 0;
-            if (currentGCD > 1 || canFactorNegativeOne) {
+            const currentGCD=getGCD(workA,getGCD(workB,workC)) || 1;
+            const canFactorNegativeOne=workA<0;
+            if (currentGCD>1 || canFactorNegativeOne) {
                 gcfScaffoldingCard.classList.remove('hidden');
-                gcfLabelA.textContent = `a = ${workA}`;
-                gcfLabelB.textContent = `b = ${workB}`;
-                gcfLabelC.textContent = `c = ${workC}`;
-                gcfExplanation.textContent = 'No choice is required to continue.';
-                generateCommonFactorOptions(currentGCD, canFactorNegativeOne);
+                gcfLabelA.textContent=`a = ${workA}`;
+                gcfLabelB.textContent=`b = ${workB}`;
+                gcfLabelC.textContent=`c = ${workC}`;
+                gcfExplanation.textContent='Optional: you can simplify now or continue with the trinomial as written.';
+                generateCommonFactorOptions(currentGCD,canFactorNegativeOne);
+            } else gcfScaffoldingCard.classList.add('hidden');
+
+            cardAx2.textContent=quadraticText(workA);
+            cardBx.textContent=linearText(workB);
+            cardC.textContent=String(workC);
+
+            const ac=workA*workC;
+            if (targetsVerified) {
+                productTargetDisplay.textContent=`p × q = ${ac}  •  p + q = ${workB}`;
+                productTargetDisplay.className='px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl font-mono text-xs font-bold text-center';
+                if (pqProductCondition) pqProductCondition.textContent=`p × q = ${ac}`;
+                if (pqSumCondition) pqSumCondition.textContent=`p + q = ${workB}`;
             } else {
-                gcfScaffoldingCard.classList.add('hidden');
+                productTargetDisplay.textContent='p × q = a × c  •  p + q = b';
+                productTargetDisplay.className='px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-500 rounded-xl font-mono text-xs font-bold text-center';
             }
 
-            // Always show the entire current trinomial in the term strip.
-            cardAx2.textContent = workA === 1 ? 'x²' : (workA === -1 ? '-x²' : `${workA}x²`);
-            cardBx.textContent = workB === 1 ? 'x' : (workB === -1 ? '-x' : `${workB}x`);
-            cardC.textContent = workC.toString();
-
-            const ac = workA * workC;
-            const absAc = Math.abs(ac);
-
-            if (currentStage === 3 && targetsVerified && ac === 0) {
-                renderSpecialZeroConstantCase();
-                return;
-            }
-            if (currentStage === 3 && targetsVerified && !findIntegerSplitPair(workA, workB, workC)) {
-                renderNotFactorableCase();
-                return;
+            if (!findIntegerSplitPair(workA,workB,workC)) {
+                targetDescription.innerHTML=`<span class="text-rose-700 font-bold">No integer p/q pair exists:</span> no integers have product <strong>${ac}</strong> and sum <strong>${workB}</strong>. You can still explore the workspace.`;
+            } else if (!splitVerified) {
+                targetDescription.innerHTML='Optional helper: determine <strong>p × q = a × c</strong> and <strong>p + q = b</strong>, then choose p and q—or type middle terms directly into the model.';
             }
 
             manageLayoutProgressFlow();
-
-            if (currentStage === 3) {
-                if (!targetsVerified) {
-                    productTargetDisplay.textContent = 'Find p and q';
-                    productTargetDisplay.className = 'px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-500 rounded-xl font-mono text-xs font-bold text-center';
-                    targetDescription.innerHTML = `Determine the two targets first: <strong>p × q = a × c</strong> and <strong>p + q = b</strong>.`;
-                } else {
-                    productTargetDisplay.textContent = `p × q = ${ac}  •  p + q = ${workB}`;
-                    productTargetDisplay.className = 'px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl font-mono text-xs font-bold text-center';
-                    if (pqProductCondition) pqProductCondition.textContent = `p × q = ${ac}`;
-                    if (pqSumCondition) pqSumCondition.textContent = `p + q = ${workB}`;
-                    targetDescription.innerHTML = `Targets confirmed. Find <strong>p</strong> and <strong>q</strong> so that <strong>p × q = ${ac}</strong> and <strong>p + q = ${workB}</strong>. If you use the multiplication-chart tool, it shows positive factor magnitudes; you determine the signs.`;
-                }
-            }
+            updateProgressChecklist();
         }
 
         // Generates valid optional common-factor choices for the current trinomial.
@@ -1349,14 +1623,12 @@
             btnQPlus.setAttribute('aria-pressed', signQChoice === 1 ? 'true' : 'false');
             btnQMinus.setAttribute('aria-pressed', signQChoice === -1 ? 'true' : 'false');
         }
-
         function chooseSplitSign(variable, sign) {
-            if (currentStage !== 3 || !targetsVerified || splitVerified) return;
-            if (variable === 'p') signPChoice = sign;
-            else signQChoice = sign;
+            if (splitVerified) return;
+            if (variable === 'p') signPChoice=sign; else signQChoice=sign;
             updateSignChoiceButtons();
-            signChoiceFeedback.textContent = 'Now check whether your signed p and q satisfy both the product and the sum.';
-            signChoiceFeedback.className = 'text-[11px] text-slate-500 text-center min-h-[1.25rem]';
+            signChoiceFeedback.textContent='Check whether your signed p and q satisfy both the product and sum.';
+            signChoiceFeedback.className='text-[11px] text-slate-500 text-center min-h-[1.25rem]';
         }
 
         btnPPlus.addEventListener('click', () => chooseSplitSign('p', 1));
@@ -1374,49 +1646,45 @@
 
         // Clicking a target product selects magnitudes only. The student must still choose both signs.
         function selectChartFactors(f1, f2) {
-            const selectedProduct = Math.abs(f1 * f2);
-            const currentProduct = Math.abs(workA * workC);
-            if (currentStage !== 3 || !targetsVerified || splitVerified || selectedProduct !== currentProduct) {
-                toolChartFeedback.textContent = (currentStage === 3 && targetsVerified && !splitVerified && selectedProduct !== currentProduct)
-                    ? `Factor pair selected: ${Math.abs(f1)} and ${Math.abs(f2)}. This pair belongs to ${selectedProduct}, not the current verified |ac| = ${currentProduct}.`
-                    : `Factor pair selected: ${Math.abs(f1)} and ${Math.abs(f2)}.`;
-                toolChartFeedback.className = 'text-[10px] text-indigo-700 text-center mb-3 font-bold';
+            const selectedProduct=Math.abs(f1*f2);
+            const currentProduct=Math.abs(workA*workC);
+            if (selectedProduct !== currentProduct) {
+                toolChartFeedback.textContent=`Factor pair selected: ${Math.abs(f1)} and ${Math.abs(f2)}. This chart target is ${selectedProduct}; the current |a × c| is ${currentProduct}.`;
+                toolChartFeedback.className='text-[10px] text-indigo-700 text-center mb-3 font-bold';
                 return;
             }
-            if (!pairCanReachTarget(f1, f2)) {
-                alert(`Good product: ${f1} × ${f2} = ${Math.abs(workA * workC)}. But these magnitudes cannot be signed to add to b (${workB}). Try another highlighted factor pair.`);
+            if (!pairCanReachTarget(f1,f2)) {
+                toolChartFeedback.textContent=`${f1} and ${f2} make the right product magnitude, but no choice of signs makes the required sum ${workB}.`;
+                toolChartFeedback.className='text-[10px] text-amber-700 text-center mb-3 font-bold';
                 return;
             }
-            selectedAbsPair = [f1, f2];
-            inputP.value = Math.abs(f1);
-            inputQ.value = Math.abs(f2);
-            signPChoice = null;
-            signQChoice = null;
+            selectedAbsPair=[Math.abs(f1),Math.abs(f2)];
+            inputP.value=Math.abs(f1);
+            inputQ.value=Math.abs(f2);
+            signPChoice=signQChoice=null;
             updateSignChoiceButtons();
-            signChoiceFeedback.textContent = `You selected |p| = ${Math.abs(f1)} and |q| = ${Math.abs(f2)}. Choose + or − for each.`;
-            signChoiceFeedback.className = 'text-[11px] text-yellow-900 text-center min-h-[1.25rem] font-bold';
-            targetDescription.innerHTML = `Selected magnitudes <strong>|p| = ${Math.abs(f1)}</strong> and <strong>|q| = ${Math.abs(f2)}</strong>. Choose the signs so that p × q = <strong>${workA * workC}</strong> and p + q = <strong>${workB}</strong>.`;
-            btnPPlus.focus();
+            signChoiceFeedback.textContent=`Selected |p| = ${Math.abs(f1)} and |q| = ${Math.abs(f2)}. Choose signs.`;
+            signChoiceFeedback.className='text-[11px] text-yellow-900 text-center min-h-[1.25rem] font-bold';
+            targetDescription.innerHTML=`Selected magnitudes <strong>|p| = ${Math.abs(f1)}</strong> and <strong>|q| = ${Math.abs(f2)}</strong>. Choose signs so p × q = <strong>${workA*workC}</strong> and p + q = <strong>${workB}</strong>.`;
+            updateProgressChecklist();
         }
 
         // Snap and place function for TL
         function placeTL() {
-            if (currentStage !== 2 || placedTL) return;
-            cellTl.querySelector('span').textContent = workA === 1 ? 'x²' : `${workA}x²`;
-            cellTl.className = "flex flex-col items-center justify-center bg-blue-50 border-2 border-blue-400 text-blue-700 font-mono transition-all duration-300 shadow-sm relative";
-            cardAx2.classList.add('opacity-20', 'pointer-events-none');
-            placedTL = true;
-            checkStage1Completion();
+            cellTlValue.textContent=quadraticText(workA);
+            placedTL=true;
+            setCellVisual('tl','correct');
+            syncTermCards();
+            updateProgressChecklist();
         }
 
         // Snap and place function for BR
         function placeBR() {
-            if (currentStage !== 2 || placedBR) return;
-            cellBr.querySelector('span').textContent = workC.toString();
-            cellBr.className = "flex flex-col items-center justify-center bg-purple-50 border-2 border-purple-400 text-purple-700 font-mono transition-all duration-300 shadow-sm relative";
-            cardC.classList.add('opacity-20', 'pointer-events-none');
-            placedBR = true;
-            checkStage1Completion();
+            cellBrValue.textContent=String(workC);
+            placedBR=true;
+            setCellVisual('br','correct');
+            syncTermCards();
+            updateProgressChecklist();
         }
 
         // Click placement actions
@@ -1426,14 +1694,14 @@
         // --- Drag & Drop Core Event Listeners ---
         // 1. Drag Start & End on source cards
         cardAx2.addEventListener('dragstart', (e) => {
-            if (currentStage !== 2) return e.preventDefault();
+            if (placedTL) return e.preventDefault();
             e.dataTransfer.setData('text/plain', 'ax2');
             cardAx2.classList.add('dragging');
         });
         cardAx2.addEventListener('dragend', () => cardAx2.classList.remove('dragging'));
 
         cardC.addEventListener('dragstart', (e) => {
-            if (currentStage !== 2) return e.preventDefault();
+            if (placedBR) return e.preventDefault();
             e.dataTransfer.setData('text/plain', 'c');
             cardC.classList.add('dragging');
         });
@@ -1445,7 +1713,7 @@
             let ghostEl = null;
 
             cardEl.addEventListener('touchstart', (e) => {
-                if (currentStage !== 2) return;
+                if ((valueType === 'ax2' && placedTL) || (valueType === 'c' && placedBR)) return;
                 activeTouch = true;
                 cardEl.classList.add('dragging');
                 
@@ -1524,13 +1792,13 @@
 
         // 2. Drag over drop zones (must prevent default to allow drop)
         cellTl.addEventListener('dragover', (e) => {
-            if (currentStage !== 2 || placedTL) return;
+            if (placedTL) return;
             e.preventDefault();
             cellTl.classList.add('ring-4', 'ring-blue-500', 'border-blue-400');
         });
         cellTl.addEventListener('dragleave', () => cellTl.classList.remove('ring-4', 'ring-blue-500', 'border-blue-400'));
         cellTl.addEventListener('drop', (e) => {
-            if (currentStage !== 2 || placedTL) return;
+            if (placedTL) return;
             e.preventDefault();
             cellTl.classList.remove('ring-4', 'ring-blue-500', 'border-blue-400');
             const data = e.dataTransfer.getData('text/plain');
@@ -1542,13 +1810,13 @@
         });
 
         cellBr.addEventListener('dragover', (e) => {
-            if (currentStage !== 2 || placedBR) return;
+            if (placedBR) return;
             e.preventDefault();
             cellBr.classList.add('ring-4', 'ring-purple-500', 'border-purple-400');
         });
         cellBr.addEventListener('dragleave', () => cellBr.classList.remove('ring-4', 'ring-purple-500', 'border-purple-400'));
         cellBr.addEventListener('drop', (e) => {
-            if (currentStage !== 2 || placedBR) return;
+            if (placedBR) return;
             e.preventDefault();
             cellBr.classList.remove('ring-4', 'ring-purple-500', 'border-purple-400');
             const data = e.dataTransfer.getData('text/plain');
@@ -1558,13 +1826,8 @@
                 alert("Incorrect spot! Drag your constant c card into the Bottom-Right dashed box.");
             }
         });
-
         function checkStage1Completion() {
-            if (placedTL && placedBR) {
-                currentStage = 3;
-                termCardsContainer.classList.add('hidden');
-                calculate(); // refresh layout stages view
-            }
+            updateProgressChecklist();
         }
 
         // ---- Always-available student tools ----
@@ -1740,32 +2003,26 @@
 
         // Stage 2: students determine the product ac and the sum b before choosing p and q.
         function checkStage2Targets() {
-            if (currentStage !== 3 || splitVerified) return;
-            const product = parseInt(inputProductTarget.value, 10);
-            const sum = parseInt(inputSumTarget.value, 10);
+            const product=parseInt(inputProductTarget.value,10);
+            const sum=parseInt(inputSumTarget.value,10);
             if (!Number.isFinite(product) || !Number.isFinite(sum)) {
-                targetEntryFeedback.textContent = 'Enter an integer for both the product and the sum.';
-                targetEntryFeedback.className = 'text-[11px] text-rose-600 font-bold';
+                targetEntryFeedback.textContent='Enter an integer for both the product and the sum.';
+                targetEntryFeedback.className='text-[11px] text-rose-600 font-bold';
                 return;
             }
-            const correctProduct = workA * workC;
-            const correctSum = workB;
-            const productOK = product === correctProduct;
-            const sumOK = sum === correctSum;
-            if (!productOK || !sumOK) {
-                targetEntryFeedback.textContent = `${productOK ? '✓ Product is correct.' : 'Check a × c.'} ${sumOK ? '✓ Sum is correct.' : 'Check the coefficient of x.'}`;
-                targetEntryFeedback.className = 'text-[11px] text-rose-600 font-bold';
-                return;
+            const correctProduct=workA*workC, correctSum=workB;
+            const productOK=product===correctProduct, sumOK=sum===correctSum;
+            targetsVerified=productOK && sumOK;
+            if (!targetsVerified) {
+                targetEntryFeedback.textContent=`${productOK?'✓ Product is correct.':'Check a × c.'} ${sumOK?'✓ Sum is correct.':'Check b.'}`;
+                targetEntryFeedback.className='text-[11px] text-rose-600 font-bold';
+            } else {
+                targetEntryFeedback.textContent='✓ Both targets are correct. You can continue with p/q or work directly in the area model.';
+                targetEntryFeedback.className='text-[11px] text-emerald-700 font-bold';
+                toolChartTarget.value=String(product);
+                if (pqProductCondition) pqProductCondition.textContent=`p × q = ${product}`;
+                if (pqSumCondition) pqSumCondition.textContent=`p + q = ${sum}`;
             }
-            targetsVerified = true;
-            inputProductTarget.disabled = true;
-            inputSumTarget.disabled = true;
-            btnCheckTargets.disabled = true;
-            btnCheckTargets.classList.add('opacity-50');
-            targetEntryFeedback.textContent = '✓ Correct. Use the Tools panel if you want a calculator or multiplication chart.';
-            targetEntryFeedback.className = 'text-[11px] text-emerald-700 font-bold';
-            toolChartTarget.value = String(product);
-            toolChartFeedback.textContent = 'Your verified Stage 2 product is ready here. Press Show chart whenever you want to use it.';
             calculate();
         }
 
@@ -1795,111 +2052,63 @@
 
         // Verify magnitudes and signs separately, then let the student place px and qx.
         function verifySplitPair(p, q, absP = Math.abs(p), absQ = Math.abs(q)) {
-            if (currentStage !== 3 || !targetsVerified) {
-                alert("First determine and verify the product a × c and the sum b.");
+            const ac=workA*workC;
+            const absAc=Math.abs(ac);
+            if (absP*absQ !== absAc) {
+                signChoiceFeedback.textContent=`Those magnitudes multiply to ${absP*absQ}, not |a × c| = ${absAc}.`;
+                signChoiceFeedback.className='text-[11px] text-rose-600 text-center min-h-[1.25rem] font-bold';
                 return;
             }
-
-            const ac = workA * workC;
-            const absAc = Math.abs(ac);
-            if (absP * absQ !== absAc) {
-                signChoiceFeedback.textContent = `Those magnitudes multiply to ${absP * absQ}, not |ac| = ${absAc}. Choose another factor pair.`;
-                signChoiceFeedback.className = 'text-[11px] text-rose-600 text-center min-h-[1.25rem] font-bold';
+            if (p*q !== ac) {
+                signChoiceFeedback.textContent=ac>0 ? 'The product must be positive, so p and q need matching signs.' : 'The product must be negative, so p and q need different signs.';
+                signChoiceFeedback.className='text-[11px] text-amber-700 text-center min-h-[1.25rem] font-bold';
                 return;
             }
-
-            if (p * q !== ac) {
-                signChoiceFeedback.textContent = ac > 0
-                    ? 'The product must be positive, so p and q need matching signs.'
-                    : 'The product must be negative, so p and q need different signs.';
-                signChoiceFeedback.className = 'text-[11px] text-amber-700 text-center min-h-[1.25rem] font-bold';
+            if (p+q !== workB) {
+                signChoiceFeedback.textContent=ac<0
+                    ? `The product sign works, but the signed values must add to ${workB}. With opposite signs, the larger magnitude controls the sign of the sum.`
+                    : `The product sign works, but the signed values must add to ${workB}.`;
+                signChoiceFeedback.className='text-[11px] text-amber-700 text-center min-h-[1.25rem] font-bold';
                 return;
             }
-
-            if (p + q !== workB) {
-                let hint;
-                if (ac < 0) {
-                    if (workB > 0) hint = 'Your product sign is correct. With opposite signs, the larger magnitude must make the sum positive.';
-                    else if (workB < 0) hint = 'Your product sign is correct. With opposite signs, the larger magnitude must make the sum negative.';
-                    else hint = 'Your product sign is correct. For a sum of 0, the signed values must cancel.';
-                } else {
-                    if (workB > 0) hint = 'Your product sign is correct. The sum must be positive, so reconsider which matching signs you chose.';
-                    else if (workB < 0) hint = 'Your product sign is correct. The sum must be negative, so reconsider which matching signs you chose.';
-                    else hint = 'Your product sign is correct, but the two values must add to 0.';
-                }
-                signChoiceFeedback.textContent = hint;
-                signChoiceFeedback.className = 'text-[11px] text-amber-700 text-center min-h-[1.25rem] font-bold';
-                return;
-            }
-
-            signChoiceFeedback.textContent = `✓ Correct: p = ${p} and q = ${q}.`;
-            signChoiceFeedback.className = 'text-[11px] text-emerald-700 text-center min-h-[1.25rem] font-bold';
-            factorsP = p;
-            factorsQ = q;
-            splitVerified = true;
-            placedTR = false;
-            placedBL = false;
-            cardPx.textContent = p === 1 ? 'x' : (p === -1 ? '-x' : `${p}x`);
-            cardQx.textContent = q === 1 ? 'x' : (q === -1 ? '-x' : `${q}x`);
-            splitBxTile.textContent = cardBx.textContent;
-            // Re-apply the yellow split-term styling whenever the verified p/q tiles are generated.
-            // This prevents earlier state/reset classes from changing their visual meaning.
-            const splitTileClass = 'px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none';
-            cardPx.className = splitTileClass;
-            cardQx.className = splitTileClass;
-            splitTermPlacement.classList.remove('hidden');
-            splitTermPlacement.classList.add('flex');
-            cardBx.className = "px-5 py-2.5 bg-slate-100 text-slate-400 border-2 border-dashed border-slate-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none line-through";
-            termCardsHelp.textContent = `${cardBx.textContent} has been split into ${cardPx.textContent} and ${cardQx.textContent}. Place those two terms into the open cells.`;
-            inputP.disabled = true;
-            inputQ.disabled = true;
-            [btnPPlus, btnPMinus, btnQPlus, btnQMinus].forEach(btn => btn.disabled = true);
-            btnApplyPq.disabled = true;
-            btnApplyPq.classList.add('opacity-50');
-            targetDescription.innerHTML = `Correct: <strong>p = ${p}</strong> and <strong>q = ${q}</strong>. The yellow split tiles are now beside the area model so you can place them into the two open cells.`;
-            updateExpressionProgress();
+            applyVerifiedSplit(p,q,'helper');
         }
-
         function placeTR() {
-            if (currentStage !== 3 || !splitVerified || placedTR) return;
-            cellTr.querySelector('span').textContent = cardQx.textContent;
-            cellTr.className = "flex flex-col items-center justify-center bg-yellow-100 border border-solid border-yellow-400 text-yellow-900 font-mono transition-all duration-300 shadow-sm relative";
-            cardQx.classList.add('opacity-20', 'pointer-events-none');
-            placedTR = true;
+            if (!splitVerified) return;
+            cellTrValue.textContent=linearText(factorsQ);
+            placedTR=true;
+            setCellVisual('tr','correct');
+            syncTermCards();
             checkMiddlePlacementCompletion();
         }
-
         function placeBL() {
-            if (currentStage !== 3 || !splitVerified || placedBL) return;
-            cellBl.querySelector('span').textContent = cardPx.textContent;
-            cellBl.className = "flex flex-col items-center justify-center bg-yellow-100 border border-solid border-yellow-400 text-yellow-900 font-mono transition-all duration-300 shadow-sm relative";
-            cardPx.classList.add('opacity-20', 'pointer-events-none');
-            placedBL = true;
+            if (!splitVerified) return;
+            cellBlValue.textContent=linearText(factorsP);
+            placedBL=true;
+            setCellVisual('bl','correct');
+            syncTermCards();
             checkMiddlePlacementCompletion();
         }
-
         function checkMiddlePlacementCompletion() {
             updateExpressionProgress();
-            if (placedTR && placedBL) {
-                currentStage = 4;
-                splitTermPlacement.classList.add('hidden');
-                calculate();
-            }
+            computeCorrectBordersFromSplit();
+            revalidatePendingBorders();
+            updateProgressChecklist();
         }
 
         cardPx.addEventListener('click', placeBL);
         cardQx.addEventListener('click', placeTR);
 
         cardPx.addEventListener('dragstart', (e) => {
-            if (currentStage !== 3 || !splitVerified || placedBL) return e.preventDefault();
+            if (!splitVerified || placedBL) return e.preventDefault();
             e.dataTransfer.setData('text/plain', 'px');
         });
         cardQx.addEventListener('dragstart', (e) => {
-            if (currentStage !== 3 || !splitVerified || placedTR) return e.preventDefault();
+            if (!splitVerified || placedTR) return e.preventDefault();
             e.dataTransfer.setData('text/plain', 'qx');
         });
-        cellTr.addEventListener('dragover', (e) => { if (currentStage === 3 && splitVerified && !placedTR) e.preventDefault(); });
-        cellBl.addEventListener('dragover', (e) => { if (currentStage === 3 && splitVerified && !placedBL) e.preventDefault(); });
+        cellTr.addEventListener('dragover', (e) => { if (splitVerified && !placedTR) e.preventDefault(); });
+        cellBl.addEventListener('dragover', (e) => { if (splitVerified && !placedBL) e.preventDefault(); });
         cellTr.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTransfer.getData('text/plain') === 'qx') placeTR(); });
         cellBl.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTransfer.getData('text/plain') === 'px') placeBL(); });
 
@@ -1926,6 +2135,7 @@
                 <button type="button" id="border-check-${slotId}" class="mt-1 text-[9px] font-bold text-${accent}-700 hover:underline">Check ↵</button>`;
             const input = document.getElementById(`border-input-${slotId}`);
             const button = document.getElementById(`border-check-${slotId}`);
+            if (pendingBorderEntries[slotId]) input.value = pendingBorderEntries[slotId];
             const submit = () => verifyGCFAssignmentForSlot(slotId, input.value);
             input.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
             button.addEventListener('click', submit);
@@ -1937,84 +2147,77 @@
             renderBorderEntrySlot('col1', gcfCol1);
             renderBorderEntrySlot('col2', gcfCol2);
         }
-
-        function verifyGCFAssignmentForSlot(slotId, enteredVal) {
-            if (currentStage !== 4 || solvedGCFBorders[slotId] !== null) return;
-            const entered = normalizeFactorInput(enteredVal);
-            const correct = normalizeFactorInput(correctGCFBorders[slotId]);
+        function verifyGCFAssignmentForSlot(slotId, enteredVal, fromRecheck = false) {
+            if (solvedGCFBorders[slotId] !== null) return;
+            const entered=normalizeFactorInput(enteredVal);
             if (!entered) return;
+            pendingBorderEntries[slotId]=enteredVal.trim();
 
-            if (entered === correct) {
-                solvedGCFBorders[slotId] = enteredVal.trim();
-                const targetEl = document.getElementById(`gcf-${slotId}`);
-                const isRow = slotId.startsWith('row');
-                const themeClass = isRow
-                    ? 'text-emerald-700 border-emerald-500 bg-emerald-50 border-2 font-bold'
-                    : 'text-blue-700 border-blue-500 bg-blue-50 border-2 font-bold';
-                targetEl.innerHTML = `<span class="text-[9px] uppercase font-normal text-slate-400 absolute top-1">${borderLabel(slotId)}</span><span class="text-base font-black font-mono pt-2">${enteredVal.trim()}</span>`;
-                targetEl.className = `flex flex-col items-center justify-center rounded-2xl relative shadow-inner transition-all font-mono z-10 ${themeClass}`;
-                borderEntryFeedback.textContent = `✓ ${borderLabel(slotId)} is correct.`;
-                borderEntryFeedback.className = `text-[10px] text-center italic mt-4 ${isRow ? 'text-emerald-700' : 'text-blue-700'} font-bold`;
+            if (!computeCorrectBordersFromSplit()) {
+                const input=document.getElementById(`border-input-${slotId}`);
+                if (input) {
+                    input.value=enteredVal.trim();
+                    input.classList.remove('ring-2','ring-rose-400');
+                    input.classList.add('bg-amber-50','border-amber-400');
+                }
+                borderEntryFeedback.textContent=`Saved ${enteredVal.trim()} for ${borderLabel(slotId)}. It is pending until p and q / the middle cells determine the row and column relationships.`;
+                borderEntryFeedback.className='text-[10px] text-amber-700 text-center italic mt-4 font-bold';
+                updateProgressChecklist();
+                return;
+            }
+
+            const correct=normalizeFactorInput(correctGCFBorders[slotId]);
+            if (entered===correct) {
+                solvedGCFBorders[slotId]=enteredVal.trim();
+                pendingBorderEntries[slotId]='';
+                const targetEl=document.getElementById(`gcf-${slotId}`);
+                const isRow=slotId.startsWith('row');
+                const themeClass=isRow ? 'text-emerald-700 border-emerald-500 bg-emerald-50 border-2 font-bold' : 'text-blue-700 border-blue-500 bg-blue-50 border-2 font-bold';
+                targetEl.innerHTML=`<span class="text-[9px] font-normal text-slate-400 absolute top-1">${borderLabel(slotId)}</span><span class="text-base font-black font-mono pt-2">${escapeHtml(enteredVal.trim())}</span>`;
+                targetEl.className=`flex flex-col items-center justify-center rounded-2xl relative shadow-inner transition-all font-mono z-10 ${themeClass}`;
+                borderEntryFeedback.textContent=`✓ ${borderLabel(slotId)} is correct.`;
+                borderEntryFeedback.className=`text-[10px] text-center italic mt-4 ${isRow?'text-emerald-700':'text-blue-700'} font-bold`;
                 checkGCFBordersProgression();
             } else {
-                const input = document.getElementById(`border-input-${slotId}`);
+                const input=document.getElementById(`border-input-${slotId}`);
                 if (input) {
-                    input.classList.add('ring-2', 'ring-rose-400');
-                    setTimeout(() => input.classList.remove('ring-2', 'ring-rose-400'), 500);
-                    input.focus();
-                    input.select();
+                    input.value=enteredVal.trim();
+                    input.classList.remove('bg-amber-50','border-amber-400');
+                    input.classList.add('ring-2','ring-rose-400');
+                    if (!fromRecheck) setTimeout(()=>input.classList.remove('ring-2','ring-rose-400'),600);
                 }
-                borderEntryFeedback.textContent = `Not yet. Recheck the factor shared by both cells for ${borderLabel(slotId)}.`;
-                borderEntryFeedback.className = 'text-[10px] text-rose-600 text-center italic mt-4 font-bold';
+                borderEntryFeedback.textContent=`Recheck ${borderLabel(slotId)}. That factor does not match the two cells in its row or column.`;
+                borderEntryFeedback.className='text-[10px] text-rose-600 text-center italic mt-4 font-bold';
             }
+            updateProgressChecklist();
         }
-
         function checkGCFBordersProgression() {
-            const allSolved = Object.values(solvedGCFBorders).every(v => v !== null);
-            if (allSolved) {
-                currentStage = 5;
-                calculate();
-            }
+            configureFinalFactorSection();
+            updateProgressChecklist();
         }
 
         function validFactorTileText(raw) {
             const value = normalizeFactorInput(raw);
             return /^(?:-?(?:\d+)?x|-?\d+)$/.test(value) && value !== '' && value !== '-';
         }
-
         function setupFactorTileTouchDrag(tile, value) {
-            let ghost = null;
-            tile.addEventListener('touchstart', e => {
-                if (currentStage !== 4) return;
-                const touch = e.touches[0];
-                ghost = tile.cloneNode(true);
-                ghost.style.position = 'fixed';
-                ghost.style.pointerEvents = 'none';
-                ghost.style.zIndex = '1000';
-                ghost.style.opacity = '.85';
-                ghost.style.left = `${touch.clientX - 28}px`;
-                ghost.style.top = `${touch.clientY - 18}px`;
+            let ghost=null;
+            tile.addEventListener('touchstart',e=>{
+                const touch=e.touches[0];
+                ghost=tile.cloneNode(true);
+                ghost.style.position='fixed'; ghost.style.pointerEvents='none'; ghost.style.zIndex='1000'; ghost.style.opacity='.85';
+                ghost.style.left=`${touch.clientX-28}px`; ghost.style.top=`${touch.clientY-18}px`;
                 document.body.appendChild(ghost);
-            }, { passive: true });
-            tile.addEventListener('touchmove', e => {
-                if (!ghost) return;
-                e.preventDefault();
-                const touch = e.touches[0];
-                ghost.style.left = `${touch.clientX - 28}px`;
-                ghost.style.top = `${touch.clientY - 18}px`;
-            }, { passive: false });
-            tile.addEventListener('touchend', e => {
-                if (!ghost) return;
-                const touch = e.changedTouches[0];
-                ghost.remove();
-                ghost = null;
-                for (const [slotId, el] of [['row1',gcfRow1],['row2',gcfRow2],['col1',gcfCol1],['col2',gcfCol2]]) {
-                    if (solvedGCFBorders[slotId] !== null) continue;
-                    const r = el.getBoundingClientRect();
-                    if (touch.clientX >= r.left && touch.clientX <= r.right && touch.clientY >= r.top && touch.clientY <= r.bottom) {
-                        verifyGCFAssignmentForSlot(slotId, value);
-                        break;
-                    }
+            },{passive:true});
+            tile.addEventListener('touchmove',e=>{
+                if(!ghost)return; e.preventDefault(); const touch=e.touches[0]; ghost.style.left=`${touch.clientX-28}px`; ghost.style.top=`${touch.clientY-18}px`;
+            },{passive:false});
+            tile.addEventListener('touchend',e=>{
+                if(!ghost)return; const touch=e.changedTouches[0]; ghost.remove(); ghost=null;
+                for(const [slotId,el] of [['row1',gcfRow1],['row2',gcfRow2],['col1',gcfCol1],['col2',gcfCol2]]) {
+                    if(solvedGCFBorders[slotId]!==null) continue;
+                    const r=el.getBoundingClientRect();
+                    if(touch.clientX>=r.left&&touch.clientX<=r.right&&touch.clientY>=r.top&&touch.clientY<=r.bottom){verifyGCFAssignmentForSlot(slotId,value);break;}
                 }
             });
         }
@@ -2047,19 +2250,15 @@
 
         btnMakeFactorTile.addEventListener('click', makeFactorTile);
         factorTileInput.addEventListener('keydown', e => { if (e.key === 'Enter') makeFactorTile(); });
-
         function setupGCFBorderDropZone(slotId, element) {
-            element.addEventListener('dragover', e => {
-                if (currentStage === 4 && solvedGCFBorders[slotId] === null) {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'copy';
-                }
+            element.addEventListener('dragover',e=>{
+                if(solvedGCFBorders[slotId]!==null)return;
+                e.preventDefault(); e.dataTransfer.dropEffect='copy';
             });
-            element.addEventListener('drop', e => {
-                if (currentStage !== 4 || solvedGCFBorders[slotId] !== null) return;
-                e.preventDefault();
-                const value = e.dataTransfer.getData('text/factor-tile');
-                if (value) verifyGCFAssignmentForSlot(slotId, value);
+            element.addEventListener('drop',e=>{
+                if(solvedGCFBorders[slotId]!==null)return;
+                e.preventDefault(); const value=e.dataTransfer.getData('text/factor-tile');
+                if(value)verifyGCFAssignmentForSlot(slotId,value);
             });
         }
         setupGCFBorderDropZone('row1', gcfRow1);
@@ -2068,84 +2267,59 @@
         setupGCFBorderDropZone('col2', gcfCol2);
 
         // Layout controller for the student-facing four-stage workflow.
-        function manageLayoutProgressFlow() {
-            if (currentStage === 2) {
-                activeStatusPill.textContent = 'Stage 1: Place Outer Terms';
-                activeStatusPill.className = 'px-2 py-0.5 bg-blue-100 text-blue-600 font-bold tracking-wide uppercase text-[9px] rounded-full border border-blue-200';
-                termCardsHeading.textContent = 'Stage 1: Place the outer terms';
-                termCardsHelp.textContent = 'Keep the middle term in view. Drag or click ax² and c into the model; bx must be split before it can be placed.';
-                cardBx.className = 'px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none';
-                termCardsContainer.classList.remove('hidden');
-                factorInputsRow.classList.add('hidden');
-                multiplicationCard.classList.add('hidden');
-                gcfBorderSelectionCard.classList.add('hidden');
-                parenthesisCard.classList.add('hidden');
-            } else if (currentStage === 3) {
-                activeStatusPill.textContent = 'Stage 2: Split Middle Term';
-                activeStatusPill.className = 'px-2 py-0.5 bg-amber-100 text-amber-700 font-bold tracking-wide uppercase text-[9px] rounded-full border border-amber-200';
-                termCardsHeading.textContent = 'Stage 2: Split the middle term';
-                if (!splitVerified) {
-                    termCardsHelp.textContent = `Rewrite ${cardBx.textContent} as px + qx. First find |p| and |q|, then choose the signs that make both the product and sum work.`;
-                    cardBx.className = 'px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-400 ring-2 ring-amber-200 font-mono font-bold rounded-xl shadow-sm text-sm select-none';
-                }
-                termCardsContainer.classList.remove('hidden');
-                if (targetsVerified) factorInputsRow.classList.remove('hidden');
-                else factorInputsRow.classList.add('hidden');
-                multiplicationCard.classList.remove('hidden');
-                gcfBorderSelectionCard.classList.add('hidden');
-                parenthesisCard.classList.add('hidden');
-                if (splitVerified) {
-                    splitTermPlacement.classList.remove('hidden');
-                    splitTermPlacement.classList.add('flex');
-                }
-            } else if (currentStage === 4) {
-                activeStatusPill.textContent = 'Stage 3: Outside Factors';
-                activeStatusPill.className = 'px-2 py-0.5 bg-indigo-100 text-indigo-600 font-bold tracking-wide uppercase text-[9px] rounded-full border border-indigo-200';
-
-                const r1Coeff = Math.sign(workA) * getGCD(workA, factorsQ);
-                const c1Coeff = workA / r1Coeff;
-                const c2Const = factorsQ / r1Coeff;
-                const r2Const = factorsP / c1Coeff;
-
-                correctGCFBorders.row1 = formatBinomial(r1Coeff, 0);
-                correctGCFBorders.row2 = r2Const >= 0 ? `+${r2Const}` : `${r2Const}`;
-                correctGCFBorders.col1 = formatBinomial(c1Coeff, 0);
-                correctGCFBorders.col2 = c2Const >= 0 ? `+${c2Const}` : `${c2Const}`;
-
-                prepareBorderEntrySlots();
-                termCardsContainer.classList.add('hidden');
-                factorInputsRow.classList.add('hidden');
-                multiplicationCard.classList.add('hidden');
-                gcfBorderSelectionCard.classList.remove('hidden');
-                parenthesisCard.classList.add('hidden');
-            } else if (currentStage === 5) {
-                activeStatusPill.textContent = 'Stage 4: Final Factors';
-                activeStatusPill.className = 'px-2 py-0.5 bg-purple-100 text-purple-600 font-bold tracking-wide uppercase text-[9px] rounded-full border border-purple-200';
-                termCardsContainer.classList.add('hidden');
-                factorInputsRow.classList.add('hidden');
-                multiplicationCard.classList.add('hidden');
-                gcfBorderSelectionCard.classList.add('hidden');
-                parenthesisCard.classList.remove('hidden');
-
-                finalFactorData = getFinalFactorDataFromBorders();
-                const rawFactor1 = formatBorderBinomial(solvedGCFBorders.row1, solvedGCFBorders.row2);
-                const rawFactor2 = formatBorderBinomial(solvedGCFBorders.col1, solvedGCFBorders.col2);
-                parenthesisTips.innerHTML = '<span class="text-emerald-700 font-bold">Green row factors</span> form one binomial; <span class="text-blue-700 font-bold">blue column factors</span> form the other.';
+        function configureFinalFactorSection() {
+            const allSolved=Object.values(solvedGCFBorders).every(v=>v!==null);
+            parenthesisCard.classList.remove('hidden');
+            if (!allSolved) {
+                finalFactorData=null;
+                parenthesisFactor1.onclick=null;
+                parenthesisFactor2.onclick=null;
+                parenthesisFactor1.textContent='Row Factor';
+                parenthesisFactor2.textContent='Col Factor';
+                parenthesisTips.textContent='Complete the four outside factors in any order. The binomials will become available when those relationships are verified.';
+                furtherFactorCard.classList.add('hidden');
                 finalEquality.classList.add('hidden');
-                finalEqualityExpression.textContent = '';
-                updateFinalOutsideDisplay();
-
-                parenthesisFactor1.onclick = () => {
-                    parenthesisFactor1.textContent = displayedFinalFactor('factor1') || rawFactor1;
-                    parenthesisFactor1.className = 'min-w-[110px] px-3 py-1 border-2 border-emerald-500 rounded-xl text-center text-emerald-700 bg-emerald-50 font-mono font-bold text-sm transition-all';
-                    updateFinalSuccessMessage();
-                };
-                parenthesisFactor2.onclick = () => {
-                    parenthesisFactor2.textContent = displayedFinalFactor('factor2') || rawFactor2;
-                    parenthesisFactor2.className = 'min-w-[110px] px-3 py-1 border-2 border-blue-500 rounded-xl text-center text-blue-700 bg-blue-50 font-mono font-bold text-sm transition-all';
-                    updateFinalSuccessMessage();
-                };
+                return;
             }
+
+            finalFactorData=getFinalFactorDataFromBorders();
+            const rawFactor1=formatBorderBinomial(solvedGCFBorders.row1,solvedGCFBorders.row2);
+            const rawFactor2=formatBorderBinomial(solvedGCFBorders.col1,solvedGCFBorders.col2);
+            parenthesisTips.innerHTML='The verified row factors form one binomial; the verified column factors form the other. Click either placeholder to transfer it.';
+            parenthesisFactor1.className='min-w-[110px] px-3 py-1 border-2 border-dashed border-emerald-400 rounded-xl text-center text-emerald-600 bg-emerald-50/60 text-sm select-none cursor-pointer hover:bg-emerald-50 transition-all font-mono font-bold';
+            parenthesisFactor2.className='min-w-[110px] px-3 py-1 border-2 border-dashed border-blue-400 rounded-xl text-center text-blue-600 bg-blue-50/60 text-base select-none cursor-pointer hover:bg-blue-50 transition-all font-mono font-bold';
+            updateFinalOutsideDisplay();
+            parenthesisFactor1.onclick=()=>{
+                parenthesisFactor1.textContent=displayedFinalFactor('factor1')||rawFactor1;
+                parenthesisFactor1.className='min-w-[110px] px-3 py-1 border-2 border-emerald-500 rounded-xl text-center text-emerald-700 bg-emerald-50 font-mono font-bold text-sm transition-all';
+                finalFactorsRevealed.factor1=true;
+                updateFinalSuccessMessage(); updateProgressChecklist();
+            };
+            parenthesisFactor2.onclick=()=>{
+                parenthesisFactor2.textContent=displayedFinalFactor('factor2')||rawFactor2;
+                parenthesisFactor2.className='min-w-[110px] px-3 py-1 border-2 border-blue-500 rounded-xl text-center text-blue-700 bg-blue-50 font-mono font-bold text-sm transition-all';
+                finalFactorsRevealed.factor2=true;
+                updateFinalSuccessMessage(); updateProgressChecklist();
+            };
+        }
+
+        function manageLayoutProgressFlow() {
+            activeStatusPill.textContent='Open workspace';
+            activeStatusPill.className='px-2 py-0.5 bg-indigo-100 text-indigo-700 font-bold tracking-wide text-[9px] rounded-full border border-indigo-200';
+            termCardsContainer.classList.remove('hidden');
+            multiplicationCard.classList.remove('hidden');
+            factorInputsRow.classList.remove('hidden');
+            gcfBorderSelectionCard.classList.remove('hidden');
+            parenthesisCard.classList.remove('hidden');
+            termCardsHeading.textContent='Place terms';
+            termCardsHelp.textContent='Work in any order: drag/click tiles or type directly into any area-model cell. The p/q section and outside-factor section are helpers, not gates.';
+            if (splitVerified) {
+                splitTermPlacement.classList.remove('hidden'); splitTermPlacement.classList.add('flex');
+            } else {
+                splitTermPlacement.classList.add('hidden'); splitTermPlacement.classList.remove('flex');
+            }
+            configureFinalFactorSection();
+            updateProgressChecklist();
         }
 
         function checkVictory() {
@@ -2195,8 +2369,16 @@
             resetStageAndRecalculate();
         }
 
-        // Run initial configuration cycle on load
+        // v42: direct-entry listeners make every area-model cell available immediately.
+        attachEditableCell(cellTlValue,'tl');
+        attachEditableCell(cellTrValue,'tr');
+        attachEditableCell(cellBlValue,'bl');
+        attachEditableCell(cellBrValue,'br');
+
+        // Run initial open-workspace configuration.
+        prepareBorderEntrySlots();
         calculate();
+    
     </script>
 </body>
 </html>
