@@ -158,12 +158,33 @@
             left: calc(((100% - 24px) / 3) * 2 + 24px);
         }
 
-        /* On desktop, the left instructional pane scrolls through the full
-           rendered height of the right mathematical workspace. */
+        /* v52: keep scrollbars visibly present. The left instructional pane
+           remains independently scrollable while the shared polynomial header stays sticky. */
+        .custom-scrollbar {
+            scrollbar-width: auto;
+            scrollbar-color: rgb(148 163 184) rgb(226 232 240);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgb(226 232 240);
+            border-radius: 999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgb(148 163 184);
+            border: 2px solid rgb(226 232 240);
+            border-radius: 999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgb(100 116 139);
+        }
         @media (min-width: 1024px) {
             #instruction-column {
                 min-height: 0;
                 scrollbar-gutter: stable;
+                overflow-y: scroll !important;
             }
         }
     </style>
@@ -778,7 +799,7 @@
     <!-- Interactive App Script -->
     <script>
 
-        // v51: keep the shared active-polynomial card directly beneath the sticky site header.
+        // v52: keep the shared active-polynomial card directly beneath the sticky site header.
         const siteHeader = document.getElementById('site-header');
         function syncStickyPolynomialOffset() {
             const headerHeight = siteHeader ? Math.ceil(siteHeader.getBoundingClientRect().height) : 72;
@@ -804,7 +825,7 @@
             if (desktopColumnsQuery.matches) {
                 instructionColumn.style.height = `${workspaceColumn.getBoundingClientRect().height + instructionScrollExtension}px`;
                 instructionColumn.style.maxHeight = 'none';
-                instructionColumn.style.overflowY = 'auto';
+                instructionColumn.style.overflowY = 'scroll';
             } else {
                 instructionColumn.style.height = '';
                 instructionColumn.style.maxHeight = '';
