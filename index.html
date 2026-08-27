@@ -353,23 +353,35 @@
                         <div class="area-model-inner-border" aria-hidden="true"></div>
                     </div>
 
-                    <!-- Split-coefficient entry fields (p and q - only appears in Stage 2) -->
-                    <div id="factor-inputs-row" class="mt-6 w-full max-w-sm border-t border-slate-100 pt-5 flex flex-col items-center gap-3 hidden">
-                        <span class="text-xs font-bold text-slate-500 tracking-wide">enter the split coefficients</span>
-                        <div class="flex items-center gap-3">
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-sm font-mono text-emerald-600 font-black">p:</span>
-                                <input type="number" id="input-p" placeholder="e.g. -5" class="w-20 px-2.5 py-1 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
-                            </div>
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-sm font-mono text-emerald-600 font-black">q:</span>
-                                <input type="number" id="input-q" placeholder="e.g. -16" class="w-20 px-2.5 py-1 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
-                            </div>
-                            <button id="btn-apply-pq" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all">
-                                Check p & q
-                            </button>
+                    <!-- Split-coefficient sign decision (Stage 2) -->
+                    <div id="factor-inputs-row" class="mt-6 w-full max-w-md border-t border-slate-100 pt-5 flex flex-col items-center gap-3 hidden">
+                        <div class="text-center">
+                            <span class="text-xs font-bold text-slate-600 tracking-wide">choose the factor pair, then choose the signs</span>
+                            <p class="text-[10px] text-slate-500 mt-1">Enter the positive magnitudes <span class="font-mono font-bold">|p|</span> and <span class="font-mono font-bold">|q|</span>. Then decide whether each value is positive or negative.</p>
                         </div>
-                        <div id="split-term-placement" class="hidden w-full mt-3 pt-4 border-t border-slate-100 flex-col items-center gap-3">
+                        <div class="grid grid-cols-2 gap-4 w-full">
+                            <div class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
+                                <label for="input-p" class="text-sm font-mono text-yellow-900 font-black">|p|</label>
+                                <input type="number" min="0" id="input-p" placeholder="5" class="w-24 px-2.5 py-1.5 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
+                                <div class="flex gap-2" aria-label="Choose the sign of p">
+                                    <button type="button" id="btn-p-plus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">+</button>
+                                    <button type="button" id="btn-p-minus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">−</button>
+                                </div>
+                            </div>
+                            <div class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
+                                <label for="input-q" class="text-sm font-mono text-yellow-900 font-black">|q|</label>
+                                <input type="number" min="0" id="input-q" placeholder="16" class="w-24 px-2.5 py-1.5 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
+                                <div class="flex gap-2" aria-label="Choose the sign of q">
+                                    <button type="button" id="btn-q-plus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">+</button>
+                                    <button type="button" id="btn-q-minus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">−</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="btn-apply-pq" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all">
+                            Check signs
+                        </button>
+                        <p id="sign-choice-feedback" class="text-[11px] text-slate-500 text-center min-h-[1.25rem]">Find magnitudes that multiply to |ac|, then choose signs so the signed values also add to b.</p>
+                        <div id="split-term-placement" class="hidden w-full mt-2 pt-4 border-t border-slate-100 flex-col items-center gap-3">
                             <p class="text-[11px] text-slate-500 text-center">Correct pair. Now place the two signed middle terms into the remaining area-model cells.</p>
                             <div class="flex gap-3">
                                 <div id="card-px" draggable="true" class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none">px</div>
@@ -487,6 +499,8 @@
         let factorsP = 0;
         let factorsQ = 0;
         let selectedAbsPair = null;
+        let signPChoice = null;
+        let signQChoice = null;
         let targetsVerified = false;
         let splitVerified = false;
         let placedTR = false;
@@ -577,6 +591,11 @@
         const inputP = document.getElementById('input-p');
         const inputQ = document.getElementById('input-q');
         const btnApplyPq = document.getElementById('btn-apply-pq');
+        const btnPPlus = document.getElementById('btn-p-plus');
+        const btnPMinus = document.getElementById('btn-p-minus');
+        const btnQPlus = document.getElementById('btn-q-plus');
+        const btnQMinus = document.getElementById('btn-q-minus');
+        const signChoiceFeedback = document.getElementById('sign-choice-feedback');
         const splitTermPlacement = document.getElementById('split-term-placement');
         const cardPx = document.getElementById('card-px');
         const cardQx = document.getElementById('card-qx');
@@ -970,6 +989,8 @@
             pulledGCF = savedPulledGCF;
             selectedGCFSlotId = null;
             selectedAbsPair = null;
+            signPChoice = null;
+            signQChoice = null;
             targetsVerified = false;
             splitVerified = false;
             placedTR = false;
@@ -1034,6 +1055,12 @@
             inputQ.value = "";
             inputP.disabled = false;
             inputQ.disabled = false;
+            [btnPPlus, btnPMinus, btnQPlus, btnQMinus].forEach(btn => btn.disabled = false);
+            signPChoice = null;
+            signQChoice = null;
+            updateSignChoiceButtons();
+            signChoiceFeedback.textContent = 'Find magnitudes that multiply to |ac|, then choose signs so the signed values also add to b.';
+            signChoiceFeedback.className = 'text-[11px] text-slate-500 text-center min-h-[1.25rem]';
             btnApplyPq.disabled = false;
             btnApplyPq.classList.remove('opacity-50');
             splitTermPlacement.classList.add('hidden');
@@ -1231,18 +1258,60 @@
             multiplicationChartContainer.innerHTML = tableHTML;
         }
 
-        // Clicking a target product selects absolute values only. The student still chooses the signs.
+        const signButtonBaseClass = 'w-11 h-10 rounded-lg border-2 font-mono font-black text-lg transition-all';
+        const signButtonOffClass = `${signButtonBaseClass} border-slate-300 bg-white text-slate-700 hover:bg-yellow-100`;
+        const signButtonOnClass = `${signButtonBaseClass} border-yellow-600 bg-yellow-400 text-yellow-950 shadow-sm`;
+
+        function updateSignChoiceButtons() {
+            btnPPlus.className = signPChoice === 1 ? signButtonOnClass : signButtonOffClass;
+            btnPMinus.className = signPChoice === -1 ? signButtonOnClass : signButtonOffClass;
+            btnQPlus.className = signQChoice === 1 ? signButtonOnClass : signButtonOffClass;
+            btnQMinus.className = signQChoice === -1 ? signButtonOnClass : signButtonOffClass;
+            btnPPlus.setAttribute('aria-pressed', signPChoice === 1 ? 'true' : 'false');
+            btnPMinus.setAttribute('aria-pressed', signPChoice === -1 ? 'true' : 'false');
+            btnQPlus.setAttribute('aria-pressed', signQChoice === 1 ? 'true' : 'false');
+            btnQMinus.setAttribute('aria-pressed', signQChoice === -1 ? 'true' : 'false');
+        }
+
+        function chooseSplitSign(variable, sign) {
+            if (currentStage !== 3 || !targetsVerified || splitVerified) return;
+            if (variable === 'p') signPChoice = sign;
+            else signQChoice = sign;
+            updateSignChoiceButtons();
+            signChoiceFeedback.textContent = 'Now check whether your signed p and q satisfy both the product and the sum.';
+            signChoiceFeedback.className = 'text-[11px] text-slate-500 text-center min-h-[1.25rem]';
+        }
+
+        btnPPlus.addEventListener('click', () => chooseSplitSign('p', 1));
+        btnPMinus.addEventListener('click', () => chooseSplitSign('p', -1));
+        btnQPlus.addEventListener('click', () => chooseSplitSign('q', 1));
+        btnQMinus.addEventListener('click', () => chooseSplitSign('q', -1));
+
+        [inputP, inputQ].forEach(input => input.addEventListener('input', () => {
+            if (splitVerified) return;
+            selectedAbsPair = null;
+            signChoiceFeedback.textContent = 'Choose + or − for both values, then check your signed pair.';
+            signChoiceFeedback.className = 'text-[11px] text-slate-500 text-center min-h-[1.25rem]';
+        }));
+
+
+        // Clicking a target product selects magnitudes only. The student must still choose both signs.
         function selectChartFactors(f1, f2) {
             if (currentStage !== 3 || !targetsVerified || splitVerified) return;
             if (!pairCanReachTarget(f1, f2)) {
-                alert(`Good product: ${f1} × ${f2} = ${Math.abs(workA * workC)}. But no choice of signs makes these two values add to b (${workB}). Try another highlighted factor pair.`);
+                alert(`Good product: ${f1} × ${f2} = ${Math.abs(workA * workC)}. But these magnitudes cannot be signed to add to b (${workB}). Try another highlighted factor pair.`);
                 return;
             }
             selectedAbsPair = [f1, f2];
-            inputP.value = f1;
-            inputQ.value = f2;
-            targetDescription.innerHTML = `Selected absolute values <strong>${f1}</strong> and <strong>${f2}</strong>. Now choose their signs so that p × q = <strong>${workA * workC}</strong> and p + q = <strong>${workB}</strong>, then click <strong>Check p & q</strong>.`;
-            inputP.focus();
+            inputP.value = Math.abs(f1);
+            inputQ.value = Math.abs(f2);
+            signPChoice = null;
+            signQChoice = null;
+            updateSignChoiceButtons();
+            signChoiceFeedback.textContent = `You selected |p| = ${Math.abs(f1)} and |q| = ${Math.abs(f2)}. Choose + or − for each.`;
+            signChoiceFeedback.className = 'text-[11px] text-yellow-900 text-center min-h-[1.25rem] font-bold';
+            targetDescription.innerHTML = `Selected magnitudes <strong>|p| = ${Math.abs(f1)}</strong> and <strong>|q| = ${Math.abs(f2)}</strong>. Choose the signs so that p × q = <strong>${workA * workC}</strong> and p + q = <strong>${workB}</strong>.`;
+            btnPPlus.focus();
         }
 
         // Snap and place function for TL
@@ -1486,33 +1555,66 @@
             if (e.key === 'Enter') checkStage2Targets();
         }));
 
-        // Student p, q split-coefficient check
+        // Student sign-choice check for p and q. The numeric boxes hold magnitudes only.
         btnApplyPq.addEventListener('click', () => {
-            const p = parseInt(inputP.value);
-            const q = parseInt(inputQ.value);
-            if (isNaN(p) || isNaN(q)) {
-                alert("Please enter valid integer values for p and q!");
+            const absP = parseInt(inputP.value, 10);
+            const absQ = parseInt(inputQ.value, 10);
+            if (!Number.isInteger(absP) || !Number.isInteger(absQ) || absP < 0 || absQ < 0) {
+                signChoiceFeedback.textContent = 'Enter non-negative integer magnitudes for |p| and |q|.';
+                signChoiceFeedback.className = 'text-[11px] text-rose-600 text-center min-h-[1.25rem] font-bold';
                 return;
             }
-            verifySplitPair(p, q);
+            if (signPChoice === null || signQChoice === null) {
+                signChoiceFeedback.textContent = 'Choose either + or − for both p and q before checking.';
+                signChoiceFeedback.className = 'text-[11px] text-rose-600 text-center min-h-[1.25rem] font-bold';
+                return;
+            }
+            const p = signPChoice * absP;
+            const q = signQChoice * absQ;
+            verifySplitPair(p, q, absP, absQ);
         });
 
-        // Verify p and q, then let the student place px and qx in their assigned cells.
-        function verifySplitPair(p, q) {
+        // Verify magnitudes and signs separately, then let the student place px and qx.
+        function verifySplitPair(p, q, absP = Math.abs(p), absQ = Math.abs(q)) {
             if (currentStage !== 3 || !targetsVerified) {
                 alert("First determine and verify the product a × c and the sum b.");
                 return;
             }
 
             const ac = workA * workC;
-            if ((p * q !== ac) || (p + q !== workB)) {
-                alert(`Not yet. p and q must satisfy both conditions:
-
-1. p × q = ac (${ac})
-2. p + q = b (${workB})`);
+            const absAc = Math.abs(ac);
+            if (absP * absQ !== absAc) {
+                signChoiceFeedback.textContent = `Those magnitudes multiply to ${absP * absQ}, not |ac| = ${absAc}. Choose another factor pair.`;
+                signChoiceFeedback.className = 'text-[11px] text-rose-600 text-center min-h-[1.25rem] font-bold';
                 return;
             }
 
+            if (p * q !== ac) {
+                signChoiceFeedback.textContent = ac > 0
+                    ? 'The product must be positive, so p and q need matching signs.'
+                    : 'The product must be negative, so p and q need different signs.';
+                signChoiceFeedback.className = 'text-[11px] text-amber-700 text-center min-h-[1.25rem] font-bold';
+                return;
+            }
+
+            if (p + q !== workB) {
+                let hint;
+                if (ac < 0) {
+                    if (workB > 0) hint = 'Your product sign is correct. With opposite signs, the larger magnitude must make the sum positive.';
+                    else if (workB < 0) hint = 'Your product sign is correct. With opposite signs, the larger magnitude must make the sum negative.';
+                    else hint = 'Your product sign is correct. For a sum of 0, the signed values must cancel.';
+                } else {
+                    if (workB > 0) hint = 'Your product sign is correct. The sum must be positive, so reconsider which matching signs you chose.';
+                    else if (workB < 0) hint = 'Your product sign is correct. The sum must be negative, so reconsider which matching signs you chose.';
+                    else hint = 'Your product sign is correct, but the two values must add to 0.';
+                }
+                signChoiceFeedback.textContent = hint;
+                signChoiceFeedback.className = 'text-[11px] text-amber-700 text-center min-h-[1.25rem] font-bold';
+                return;
+            }
+
+            signChoiceFeedback.textContent = `✓ Correct: p = ${p} and q = ${q}.`;
+            signChoiceFeedback.className = 'text-[11px] text-emerald-700 text-center min-h-[1.25rem] font-bold';
             factorsP = p;
             factorsQ = q;
             splitVerified = true;
@@ -1520,12 +1622,18 @@
             placedBL = false;
             cardPx.textContent = p === 1 ? 'x' : (p === -1 ? '-x' : `${p}x`);
             cardQx.textContent = q === 1 ? 'x' : (q === -1 ? '-x' : `${q}x`);
+            // Re-apply the yellow split-term styling whenever the verified p/q tiles are generated.
+            // This prevents earlier state/reset classes from changing their visual meaning.
+            const splitTileClass = 'px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none';
+            cardPx.className = splitTileClass;
+            cardQx.className = splitTileClass;
             splitTermPlacement.classList.remove('hidden');
             splitTermPlacement.classList.add('flex');
             cardBx.className = "px-5 py-2.5 bg-slate-100 text-slate-400 border-2 border-dashed border-slate-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none line-through";
             termCardsHelp.textContent = `${cardBx.textContent} has been split into ${cardPx.textContent} and ${cardQx.textContent}. Place those two terms into the open cells.`;
             inputP.disabled = true;
             inputQ.disabled = true;
+            [btnPPlus, btnPMinus, btnQPlus, btnQMinus].forEach(btn => btn.disabled = true);
             btnApplyPq.disabled = true;
             btnApplyPq.classList.add('opacity-50');
             targetDescription.innerHTML = `Correct: <strong>p = ${p}</strong> and <strong>q = ${q}</strong>. Now place ${cardPx.textContent} and ${cardQx.textContent} into the two open area-model cells.`;
@@ -1757,7 +1865,7 @@
                 activeStatusPill.className = 'px-2 py-0.5 bg-amber-100 text-amber-700 font-bold tracking-wide uppercase text-[9px] rounded-full border border-amber-200';
                 termCardsHeading.textContent = 'Stage 2: Split the middle term';
                 if (!splitVerified) {
-                    termCardsHelp.textContent = `Rewrite ${cardBx.textContent} as px + qx. The two new terms will replace this middle-term card after your split is verified.`;
+                    termCardsHelp.textContent = `Rewrite ${cardBx.textContent} as px + qx. First find |p| and |q|, then choose the signs that make both the product and sum work.`;
                     cardBx.className = 'px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-400 ring-2 ring-amber-200 font-mono font-bold rounded-xl shadow-sm text-sm select-none';
                 }
                 termCardsContainer.classList.remove('hidden');
