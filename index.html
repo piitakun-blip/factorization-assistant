@@ -1,4 +1,4 @@
-<!-- Trinomial Factorization Helper v46: generated outside-factor tiles -->
+<!-- Trinomial Factorization Helper v47: instant outside-factor tiles -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -400,7 +400,7 @@
                         <i class="fa-solid fa-border-all text-indigo-500"></i> Outside factors
                     </h3>
                     <p class="text-xs text-slate-600 mb-4 leading-relaxed">
-                        Inspect the two terms in each row and column and determine what factor they share. A correct common factor generates a draggable tile for the area-model border.
+                        Inspect the two terms in each row and column and determine what factor they share. As soon as you enter a correct common factor, its draggable tile appears in the Outside factor tiles section.
                     </p>
 
                     <div id="outside-factor-pairs" class="space-y-4 mb-4">
@@ -476,12 +476,12 @@
                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
                         <div class="flex items-start justify-between gap-3 flex-wrap">
                             <div>
-                                <div class="text-[11px] font-bold uppercase tracking-wide text-slate-600">Verified factor tiles</div>
-                                <p class="text-[10px] text-slate-500 mt-1">When you correctly identify a common factor above, its tile appears here. Drag the tile to the matching border of the area model.</p>
+                                <div class="text-[11px] font-bold uppercase tracking-wide text-slate-600">Outside factor tiles</div>
+                                <p class="text-[10px] text-slate-500 mt-1">As soon as a correct row or column common factor is entered above, its draggable tile appears here. Drag it to the matching border of the area model.</p>
                             </div>
                         </div>
                         <div id="factor-tile-tray" class="mt-3 flex flex-wrap gap-2 min-h-[42px] items-center">
-                            <span class="text-[10px] text-slate-400 italic">Correct common factors will generate draggable tiles here.</span>
+                            <span class="text-[10px] text-slate-400 italic">Correct common factors will appear here automatically as draggable tiles.</span>
                         </div>
                         <details class="mt-3 border-t border-slate-200 pt-3">
                             <summary class="cursor-pointer text-[10px] font-bold text-slate-500 hover:text-slate-700">Make a scratch factor tile instead</summary>
@@ -491,7 +491,7 @@
                             </div>
                         </details>
                     </div>
-                    <p id="border-entry-feedback" class="text-[10px] text-slate-400 text-center italic mt-4">Find a common factor in a row or column to generate its tile, then drag it onto the area-model border. You can still type directly into a border as an alternate method.</p>
+                    <p id="border-entry-feedback" class="text-[10px] text-slate-400 text-center italic mt-4">Enter a correct common factor in a row or column and its tile appears immediately in Outside factor tiles. Drag it onto the matching area-model border, or type directly into a border as an alternate method.</p>
                 </div>
 
                 <!-- STAGE 4: Parentheses / conventional form -->
@@ -740,7 +740,7 @@
     <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
         <div class="max-w-6xl mx-auto px-4">
-            <p>Interactive Area Model v46 — verified outside factors generate draggable tiles for placement on the area model.</p>
+            <p>Interactive Area Model v47 — correct row and column factors instantly generate draggable outside-factor tiles.</p>
         </div>
     </footer>
 
@@ -1051,7 +1051,7 @@
             foundGCFBorders = { row1:null,row2:null,col1:null,col2:null };
             pendingBorderSource = { row1:'workspace',row2:'workspace',col1:'workspace',col2:'workspace' };
             borderAttemptState = { row1:'idle',row2:'idle',col1:'idle',col2:'idle' };
-            factorTileTray.innerHTML='<span class="text-[10px] text-slate-400 italic">Correct common factors will generate draggable tiles here.</span>';
+            factorTileTray.innerHTML='<span class="text-[10px] text-slate-400 italic">Correct common factors will appear here automatically as draggable tiles.</span>';
             finalFactorData = null;
             finalExtraction = { factor1:1, factor2:1 };
             finalFactorsRevealed = { factor1:false, factor2:false };
@@ -1703,10 +1703,10 @@
             toolChartFeedback.textContent='Enter the product you want to investigate. For a negative product, the chart uses its positive magnitude.';
             resetCalculator();
             factorTileInput.value='';
-            factorTileTray.innerHTML='<span class="text-[10px] text-slate-400 italic">Correct common factors will generate draggable tiles here.</span>';
+            factorTileTray.innerHTML='<span class="text-[10px] text-slate-400 italic">Correct common factors will appear here automatically as draggable tiles.</span>';
             foundGCFBorders = { row1:null,row2:null,col1:null,col2:null };
             pendingBorderSource = { row1:'workspace',row2:'workspace',col1:'workspace',col2:'workspace' };
-            borderEntryFeedback.textContent='Find a common factor to generate its tile, then drag it to the matching border. Direct border entry is still available.';
+            borderEntryFeedback.textContent='Enter a correct common factor and its tile will appear immediately in Outside factor tiles. Then drag it to the matching border. Direct border entry is still available.';
             borderEntryFeedback.className='text-[10px] text-slate-500 text-center italic mt-4';
 
             prepareBorderEntrySlots();
@@ -2477,6 +2477,16 @@
                 ui.input.addEventListener('input', () => {
                     if (borderAttemptState[slotId] === 'wrong') borderAttemptState[slotId] = 'idle';
                     ui.input.classList.remove('ring-2','ring-rose-400');
+
+                    // v47: recognize a correct common factor immediately. The Check
+                    // button remains useful for explicit feedback on incomplete/wrong attempts.
+                    if (solvedGCFBorders[slotId] !== null || foundGCFBorders[slotId] !== null) return;
+                    const typed = normalizeFactorInput(ui.input.value);
+                    if (!typed || !computeCorrectBordersFromSplit()) return;
+                    const correct = normalizeFactorInput(correctGCFBorders[slotId]);
+                    if (typed === correct) {
+                        verifyGCFAssignmentForSlot(slotId, ui.input.value, false, 'workspace');
+                    }
                 });
                 ui.button.addEventListener('click', submit);
             }
@@ -2580,7 +2590,7 @@
                 if (source === 'workspace') {
                     createGeneratedFactorTile(slotId, displayValue);
                     prepareBorderEntrySlots();
-                    borderEntryFeedback.textContent=`✓ ${borderLabel(slotId)} common factor found. A draggable ${displayValue} tile was generated below.`;
+                    borderEntryFeedback.textContent=`✓ ${borderLabel(slotId)} common factor found. The draggable ${displayValue} tile is now in Outside factor tiles.`;
                     borderEntryFeedback.className=`text-[10px] text-center italic mt-4 ${slotId.startsWith('row')?'text-emerald-700':'text-blue-700'} font-bold`;
                     renderOutsideFactorWorkspace();
                     updateProgressChecklist();
