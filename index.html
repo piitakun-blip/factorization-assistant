@@ -1,4 +1,4 @@
-<!-- Trinomial Factorization Helper v27: refined 2x2 model frame with internal grid -->
+<!-- Trinomial Factorization Helper v32: explicit bx split equivalence + area-model expression reference -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,7 +36,7 @@
             width: calc(((100% - 24px) / 3) * 2 + 32px);
             height: calc(((100% - 24px) / 3) * 2 + 32px);
             border: 2px solid rgb(100 116 139);
-            border-radius: 8px;
+            border-radius: 0;
             pointer-events: none;
             z-index: 20;
         }
@@ -45,7 +45,7 @@
         .area-model-inner-border::after {
             content: '';
             position: absolute;
-            background: rgb(203 213 225);
+            background: rgb(0 0 0);
         }
         .area-model-inner-border::before {
             top: 0;
@@ -266,9 +266,17 @@
                 
                 <!-- Active Equation Header -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-md flex flex-col items-center justify-center gap-2">
-                    <span class="text-xs uppercase font-extrabold tracking-widest text-slate-400">Active Polynomial Expression</span>
+                    <div id="original-equation-reference" class="hidden w-full text-center border-b border-slate-100 pb-3 mb-1">
+                        <span class="text-[10px] font-extrabold tracking-widest text-slate-400">original trinomial</span>
+                        <div id="original-equation-display" class="mt-1 text-base font-bold text-slate-600 math-font">2x² - 21x + 40</div>
+                    </div>
+                    <span id="active-equation-label" class="text-xs font-extrabold tracking-widest text-slate-400">active polynomial expression</span>
                     <div id="equation-display" class="text-3xl font-black text-slate-900 math-font py-1">
                         2x² - 21x + 40
+                    </div>
+                    <div id="area-model-expression-reference" class="hidden w-full max-w-2xl mt-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-center">
+                        <div class="text-[10px] font-bold tracking-wider text-slate-400">area model represents</div>
+                        <div id="area-model-expression-display" class="mt-1 math-font text-sm font-bold text-slate-700"></div>
                     </div>
                 </div>
 
@@ -313,13 +321,13 @@
                         </div>
                         
                         <!-- Cell TL: ax² -->
-                        <div id="cell-tl" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-900 font-mono transition-all duration-300 relative">
+                        <div id="cell-tl" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-900 font-mono transition-all duration-300 relative">
                             <span class="text-2xl font-black"></span>
                             <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">ax²</span>
                         </div>
                         
                         <!-- Cell TR: qx -->
-                        <div id="cell-tr" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-600 font-mono transition-all duration-300">
+                        <div id="cell-tr" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-600 font-mono transition-all duration-300">
                             <span class="text-2xl font-black"></span>
                             <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">qx</span>
                         </div>
@@ -330,13 +338,13 @@
                         </div>
                         
                         <!-- Cell BL: px -->
-                        <div id="cell-bl" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-600 font-mono transition-all duration-300">
+                        <div id="cell-bl" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-600 font-mono transition-all duration-300">
                             <span class="text-2xl font-black"></span>
                             <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">px</span>
                         </div>
                         
                         <!-- Cell BR: c -->
-                        <div id="cell-br" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-900 font-mono transition-all duration-300 relative">
+                        <div id="cell-br" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-900 font-mono transition-all duration-300 relative">
                             <span class="text-2xl font-black"></span>
                             <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">c</span>
                         </div>
@@ -364,8 +372,8 @@
                         <div id="split-term-placement" class="hidden w-full mt-3 pt-4 border-t border-slate-100 flex-col items-center gap-3">
                             <p class="text-[11px] text-slate-500 text-center">Correct pair. Now place the two signed middle terms into the remaining area-model cells.</p>
                             <div class="flex gap-3">
-                                <div id="card-px" draggable="true" class="px-4 py-2 bg-emerald-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm active:scale-95 transition-all select-none touch-action-none">px</div>
-                                <div id="card-qx" draggable="true" class="px-4 py-2 bg-teal-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm active:scale-95 transition-all select-none touch-action-none">qx</div>
+                                <div id="card-px" draggable="true" class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none">px</div>
+                                <div id="card-qx" draggable="true" class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none">qx</div>
                             </div>
                             <p class="text-[10px] text-slate-400 italic">Drag px to the lower-left and qx to the upper-right, or click each card to snap it into its assigned cell.</p>
                         </div>
@@ -503,6 +511,11 @@
 
         const btnPractice = document.getElementById('btn-practice');
         const equationDisplay = document.getElementById('equation-display');
+        const originalEquationReference = document.getElementById('original-equation-reference');
+        const originalEquationDisplay = document.getElementById('original-equation-display');
+        const activeEquationLabel = document.getElementById('active-equation-label');
+        const areaModelExpressionReference = document.getElementById('area-model-expression-reference');
+        const areaModelExpressionDisplay = document.getElementById('area-model-expression-display');
         const targetDescription = document.getElementById('target-description');
         const productTargetDisplay = document.getElementById('product-target-display');
         const multiplicationChartContainer = document.getElementById('multiplication-chart-container');
@@ -677,6 +690,52 @@
 
         function escapeHtml(value) {
             return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+        }
+
+        // Keep the equivalence visible as the middle term is rewritten and placed.
+        function updateExpressionProgress() {
+            originalEquationDisplay.textContent = formatTrinomial(activeA, activeB, activeC);
+
+            if (!splitVerified) {
+                if (pulledGCF !== 1) {
+                    originalEquationReference.classList.remove('hidden');
+                    activeEquationLabel.textContent = 'working equivalent expression';
+                } else {
+                    originalEquationReference.classList.add('hidden');
+                    activeEquationLabel.textContent = 'active polynomial expression';
+                }
+                equationDisplay.textContent = pulledGCF === 1
+                    ? formatTrinomial(workA, workB, workC)
+                    : `${formatOutsidePrefix(pulledGCF)}(${formatTrinomial(workA, workB, workC)})`;
+                areaModelExpressionReference.classList.add('hidden');
+                areaModelExpressionDisplay.textContent = '';
+                return;
+            }
+
+            // Once bx is split, keep the original trinomial visible even when no GCF was pulled out.
+            originalEquationReference.classList.remove('hidden');
+            activeEquationLabel.textContent = 'middle term rewritten equivalently';
+
+            const outsideOpen = pulledGCF === 1 ? '' : `${formatOutsidePrefix(pulledGCF)}(`;
+            const outsideClose = pulledGCF === 1 ? '' : ')';
+            const aPart = formatTerm(workA, 'x²', true);
+            const splitPair = formatTerm(factorsP, 'x', true) + formatTerm(factorsQ, 'x');
+            const cPart = formatTerm(workC, '');
+            equationDisplay.innerHTML = `${escapeHtml(outsideOpen + aPart)}<span class="inline-block mx-1 px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 border border-amber-300">+ (${escapeHtml(splitPair)})</span>${escapeHtml(cPart + outsideClose)}`;
+
+            if (placedTR && placedBL) {
+                const fourTerm = formatTerm(workA, 'x²', true)
+                    + formatTerm(factorsP, 'x')
+                    + formatTerm(factorsQ, 'x')
+                    + formatTerm(workC, '');
+                areaModelExpressionDisplay.textContent = pulledGCF === 1
+                    ? fourTerm
+                    : `${formatOutsidePrefix(pulledGCF)}(${fourTerm})`;
+                areaModelExpressionReference.classList.remove('hidden');
+            } else {
+                areaModelExpressionReference.classList.add('hidden');
+                areaModelExpressionDisplay.textContent = '';
+            }
         }
 
         // Format binomial factor block
@@ -934,10 +993,10 @@
             gcfCol2.textContent = "";
 
             // Reset borders design styles
-            cellTl.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-900 font-mono transition-all duration-300 relative";
-            cellBr.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-900 font-mono transition-all duration-300 relative";
-            cellTr.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-600 font-mono transition-all duration-300";
-            cellBl.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-slate-600 font-mono transition-all duration-300";
+            cellTl.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-900 font-mono transition-all duration-300 relative";
+            cellBr.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-900 font-mono transition-all duration-300 relative";
+            cellTr.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-600 font-mono transition-all duration-300";
+            cellBl.className = "flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-600 font-mono transition-all duration-300";
 
             // Reset border click layouts
             gcfRow1.className = "flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50";
@@ -967,6 +1026,8 @@
             furtherFactorActions.innerHTML = '';
             finalEquality.classList.add('hidden');
             finalEqualityExpression.textContent = '';
+            areaModelExpressionReference.classList.add('hidden');
+            areaModelExpressionDisplay.textContent = '';
 
             // Clear input fields and split-term placement
             inputP.value = "";
@@ -1007,7 +1068,12 @@
             activeC = parseInt(numC.value) || 0;
 
             if (activeA === 0) {
+                originalEquationDisplay.textContent = formatTrinomial(0, activeB, activeC);
+                originalEquationReference.classList.add('hidden');
+                activeEquationLabel.textContent = 'active polynomial expression';
                 equationDisplay.textContent = formatTrinomial(0, activeB, activeC);
+                areaModelExpressionReference.classList.add('hidden');
+                areaModelExpressionDisplay.textContent = '';
                 termCardsContainer.classList.add('hidden');
                 factorInputsRow.classList.add('hidden');
                 multiplicationCard.classList.remove('hidden');
@@ -1030,9 +1096,7 @@
             workA = activeA / pulledGCF;
             workB = activeB / pulledGCF;
             workC = activeC / pulledGCF;
-            equationDisplay.textContent = pulledGCF === 1
-                ? formatTrinomial(workA, workB, workC)
-                : `${formatOutsidePrefix(pulledGCF)}(${formatTrinomial(workA, workB, workC)})`;
+            updateExpressionProgress();
             updateStage2ProblemStrip();
 
             // Common-factor extraction is an optional tool, never a gate. It remains
@@ -1185,7 +1249,7 @@
         function placeTL() {
             if (currentStage !== 2 || placedTL) return;
             cellTl.querySelector('span').textContent = workA === 1 ? 'x²' : `${workA}x²`;
-            cellTl.className = "flex flex-col items-center justify-center bg-blue-50 border-2 border-blue-400 rounded-2xl text-blue-700 font-mono transition-all duration-300 shadow-sm relative";
+            cellTl.className = "flex flex-col items-center justify-center bg-blue-50 border-2 border-blue-400 text-blue-700 font-mono transition-all duration-300 shadow-sm relative";
             cardAx2.classList.add('opacity-20', 'pointer-events-none');
             placedTL = true;
             checkStage1Completion();
@@ -1195,7 +1259,7 @@
         function placeBR() {
             if (currentStage !== 2 || placedBR) return;
             cellBr.querySelector('span').textContent = workC.toString();
-            cellBr.className = "flex flex-col items-center justify-center bg-purple-50 border-2 border-purple-400 rounded-2xl text-purple-700 font-mono transition-all duration-300 shadow-sm relative";
+            cellBr.className = "flex flex-col items-center justify-center bg-purple-50 border-2 border-purple-400 text-purple-700 font-mono transition-all duration-300 shadow-sm relative";
             cardC.classList.add('opacity-20', 'pointer-events-none');
             placedBR = true;
             checkStage1Completion();
@@ -1465,12 +1529,13 @@
             btnApplyPq.disabled = true;
             btnApplyPq.classList.add('opacity-50');
             targetDescription.innerHTML = `Correct: <strong>p = ${p}</strong> and <strong>q = ${q}</strong>. Now place ${cardPx.textContent} and ${cardQx.textContent} into the two open area-model cells.`;
+            updateExpressionProgress();
         }
 
         function placeTR() {
             if (currentStage !== 3 || !splitVerified || placedTR) return;
             cellTr.querySelector('span').textContent = cardQx.textContent;
-            cellTr.className = "flex flex-col items-center justify-center bg-slate-100 border border-solid border-emerald-400 rounded-2xl text-emerald-700 font-mono transition-all duration-300 shadow-sm relative";
+            cellTr.className = "flex flex-col items-center justify-center bg-slate-100 border border-solid border-emerald-400 text-emerald-700 font-mono transition-all duration-300 shadow-sm relative";
             cardQx.classList.add('opacity-20', 'pointer-events-none');
             placedTR = true;
             checkMiddlePlacementCompletion();
@@ -1479,13 +1544,14 @@
         function placeBL() {
             if (currentStage !== 3 || !splitVerified || placedBL) return;
             cellBl.querySelector('span').textContent = cardPx.textContent;
-            cellBl.className = "flex flex-col items-center justify-center bg-slate-100 border border-solid border-emerald-400 rounded-2xl text-emerald-700 font-mono transition-all duration-300 shadow-sm relative";
+            cellBl.className = "flex flex-col items-center justify-center bg-slate-100 border border-solid border-emerald-400 text-emerald-700 font-mono transition-all duration-300 shadow-sm relative";
             cardPx.classList.add('opacity-20', 'pointer-events-none');
             placedBL = true;
             checkMiddlePlacementCompletion();
         }
 
         function checkMiddlePlacementCompletion() {
+            updateExpressionProgress();
             if (placedTR && placedBL) {
                 currentStage = 4;
                 splitTermPlacement.classList.add('hidden');
