@@ -1,4 +1,4 @@
-<!-- Trinomial Factorization Helper v32: explicit bx split equivalence + area-model expression reference -->
+<!-- Trinomial Factorization Helper v36: always-available student tools -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -392,6 +392,81 @@
                     </div>
                 </div>
 
+                <!-- STUDENT TOOLS: available throughout the factoring workflow -->
+                <div id="student-tools-card" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-toolbox text-slate-500"></i> Tools
+                            </h3>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Open either tool whenever you want. The tools do not fill factoring answers for you.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button id="btn-tool-calculator" type="button" aria-expanded="false" class="px-3.5 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold shadow-sm">
+                                <i class="fa-solid fa-calculator mr-1"></i> Calculator
+                            </button>
+                            <button id="btn-tool-chart" type="button" aria-expanded="false" class="px-3.5 py-2 rounded-lg border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold shadow-sm">
+                                <i class="fa-solid fa-table-cells mr-1"></i> Multiplication chart
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Four-function calculator -->
+                    <div id="tool-calculator-panel" class="hidden mt-4 border-t border-slate-100 pt-4">
+                        <div class="mx-auto w-full max-w-[19rem] rounded-2xl border-2 border-slate-300 bg-slate-800 p-3 shadow-md">
+                            <div class="mb-3 rounded-xl bg-slate-100 px-4 py-3 text-right overflow-hidden">
+                                <div class="text-[9px] font-bold tracking-wider text-slate-400">calculator</div>
+                                <output id="calculator-display" aria-live="polite" class="block min-h-[2.25rem] font-mono text-2xl font-black text-slate-900 break-all">0</output>
+                            </div>
+                            <div id="calculator-keypad" class="grid grid-cols-4 gap-2">
+                                <button type="button" data-calc-action="clear" class="h-11 rounded-lg bg-slate-500 hover:bg-slate-400 text-white font-bold">C</button>
+                                <button type="button" data-calc-action="sign" class="h-11 rounded-lg bg-slate-500 hover:bg-slate-400 text-white font-bold">±</button>
+                                <button type="button" data-calc-action="backspace" aria-label="Backspace" class="h-11 rounded-lg bg-slate-500 hover:bg-slate-400 text-white font-bold">⌫</button>
+                                <button type="button" data-calc-operator="divide" class="h-11 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-lg font-black">÷</button>
+
+                                <button type="button" data-calc-digit="7" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">7</button>
+                                <button type="button" data-calc-digit="8" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">8</button>
+                                <button type="button" data-calc-digit="9" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">9</button>
+                                <button type="button" data-calc-operator="multiply" class="h-11 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-lg font-black">×</button>
+
+                                <button type="button" data-calc-digit="4" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">4</button>
+                                <button type="button" data-calc-digit="5" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">5</button>
+                                <button type="button" data-calc-digit="6" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">6</button>
+                                <button type="button" data-calc-operator="subtract" class="h-11 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-lg font-black">−</button>
+
+                                <button type="button" data-calc-digit="1" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">1</button>
+                                <button type="button" data-calc-digit="2" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">2</button>
+                                <button type="button" data-calc-digit="3" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">3</button>
+                                <button type="button" data-calc-operator="add" class="h-11 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-lg font-black">+</button>
+
+                                <button type="button" data-calc-digit="0" class="col-span-2 h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">0</button>
+                                <button type="button" data-calc-action="decimal" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-black">.</button>
+                                <button type="button" data-calc-action="equals" class="h-11 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-lg font-black">=</button>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 text-center mt-2">Four-function scratch calculator. Results are never copied into factoring fields automatically.</p>
+                    </div>
+
+                    <!-- Multiplication chart tool -->
+                    <div id="tool-chart-panel" class="hidden mt-4 border-t border-slate-100 pt-4">
+                        <div class="flex flex-col sm:flex-row sm:items-end justify-center gap-3 mb-3">
+                            <label class="text-xs font-bold text-slate-700">
+                                Target product
+                                <input id="tool-chart-target" type="number" inputmode="numeric" class="mt-1 w-full sm:w-40 px-3 py-2 text-base text-center font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="enter product">
+                            </label>
+                            <button id="btn-show-tool-chart" type="button" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm">Show chart</button>
+                            <button id="btn-clear-tool-chart" type="button" class="px-3 py-2 border border-slate-300 bg-white hover:bg-slate-100 text-slate-600 rounded-lg text-xs font-bold">Clear</button>
+                        </div>
+                        <p id="tool-chart-feedback" class="text-[10px] text-slate-500 text-center mb-3">Enter the product you want to investigate. For a negative product, the chart uses its positive magnitude.</p>
+                        <div id="multiplication-chart-wrapper" class="hidden">
+                            <p class="text-[10px] text-slate-500 mb-2 text-center">Scroll in either direction. Row headings stay fixed on the left and column headings stay fixed at the top.</p>
+                            <div class="w-full max-h-[30rem] overflow-auto custom-scrollbar border border-slate-200 rounded-xl bg-white">
+                                <div id="multiplication-chart-container" class="min-w-max p-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- STAGE 2: Split the middle term. Wider and directly under the area model. -->
                 <div id="multiplication-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md hidden">
                     <div id="stage2-sticky-problem" class="stage2-sticky-problem -mx-2 mb-4 px-3 py-2.5 rounded-xl border border-amber-200 bg-white/95 shadow-sm">
@@ -404,9 +479,9 @@
                     <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
                         <div>
                             <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-table text-indigo-500"></i> Stage 2: Split the Middle Term
+                                <i class="fa-solid fa-scissors text-amber-500"></i> Stage 2: Split the Middle Term
                             </h3>
-                            <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">First determine the product and sum you need. The multiplication chart unlocks only after both targets are correct.</p>
+                            <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">First determine the product and sum you need. The optional tools above are available whenever you want them.</p>
                         </div>
                         <div id="product-target-display" class="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-500 rounded-xl font-mono text-xs font-bold text-center">
                             Determine product &amp; sum
@@ -430,41 +505,12 @@
                         </div>
                     </div>
 
-                    <div id="stage2-calculation-area" class="rounded-xl border border-slate-200 bg-slate-50 p-4 mb-4">
-                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-700">calculation area</h4>
-                                <p class="text-[10px] text-slate-500 mt-0.5">Use this scratch calculator for work such as a × c or p + q. It does not fill the factoring boxes.</p>
-                            </div>
-                            <button id="btn-clear-scratch" type="button" class="text-[10px] px-2.5 py-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-600 font-bold">clear</button>
-                        </div>
-                        <div class="flex flex-wrap items-center justify-center gap-2">
-                            <input id="scratch-left" type="number" inputmode="numeric" aria-label="First scratch number" class="w-24 px-3 py-2 text-base text-center font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:outline-none" placeholder="number">
-                            <select id="scratch-operation" aria-label="Scratch operation" class="px-3 py-2 text-base font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:outline-none">
-                                <option value="multiply">×</option>
-                                <option value="add">+</option>
-                                <option value="subtract">−</option>
-                                <option value="divide">÷</option>
-                            </select>
-                            <input id="scratch-right" type="number" inputmode="numeric" aria-label="Second scratch number" class="w-24 px-3 py-2 text-base text-center font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-400 focus:outline-none" placeholder="number">
-                            <button id="btn-calculate-scratch" type="button" class="px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold shadow-sm">calculate</button>
-                            <span class="font-mono font-bold text-slate-500">=</span>
-                            <output id="scratch-result" class="min-w-[5rem] px-3 py-2 text-center font-mono font-black bg-white border border-slate-300 rounded-lg text-slate-800" aria-live="polite">—</output>
-                        </div>
-                        <p id="scratch-feedback" class="text-[10px] text-slate-400 text-center mt-2"></p>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 mb-4 text-center">
+                        <p class="text-[10px] text-slate-500">Need arithmetic help? Open the <strong>Calculator</strong> or <strong>Multiplication chart</strong> in the Tools panel above.</p>
                     </div>
 
                     <div id="target-description" class="text-xs text-slate-600 font-medium mb-4 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
-                        Enter a × c and b before searching for p and q.
-                    </div>
-
-                    <div id="multiplication-chart-wrapper" class="hidden">
-                        <p class="text-[10px] text-slate-500 mb-2 text-center">Scroll in either direction. Row headings stay fixed on the left and column headings stay fixed at the top.</p>
-                        <div class="w-full max-h-[30rem] overflow-auto custom-scrollbar border border-slate-200 rounded-xl bg-white">
-                            <div id="multiplication-chart-container" class="min-w-max p-1">
-                                <!-- Dynamically generated continuous chart -->
-                            </div>
-                        </div>
+                        Enter a × c and b, then search for p and q. Use the optional tools above whenever they help.
                     </div>
                 </div>
 
@@ -475,7 +521,7 @@
     <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
         <div class="max-w-6xl mx-auto px-4">
-            <p>Interactive Area Model v22 — student-driven factoring practice for classroom displays and Chromebooks.</p>
+            <p>Interactive Area Model v36 — student-driven factoring practice for classroom displays and Chromebooks.</p>
         </div>
     </footer>
 
@@ -539,13 +585,18 @@
         const btnCheckTargets = document.getElementById('btn-check-targets');
         const targetEntryFeedback = document.getElementById('target-entry-feedback');
         const stage2ProblemExpression = document.getElementById('stage2-problem-expression');
-        const scratchLeft = document.getElementById('scratch-left');
-        const scratchOperation = document.getElementById('scratch-operation');
-        const scratchRight = document.getElementById('scratch-right');
-        const btnCalculateScratch = document.getElementById('btn-calculate-scratch');
-        const btnClearScratch = document.getElementById('btn-clear-scratch');
-        const scratchResult = document.getElementById('scratch-result');
-        const scratchFeedback = document.getElementById('scratch-feedback');
+        const targetEntryPanel = document.getElementById('target-entry-panel');
+        const studentToolsCard = document.getElementById('student-tools-card');
+        const btnToolCalculator = document.getElementById('btn-tool-calculator');
+        const btnToolChart = document.getElementById('btn-tool-chart');
+        const toolCalculatorPanel = document.getElementById('tool-calculator-panel');
+        const toolChartPanel = document.getElementById('tool-chart-panel');
+        const calculatorDisplay = document.getElementById('calculator-display');
+        const calculatorKeypad = document.getElementById('calculator-keypad');
+        const toolChartTarget = document.getElementById('tool-chart-target');
+        const btnShowToolChart = document.getElementById('btn-show-tool-chart');
+        const btnClearToolChart = document.getElementById('btn-clear-tool-chart');
+        const toolChartFeedback = document.getElementById('tool-chart-feedback');
         const activeStatusPill = document.getElementById('active-status-pill');
 
         // Dynamic Stage Cards on Left Panel
@@ -944,12 +995,12 @@
             termCardsContainer.classList.add('hidden');
             factorInputsRow.classList.add('hidden');
             multiplicationCard.classList.remove('hidden');
-            multiplicationChartWrapper.classList.remove('hidden');
             gcfBorderSelectionCard.classList.add('hidden');
             parenthesisCard.classList.add('hidden');
+            targetEntryPanel.classList.add('hidden');
             productTargetDisplay.textContent = 'Common variable factor';
-            multiplicationChartContainer.innerHTML = `
-                <div class="max-w-md text-center p-5 bg-amber-50 border border-amber-200 rounded-xl">
+            targetDescription.innerHTML = `
+                <div class="max-w-md mx-auto text-center p-5 bg-amber-50 border border-amber-200 rounded-xl">
                     <p class="font-bold text-amber-800 mb-2">Every term contains x.</p>
                     <p class="text-xs text-amber-700 mb-4">Before using the 2×2 trinomial area model, factor out the common variable <strong>x</strong>.</p>
                     <button id="btn-factor-x" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold">Factor out x</button>
@@ -959,7 +1010,7 @@
                 const inner = formatBinomial(workA, workB);
                 const prefix = formatOutsidePrefix(pulledGCF);
                 equationDisplay.textContent = `${prefix}x(${inner})`;
-                multiplicationChartContainer.innerHTML = `<div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 font-bold">✓ ${prefix}x(${inner})</div>`;
+                targetDescription.innerHTML = `<div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 font-bold text-center">✓ ${prefix}x(${inner})</div>`;
                 activeStatusPill.textContent = 'Factored';
             };
         }
@@ -969,12 +1020,12 @@
             activeStatusPill.className = "px-2 py-0.5 bg-rose-100 text-rose-700 font-bold tracking-wide uppercase text-[9px] rounded-full border border-rose-200";
             factorInputsRow.classList.add('hidden');
             multiplicationCard.classList.remove('hidden');
-            multiplicationChartWrapper.classList.remove('hidden');
             gcfBorderSelectionCard.classList.add('hidden');
             parenthesisCard.classList.add('hidden');
+            targetEntryPanel.classList.add('hidden');
             productTargetDisplay.textContent = `Target |ac| = ${Math.abs(workA * workC)}`;
-            multiplicationChartContainer.innerHTML = `
-                <div class="max-w-md text-center p-5 bg-rose-50 border border-rose-200 rounded-xl">
+            targetDescription.innerHTML = `
+                <div class="max-w-md mx-auto text-center p-5 bg-rose-50 border border-rose-200 rounded-xl">
                     <p class="font-bold text-rose-800 mb-2">No integer pair works.</p>
                     <p class="text-xs text-rose-700">There is no pair of integers whose product is <strong>${workA * workC}</strong> and whose sum is <strong>${workB}</strong>. This trinomial does not factor over the integers.</p>
                 </div>`;
@@ -1079,8 +1130,12 @@
             btnCheckTargets.classList.remove('opacity-50');
             targetEntryFeedback.textContent = 'Use the trinomial above to determine both values.';
             targetEntryFeedback.className = 'text-[11px] text-slate-500';
+            targetEntryPanel.classList.remove('hidden');
+            toolChartTarget.value = '';
             multiplicationChartWrapper.classList.add('hidden');
             multiplicationChartContainer.innerHTML = '';
+            toolChartFeedback.textContent = 'Enter the product you want to investigate. For a negative product, the chart uses its positive magnitude.';
+            resetCalculator();
             factorTileInput.value = '';
             factorTileTray.innerHTML = '<span class="text-[10px] text-slate-400 italic">Your factor tiles will appear here.</span>';
             borderEntryFeedback.textContent = 'Each correct entry will lock into its border.';
@@ -1104,12 +1159,12 @@
                 termCardsContainer.classList.add('hidden');
                 factorInputsRow.classList.add('hidden');
                 multiplicationCard.classList.remove('hidden');
+                targetEntryPanel.classList.add('hidden');
                 gcfBorderSelectionCard.classList.add('hidden');
                 parenthesisCard.classList.add('hidden');
                 gcfScaffoldingCard.classList.add('hidden');
                 productTargetDisplay.textContent = 'Adjust coefficient a';
                 targetDescription.innerHTML = 'The leading coefficient <code>a</code> must be non-zero to use the quadratic area model.';
-                multiplicationChartContainer.innerHTML = '<div class="p-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-sm font-bold">Choose a non-zero value for a.</div>';
                 activeStatusPill.textContent = 'Adjust a';
                 return;
             }
@@ -1165,13 +1220,10 @@
                     productTargetDisplay.textContent = 'Determine product & sum';
                     productTargetDisplay.className = 'px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-500 rounded-xl font-mono text-xs font-bold text-center';
                     targetDescription.innerHTML = `Use the trinomial above. Enter <strong>a × c</strong> and the coefficient <strong>b</strong>, then check both targets.`;
-                    multiplicationChartWrapper.classList.add('hidden');
                 } else {
                     productTargetDisplay.textContent = `ac = ${ac} • b = ${workB}`;
                     productTargetDisplay.className = 'px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl font-mono text-xs font-bold text-center';
-                    targetDescription.innerHTML = `Targets confirmed. Now find integers p and q with product <strong>${ac}</strong> and sum <strong>${workB}</strong>. The chart shows positive factor magnitudes; you determine the signs.`;
-                    multiplicationChartWrapper.classList.remove('hidden');
-                    generatePositiveMultiplicationChart(absAc);
+                    targetDescription.innerHTML = `Targets confirmed. Now find integers p and q with product <strong>${ac}</strong> and sum <strong>${workB}</strong>. If you use the multiplication-chart tool, it shows positive factor magnitudes; you determine the signs.`;
                 }
             }
         }
@@ -1226,7 +1278,7 @@
                 }
                 multiplicationChartContainer.innerHTML = `
                     <div class="w-full">
-                        <p class="text-[10px] text-slate-500 text-center mb-3">Large target: showing every factor pair without rendering ${maxRowFactor * absAc.toLocaleString()} table cells.</p>
+                        <p class="text-[10px] text-slate-500 text-center mb-3">Large target: showing every factor pair without rendering ${(maxRowFactor * absAc).toLocaleString()} table cells.</p>
                         <div class="flex flex-wrap gap-2 justify-center">
                             ${pairs.map(([a,b]) => `<button class="px-3 py-2 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-700 font-mono font-bold hover:bg-emerald-100" onclick="selectChartFactors(${a}, ${b})">${a} × ${b} = ${absAc}</button>`).join('')}
                         </div>
@@ -1297,7 +1349,15 @@
 
         // Clicking a target product selects magnitudes only. The student must still choose both signs.
         function selectChartFactors(f1, f2) {
-            if (currentStage !== 3 || !targetsVerified || splitVerified) return;
+            const selectedProduct = Math.abs(f1 * f2);
+            const currentProduct = Math.abs(workA * workC);
+            if (currentStage !== 3 || !targetsVerified || splitVerified || selectedProduct !== currentProduct) {
+                toolChartFeedback.textContent = (currentStage === 3 && targetsVerified && !splitVerified && selectedProduct !== currentProduct)
+                    ? `Factor pair selected: ${Math.abs(f1)} and ${Math.abs(f2)}. This pair belongs to ${selectedProduct}, not the current verified |ac| = ${currentProduct}.`
+                    : `Factor pair selected: ${Math.abs(f1)} and ${Math.abs(f2)}.`;
+                toolChartFeedback.className = 'text-[10px] text-indigo-700 text-center mb-3 font-bold';
+                return;
+            }
             if (!pairCanReachTarget(f1, f2)) {
                 alert(`Good product: ${f1} × ${f2} = ${Math.abs(workA * workC)}. But these magnitudes cannot be signed to add to b (${workB}). Try another highlighted factor pair.`);
                 return;
@@ -1482,46 +1542,178 @@
             }
         }
 
-        function calculateScratch() {
-            const left = Number(scratchLeft.value);
-            const right = Number(scratchRight.value);
-            if (!Number.isFinite(left) || !Number.isFinite(right)) {
-                scratchResult.textContent = '—';
-                scratchFeedback.textContent = 'Enter two numbers first.';
-                scratchFeedback.className = 'text-[10px] text-rose-600 text-center mt-2 font-bold';
-                return;
-            }
-            let result;
-            if (scratchOperation.value === 'add') result = left + right;
-            else if (scratchOperation.value === 'subtract') result = left - right;
-            else if (scratchOperation.value === 'divide') {
-                if (right === 0) {
-                    scratchResult.textContent = 'undefined';
-                    scratchFeedback.textContent = 'Division by zero is undefined.';
-                    scratchFeedback.className = 'text-[10px] text-rose-600 text-center mt-2 font-bold';
-                    return;
-                }
-                result = left / right;
-            } else result = left * right;
-            scratchResult.textContent = Number.isInteger(result) ? String(result) : String(Number(result.toFixed(6)));
-            scratchFeedback.textContent = 'Scratch result only — copy what you need into the factoring fields yourself.';
-            scratchFeedback.className = 'text-[10px] text-slate-500 text-center mt-2';
+        // ---- Always-available student tools ----
+        let activeTool = null;
+        let calcValue = '0';
+        let calcStoredValue = null;
+        let calcOperator = null;
+        let calcWaitingForOperand = false;
+        let calcJustEvaluated = false;
+
+        function setActiveTool(tool) {
+            const nextTool = activeTool === tool ? null : tool;
+            activeTool = nextTool;
+            toolCalculatorPanel.classList.toggle('hidden', nextTool !== 'calculator');
+            toolChartPanel.classList.toggle('hidden', nextTool !== 'chart');
+            btnToolCalculator.setAttribute('aria-expanded', nextTool === 'calculator' ? 'true' : 'false');
+            btnToolChart.setAttribute('aria-expanded', nextTool === 'chart' ? 'true' : 'false');
+            if (nextTool === 'chart') toolChartTarget.focus();
         }
 
-        btnCalculateScratch.addEventListener('click', calculateScratch);
-        [scratchLeft, scratchRight].forEach(input => input.addEventListener('keydown', e => {
-            if (e.key === 'Enter') calculateScratch();
-        }));
-        btnClearScratch.addEventListener('click', () => {
-            scratchLeft.value = '';
-            scratchRight.value = '';
-            scratchOperation.value = 'multiply';
-            scratchResult.textContent = '—';
-            scratchFeedback.textContent = '';
-            scratchLeft.focus();
+        btnToolCalculator.addEventListener('click', () => setActiveTool('calculator'));
+        btnToolChart.addEventListener('click', () => setActiveTool('chart'));
+
+        function updateCalculatorDisplay() {
+            calculatorDisplay.textContent = calcValue;
+        }
+
+        function resetCalculator() {
+            calcValue = '0';
+            calcStoredValue = null;
+            calcOperator = null;
+            calcWaitingForOperand = false;
+            calcJustEvaluated = false;
+            if (calculatorDisplay) updateCalculatorDisplay();
+        }
+
+        function calculatorNumber() {
+            const value = Number(calcValue);
+            return Number.isFinite(value) ? value : 0;
+        }
+
+        function formatCalculatorNumber(value) {
+            if (!Number.isFinite(value)) return 'Error';
+            if (Math.abs(value) > 999999999999 || (Math.abs(value) > 0 && Math.abs(value) < 0.000000001)) {
+                return value.toExponential(8).replace(/\.0+e/, 'e');
+            }
+            const rounded = Math.round((value + Number.EPSILON) * 1e10) / 1e10;
+            return String(rounded);
+        }
+
+        function computeCalculator(a, b, operator) {
+            if (operator === 'add') return a + b;
+            if (operator === 'subtract') return a - b;
+            if (operator === 'multiply') return a * b;
+            if (operator === 'divide') return b === 0 ? NaN : a / b;
+            return b;
+        }
+
+        function inputCalculatorDigit(digit) {
+            if (calcValue === 'Error' || calcWaitingForOperand || calcJustEvaluated) {
+                calcValue = digit;
+                calcWaitingForOperand = false;
+                calcJustEvaluated = false;
+            } else if (calcValue === '0') {
+                calcValue = digit;
+            } else if (calcValue.replace('-', '').replace('.', '').length < 12) {
+                calcValue += digit;
+            }
+            updateCalculatorDisplay();
+        }
+
+        function inputCalculatorDecimal() {
+            if (calcValue === 'Error' || calcWaitingForOperand || calcJustEvaluated) {
+                calcValue = '0.';
+                calcWaitingForOperand = false;
+                calcJustEvaluated = false;
+            } else if (!calcValue.includes('.')) {
+                calcValue += '.';
+            }
+            updateCalculatorDisplay();
+        }
+
+        function chooseCalculatorOperator(operator) {
+            const inputValue = calculatorNumber();
+            if (calcValue === 'Error') {
+                resetCalculator();
+                return;
+            }
+            if (calcOperator && calcStoredValue !== null && !calcWaitingForOperand) {
+                const result = computeCalculator(calcStoredValue, inputValue, calcOperator);
+                calcValue = formatCalculatorNumber(result);
+                if (calcValue === 'Error') {
+                    calcStoredValue = null;
+                    calcOperator = null;
+                    updateCalculatorDisplay();
+                    return;
+                }
+                calcStoredValue = Number(calcValue);
+            } else {
+                calcStoredValue = inputValue;
+            }
+            calcOperator = operator;
+            calcWaitingForOperand = true;
+            calcJustEvaluated = false;
+            updateCalculatorDisplay();
+        }
+
+        function evaluateCalculator() {
+            if (!calcOperator || calcStoredValue === null || calcWaitingForOperand || calcValue === 'Error') return;
+            const result = computeCalculator(calcStoredValue, calculatorNumber(), calcOperator);
+            calcValue = formatCalculatorNumber(result);
+            calcStoredValue = null;
+            calcOperator = null;
+            calcWaitingForOperand = false;
+            calcJustEvaluated = true;
+            updateCalculatorDisplay();
+        }
+
+        function toggleCalculatorSign() {
+            if (calcValue === 'Error' || calcValue === '0') return;
+            calcValue = calcValue.startsWith('-') ? calcValue.slice(1) : `-${calcValue}`;
+            updateCalculatorDisplay();
+        }
+
+        function calculatorBackspace() {
+            if (calcValue === 'Error' || calcWaitingForOperand || calcJustEvaluated) return;
+            calcValue = calcValue.length <= 1 || (calcValue.startsWith('-') && calcValue.length === 2) ? '0' : calcValue.slice(0, -1);
+            updateCalculatorDisplay();
+        }
+
+        calculatorKeypad.addEventListener('click', e => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            if (btn.dataset.calcDigit !== undefined) inputCalculatorDigit(btn.dataset.calcDigit);
+            else if (btn.dataset.calcOperator) chooseCalculatorOperator(btn.dataset.calcOperator);
+            else if (btn.dataset.calcAction === 'decimal') inputCalculatorDecimal();
+            else if (btn.dataset.calcAction === 'clear') resetCalculator();
+            else if (btn.dataset.calcAction === 'sign') toggleCalculatorSign();
+            else if (btn.dataset.calcAction === 'backspace') calculatorBackspace();
+            else if (btn.dataset.calcAction === 'equals') evaluateCalculator();
         });
 
-        // Stage 2: students determine the product ac and the sum b before the chart unlocks.
+        function showToolMultiplicationChart() {
+            const target = Number(toolChartTarget.value);
+            if (!Number.isInteger(target) || target === 0) {
+                multiplicationChartWrapper.classList.add('hidden');
+                multiplicationChartContainer.innerHTML = '';
+                toolChartFeedback.textContent = 'Enter a non-zero integer target product first.';
+                toolChartFeedback.className = 'text-[10px] text-rose-600 text-center mb-3 font-bold';
+                return;
+            }
+            const magnitude = Math.abs(target);
+            toolChartFeedback.textContent = target < 0
+                ? `Showing positive factor magnitudes for |${target}| = ${magnitude}. You still decide which factor is negative.`
+                : `Showing factor pairs for ${magnitude}.`;
+            toolChartFeedback.className = 'text-[10px] text-slate-500 text-center mb-3';
+            multiplicationChartWrapper.classList.remove('hidden');
+            generatePositiveMultiplicationChart(magnitude);
+        }
+
+        btnShowToolChart.addEventListener('click', showToolMultiplicationChart);
+        toolChartTarget.addEventListener('keydown', e => {
+            if (e.key === 'Enter') showToolMultiplicationChart();
+        });
+        btnClearToolChart.addEventListener('click', () => {
+            toolChartTarget.value = '';
+            multiplicationChartWrapper.classList.add('hidden');
+            multiplicationChartContainer.innerHTML = '';
+            toolChartFeedback.textContent = 'Enter the product you want to investigate. For a negative product, the chart uses its positive magnitude.';
+            toolChartFeedback.className = 'text-[10px] text-slate-500 text-center mb-3';
+            toolChartTarget.focus();
+        });
+
+        // Stage 2: students determine the product ac and the sum b before choosing p and q.
         function checkStage2Targets() {
             if (currentStage !== 3 || splitVerified) return;
             const product = parseInt(inputProductTarget.value, 10);
@@ -1545,8 +1737,10 @@
             inputSumTarget.disabled = true;
             btnCheckTargets.disabled = true;
             btnCheckTargets.classList.add('opacity-50');
-            targetEntryFeedback.textContent = '✓ Correct. The multiplication chart is now active.';
+            targetEntryFeedback.textContent = '✓ Correct. Use the Tools panel if you want a calculator or multiplication chart.';
             targetEntryFeedback.className = 'text-[11px] text-emerald-700 font-bold';
+            toolChartTarget.value = String(product);
+            toolChartFeedback.textContent = 'Your verified Stage 2 product is ready here. Press Show chart whenever you want to use it.';
             calculate();
         }
 
@@ -1643,7 +1837,7 @@
         function placeTR() {
             if (currentStage !== 3 || !splitVerified || placedTR) return;
             cellTr.querySelector('span').textContent = cardQx.textContent;
-            cellTr.className = "flex flex-col items-center justify-center bg-slate-100 border border-solid border-emerald-400 text-emerald-700 font-mono transition-all duration-300 shadow-sm relative";
+            cellTr.className = "flex flex-col items-center justify-center bg-yellow-100 border border-solid border-yellow-400 text-yellow-900 font-mono transition-all duration-300 shadow-sm relative";
             cardQx.classList.add('opacity-20', 'pointer-events-none');
             placedTR = true;
             checkMiddlePlacementCompletion();
@@ -1652,7 +1846,7 @@
         function placeBL() {
             if (currentStage !== 3 || !splitVerified || placedBL) return;
             cellBl.querySelector('span').textContent = cardPx.textContent;
-            cellBl.className = "flex flex-col items-center justify-center bg-slate-100 border border-solid border-emerald-400 text-emerald-700 font-mono transition-all duration-300 shadow-sm relative";
+            cellBl.className = "flex flex-col items-center justify-center bg-yellow-100 border border-solid border-yellow-400 text-yellow-900 font-mono transition-all duration-300 shadow-sm relative";
             cardPx.classList.add('opacity-20', 'pointer-events-none');
             placedBL = true;
             checkMiddlePlacementCompletion();
