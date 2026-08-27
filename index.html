@@ -1,4 +1,4 @@
-<!-- Trinomial Factorization Helper v42: non-linear open factoring workspace -->
+<!-- Trinomial Factorization Helper v43: area-model-anchored p/q reasoning -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,6 +112,30 @@
         }
         .progress-dot.done { background: rgb(16 185 129); }
         .progress-dot.partial { background: rgb(245 158 11); }
+
+        /* v43: anchor the p/q reasoning directly to the 2x2 area model. */
+        #area-model-grid.pq-explain-sum #cell-tr,
+        #area-model-grid.pq-explain-sum #cell-bl {
+            box-shadow: inset 0 0 0 3px rgb(234 179 8), 0 0 0 4px rgb(254 240 138 / .85);
+            z-index: 30;
+        }
+        #area-model-grid.pq-explain-product #cell-tl,
+        #area-model-grid.pq-explain-product #cell-br {
+            box-shadow: inset 0 0 0 3px rgb(79 70 229), 0 0 0 4px rgb(199 210 254 / .8);
+            z-index: 30;
+        }
+        #area-model-grid.pq-explain-product #cell-tr,
+        #area-model-grid.pq-explain-product #cell-bl {
+            box-shadow: inset 0 0 0 3px rgb(234 179 8), 0 0 0 4px rgb(254 240 138 / .75);
+            z-index: 30;
+        }
+        #pq-product-diagonals { display: none; }
+        #area-model-grid.pq-explain-product #pq-product-diagonals { display: block; }
+        .pq-reason-button[aria-pressed="true"] {
+            background: rgb(30 41 59);
+            border-color: rgb(30 41 59);
+            color: white;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
@@ -312,39 +336,60 @@
                         Find the two targets first: <strong>p × q = a × c</strong> and <strong>p + q = b</strong>. Then determine p and q so both equations are true.
                     </div>
 
-                    <!-- p/q reasoning remains in the left Stage 2 column -->
-                    <div id="factor-inputs-row" class="mt-5 w-full border-t border-amber-100 pt-5 flex flex-col items-center gap-3">
+                    <!-- p/q constraint-solving workbench -->
+                    <div id="factor-inputs-row" class="mt-5 w-full border-t border-amber-100 pt-5 flex flex-col gap-4">
                         <div class="text-center">
-                            <span class="text-sm font-extrabold text-slate-800 tracking-wide">Determine p and q</span>
-                            <p class="text-[10px] text-slate-500 mt-1">Use your verified targets. Find the magnitudes first, then choose signs so the final signed values satisfy both equations.</p>
+                            <span class="text-sm font-extrabold text-slate-800 tracking-wide">Try a candidate pair</span>
+                            <p class="text-[10px] text-slate-500 mt-1">Enter signed values for <span class="font-mono font-bold">p</span> and <span class="font-mono font-bold">q</span>. Both conditions must be true at the same time.</p>
                             <div class="mt-2 flex flex-wrap items-center justify-center gap-2 text-[11px] font-mono font-bold text-slate-600">
                                 <span id="pq-product-condition" class="px-2 py-1 rounded-lg border border-slate-200 bg-white">p × q = a × c</span>
                                 <span id="pq-sum-condition" class="px-2 py-1 rounded-lg border border-slate-200 bg-white">p + q = b</span>
                             </div>
+                            <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
+                                <button id="btn-explain-pq-sum" type="button" aria-pressed="false" class="pq-reason-button px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 text-[10px] font-bold transition-all">
+                                    <i class="fa-solid fa-plus mr-1"></i> Why p + q = b?
+                                </button>
+                                <button id="btn-explain-pq-product" type="button" aria-pressed="false" class="pq-reason-button px-3 py-1.5 rounded-lg border border-indigo-300 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 text-[10px] font-bold transition-all">
+                                    <i class="fa-solid fa-xmark mr-1"></i> Why p × q = a × c?
+                                </button>
+                            </div>
                         </div>
+
                         <div class="grid grid-cols-2 gap-4 w-full">
-                            <div class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
-                                <label for="input-p" class="text-sm font-mono text-yellow-900 font-black">|p|</label>
-                                <input type="number" min="0" id="input-p" placeholder="5" class="w-24 px-2.5 py-1.5 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
-                                <div class="flex gap-2" aria-label="Choose the sign of p">
-                                    <button type="button" id="btn-p-plus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">+</button>
-                                    <button type="button" id="btn-p-minus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">−</button>
+                            <label class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
+                                <span class="text-sm font-mono text-yellow-900 font-black">p</span>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" id="btn-p-toggle-sign" class="w-10 h-10 rounded-lg border-2 border-yellow-400 bg-white text-yellow-900 font-mono font-black text-lg hover:bg-yellow-100" title="Change the sign of p">±</button>
+                                    <input type="number" id="input-p" placeholder="-5" class="w-24 px-2.5 py-2 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
                                 </div>
+                            </label>
+                            <label class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
+                                <span class="text-sm font-mono text-yellow-900 font-black">q</span>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" id="btn-q-toggle-sign" class="w-10 h-10 rounded-lg border-2 border-yellow-400 bg-white text-yellow-900 font-mono font-black text-lg hover:bg-yellow-100" title="Change the sign of q">±</button>
+                                    <input type="number" id="input-q" placeholder="-16" class="w-24 px-2.5 py-2 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-3 w-full">
+                            <div id="pq-live-product" class="rounded-xl border border-slate-200 bg-white p-3 text-center">
+                                <div class="text-[10px] uppercase tracking-wide font-bold text-slate-400">Product check</div>
+                                <div id="pq-live-product-equation" class="mt-1 font-mono font-bold text-slate-700">p × q = ?</div>
+                                <div id="pq-live-product-status" class="mt-1 text-[10px] text-slate-500">Enter both values.</div>
                             </div>
-                            <div class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
-                                <label for="input-q" class="text-sm font-mono text-yellow-900 font-black">|q|</label>
-                                <input type="number" min="0" id="input-q" placeholder="16" class="w-24 px-2.5 py-1.5 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
-                                <div class="flex gap-2" aria-label="Choose the sign of q">
-                                    <button type="button" id="btn-q-plus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">+</button>
-                                    <button type="button" id="btn-q-minus" aria-pressed="false" class="w-11 h-10 rounded-lg border-2 border-slate-300 bg-white text-slate-700 font-mono font-black text-lg hover:bg-yellow-100">−</button>
-                                </div>
+                            <div id="pq-live-sum" class="rounded-xl border border-slate-200 bg-white p-3 text-center">
+                                <div class="text-[10px] uppercase tracking-wide font-bold text-slate-400">Sum check</div>
+                                <div id="pq-live-sum-equation" class="mt-1 font-mono font-bold text-slate-700">p + q = ?</div>
+                                <div id="pq-live-sum-status" class="mt-1 text-[10px] text-slate-500">Enter both values.</div>
                             </div>
                         </div>
-                        <button id="btn-apply-pq" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all">
-                            Check signs
-                        </button>
-                        <p id="sign-choice-feedback" class="text-[11px] text-slate-500 text-center min-h-[1.25rem]">Find magnitudes, then choose signs so both target equations are true.</p>
-                        
+
+                        <div id="pq-candidate-split" class="hidden rounded-xl border-2 border-yellow-300 bg-yellow-50 p-3 text-center">
+                            <div class="text-[10px] uppercase tracking-wide font-bold text-yellow-800">Candidate middle-term split</div>
+                            <div id="pq-candidate-split-expression" class="mt-1 font-mono font-black text-yellow-950"></div>
+                        </div>
+                        <p id="sign-choice-feedback" class="text-[11px] text-slate-500 text-center min-h-[1.25rem]">Try a signed pair. The product and sum checks update as you type.</p>
                     </div>
                 </div>
 
@@ -447,12 +492,23 @@
                         <p class="text-[10px] text-slate-500 text-center">Drag <span class="font-mono font-bold">px</span> to the lower-left and <span class="font-mono font-bold">qx</span> to the upper-right, or click each yellow tile to snap it into place.</p>
                     </div>
                     
+                    <div id="pq-model-explanation" class="hidden w-full mb-4 rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3" aria-live="polite">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <div id="pq-model-explanation-title" class="text-[10px] font-extrabold tracking-wider text-slate-500">p/q connection to the area model</div>
+                                <div id="pq-model-explanation-equation" class="mt-1 font-mono text-sm font-black text-slate-900"></div>
+                                <div id="pq-model-explanation-steps" class="mt-1 text-[10px] leading-relaxed text-slate-600"></div>
+                            </div>
+                            <button id="btn-close-pq-explanation" type="button" class="shrink-0 w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-100" aria-label="Close p q explanation">×</button>
+                        </div>
+                    </div>
+
                     <div class="w-full mb-3 px-3 py-2 rounded-xl border border-indigo-100 bg-indigo-50/40 text-[10px] text-indigo-800 text-center">
                         <strong>Open workspace:</strong> click a value inside any of the four cells and type a term directly, or drag a matching tile. Press Enter or click away to check it.
                     </div>
 
                     <!-- Grid of GCFs and Area Model cells -->
-                    <div class="relative grid grid-cols-3 grid-rows-3 gap-3 w-80 h-80 text-center text-sm font-bold select-none">
+                    <div id="area-model-grid" class="relative grid grid-cols-3 grid-rows-3 gap-3 w-80 h-80 text-center text-sm font-bold select-none">
                         <!-- Top-Left Spacer -->
                         <div></div>
                         
@@ -499,6 +555,20 @@
                             <span id="cell-br-value" contenteditable="true" role="textbox" aria-label="bottom-right constant term" spellcheck="false" data-placeholder="type c" class="editable-model-value text-2xl font-black"></span>
                             <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">c</span>
                         </div>
+
+                        <!-- Product explanation: diagonal pairs ax²·c and px·qx. -->
+                        <svg id="pq-product-diagonals" class="absolute inset-0 w-full h-full pointer-events-none z-[24]" viewBox="0 0 320 320" aria-hidden="true">
+                            <defs>
+                                <marker id="pq-arrow-indigo" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
+                                    <path d="M0,0 L7,3.5 L0,7 Z" fill="rgb(79 70 229)"></path>
+                                </marker>
+                                <marker id="pq-arrow-amber" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
+                                    <path d="M0,0 L7,3.5 L0,7 Z" fill="rgb(202 138 4)"></path>
+                                </marker>
+                            </defs>
+                            <line x1="160" y1="160" x2="270.5" y2="270.5" stroke="rgb(79 70 229)" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#pq-arrow-indigo)"></line>
+                            <line x1="270.5" y1="160" x2="160" y2="270.5" stroke="rgb(202 138 4)" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#pq-arrow-amber)"></line>
+                        </svg>
 
                         <!-- Strong outline around only the four product cells. -->
                         <div class="area-model-inner-border" aria-hidden="true"></div>
@@ -591,7 +661,7 @@
     <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
         <div class="max-w-6xl mx-auto px-4">
-            <p>Interactive Area Model v39 — student-driven factoring practice for classroom displays and Chromebooks.</p>
+            <p>Interactive Area Model v43 — non-linear factoring workspace with area-model-anchored p/q reasoning.</p>
         </div>
     </footer>
 
@@ -622,6 +692,7 @@
         let signQChoice = null;
         let targetsVerified = false;
         let splitVerified = false;
+        let pqExplanationMode = null; // 'sum' or 'product'; visual only, never reveals an unverified numeric target.
         let placedTR = false;
         let placedBL = false;
         let finalFactorData = null;
@@ -728,14 +799,27 @@
         const factorInputsRow = document.getElementById('factor-inputs-row');
         const inputP = document.getElementById('input-p');
         const inputQ = document.getElementById('input-q');
-        const btnApplyPq = document.getElementById('btn-apply-pq');
-        const btnPPlus = document.getElementById('btn-p-plus');
-        const btnPMinus = document.getElementById('btn-p-minus');
-        const btnQPlus = document.getElementById('btn-q-plus');
-        const btnQMinus = document.getElementById('btn-q-minus');
+        const btnPToggleSign = document.getElementById('btn-p-toggle-sign');
+        const btnQToggleSign = document.getElementById('btn-q-toggle-sign');
+        const pqLiveProduct = document.getElementById('pq-live-product');
+        const pqLiveProductEquation = document.getElementById('pq-live-product-equation');
+        const pqLiveProductStatus = document.getElementById('pq-live-product-status');
+        const pqLiveSum = document.getElementById('pq-live-sum');
+        const pqLiveSumEquation = document.getElementById('pq-live-sum-equation');
+        const pqLiveSumStatus = document.getElementById('pq-live-sum-status');
+        const pqCandidateSplit = document.getElementById('pq-candidate-split');
+        const pqCandidateSplitExpression = document.getElementById('pq-candidate-split-expression');
         const signChoiceFeedback = document.getElementById('sign-choice-feedback');
         const pqProductCondition = document.getElementById('pq-product-condition');
         const pqSumCondition = document.getElementById('pq-sum-condition');
+        const btnExplainPqSum = document.getElementById('btn-explain-pq-sum');
+        const btnExplainPqProduct = document.getElementById('btn-explain-pq-product');
+        const btnClosePqExplanation = document.getElementById('btn-close-pq-explanation');
+        const pqModelExplanation = document.getElementById('pq-model-explanation');
+        const pqModelExplanationTitle = document.getElementById('pq-model-explanation-title');
+        const pqModelExplanationEquation = document.getElementById('pq-model-explanation-equation');
+        const pqModelExplanationSteps = document.getElementById('pq-model-explanation-steps');
+        const areaModelGrid = document.getElementById('area-model-grid');
         const splitTermPlacement = document.getElementById('split-term-placement');
         const splitBxTile = document.getElementById('split-bx-tile');
         const cardPx = document.getElementById('card-px');
@@ -880,11 +964,8 @@
             factorsP = p;
             factorsQ = q;
             splitVerified = true;
-            inputP.value = Math.abs(p);
-            inputQ.value = Math.abs(q);
-            signPChoice = p < 0 ? -1 : 1;
-            signQChoice = q < 0 ? -1 : 1;
-            updateSignChoiceButtons();
+            inputP.value = p;
+            inputQ.value = q;
             cardPx.textContent = linearText(p);
             cardQx.textContent = linearText(q);
             splitBxTile.textContent = cardBx.textContent;
@@ -894,7 +975,7 @@
             splitTermPlacement.classList.remove('hidden');
             splitTermPlacement.classList.add('flex');
             cardBx.className = 'px-5 py-2.5 bg-slate-100 text-slate-400 border-2 border-dashed border-slate-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none line-through';
-            signChoiceFeedback.textContent = `✓ p = ${p} and q = ${q}. You may drag the yellow terms or type them directly into the model.`;
+            signChoiceFeedback.textContent = `✓ p = ${p} and q = ${q}. Both conditions are true; the yellow terms are ready for the model.`;
             signChoiceFeedback.className = 'text-[11px] text-emerald-700 text-center min-h-[1.25rem] font-bold';
             targetDescription.innerHTML = `Current split: <strong>p = ${p}</strong> and <strong>q = ${q}</strong>, so <strong>p × q = ${p*q}</strong> and <strong>p + q = ${p+q}</strong>.`;
             computeCorrectBordersFromSplit();
@@ -989,6 +1070,56 @@
                 updateProgressChecklist();
             });
         }
+
+        function clearPqExplanation() {
+            pqExplanationMode = null;
+            areaModelGrid.classList.remove('pq-explain-sum', 'pq-explain-product');
+            pqModelExplanation.classList.add('hidden');
+            btnExplainPqSum.setAttribute('aria-pressed', 'false');
+            btnExplainPqProduct.setAttribute('aria-pressed', 'false');
+        }
+
+        function renderPqExplanation() {
+            if (!pqExplanationMode) return;
+            areaModelGrid.classList.remove('pq-explain-sum', 'pq-explain-product');
+            areaModelGrid.classList.add(pqExplanationMode === 'sum' ? 'pq-explain-sum' : 'pq-explain-product');
+            pqModelExplanation.classList.remove('hidden');
+            btnExplainPqSum.setAttribute('aria-pressed', pqExplanationMode === 'sum' ? 'true' : 'false');
+            btnExplainPqProduct.setAttribute('aria-pressed', pqExplanationMode === 'product' ? 'true' : 'false');
+
+            if (pqExplanationMode === 'sum') {
+                pqModelExplanation.className = 'w-full mb-4 rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-3';
+                pqModelExplanationTitle.textContent = 'Why p + q = b';
+                pqModelExplanationEquation.innerHTML = '<span class="text-amber-900">px + qx = bx</span> &nbsp;→&nbsp; (p + q)x = bx &nbsp;→&nbsp; <strong>p + q = b</strong>';
+                pqModelExplanationSteps.innerHTML = 'The two <strong>yellow middle cells</strong> replace the original middle term. Their coefficients must add to the coefficient of <span class="font-mono font-bold">bx</span>.';
+                if (targetsVerified) {
+                    pqModelExplanationSteps.innerHTML += ` You already verified the current target: <span class="font-mono font-bold">p + q = ${workB}</span>.`;
+                }
+            } else {
+                pqModelExplanation.className = 'w-full mb-4 rounded-xl border-2 border-indigo-300 bg-indigo-50 px-4 py-3';
+                pqModelExplanationTitle.textContent = 'Why p × q = a × c';
+                pqModelExplanationEquation.innerHTML = '<span class="text-indigo-900">(ax²)(c) = (px)(qx)</span> &nbsp;→&nbsp; acx² = pqx² &nbsp;→&nbsp; <strong>p × q = a × c</strong>';
+                pqModelExplanationSteps.innerHTML = 'The dashed diagonals pair the opposite cells. In a completed area model, the products of those diagonal terms are equal, so the coefficient product <span class="font-mono font-bold">p × q</span> must match <span class="font-mono font-bold">a × c</span>.';
+                if (targetsVerified) {
+                    pqModelExplanationSteps.innerHTML += ` You already verified the current target product: <span class="font-mono font-bold">p × q = ${workA * workC}</span>.`;
+                }
+            }
+        }
+
+        function togglePqExplanation(mode) {
+            if (pqExplanationMode === mode) {
+                clearPqExplanation();
+                return;
+            }
+            pqExplanationMode = mode;
+            renderPqExplanation();
+            // Keep the visual anchored to the model without forcing a stage transition.
+            pqModelExplanation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        btnExplainPqSum.addEventListener('click', () => togglePqExplanation('sum'));
+        btnExplainPqProduct.addEventListener('click', () => togglePqExplanation('product'));
+        btnClosePqExplanation.addEventListener('click', clearPqExplanation);
 
         function updateProgressChecklist() {
             const outerCount = Number(placedTL) + Number(placedBR);
@@ -1434,12 +1565,16 @@
 
             inputP.value=inputQ.value='';
             inputP.disabled=inputQ.disabled=false;
-            [btnPPlus,btnPMinus,btnQPlus,btnQMinus].forEach(btn=>btn.disabled=false);
-            updateSignChoiceButtons();
-            signChoiceFeedback.textContent='Find magnitudes and choose signs whenever you want to use the p/q helper.';
+            pqLiveProduct.className='rounded-xl border border-slate-200 bg-white p-3 text-center';
+            pqLiveSum.className='rounded-xl border border-slate-200 bg-white p-3 text-center';
+            pqLiveProductEquation.textContent='p × q = ?';
+            pqLiveSumEquation.textContent='p + q = ?';
+            pqLiveProductStatus.textContent='Enter both values.';
+            pqLiveSumStatus.textContent='Enter both values.';
+            pqCandidateSplit.classList.add('hidden');
+            pqCandidateSplitExpression.textContent='';
+            signChoiceFeedback.textContent='Try a signed pair. The product and sum checks update as you type.';
             signChoiceFeedback.className='text-[11px] text-slate-500 text-center min-h-[1.25rem]';
-            btnApplyPq.disabled=false;
-            btnApplyPq.classList.remove('opacity-50');
             splitTermPlacement.classList.add('hidden');
             splitTermPlacement.classList.remove('flex');
             cardPx.textContent='px'; cardQx.textContent='qx'; splitBxTile.textContent='bx';
@@ -1524,6 +1659,7 @@
             }
 
             manageLayoutProgressFlow();
+            if (pqExplanationMode) renderPqExplanation();
             updateProgressChecklist();
         }
 
@@ -1609,64 +1745,134 @@
             multiplicationChartContainer.innerHTML = tableHTML;
         }
 
-        const signButtonBaseClass = 'w-11 h-10 rounded-lg border-2 font-mono font-black text-lg transition-all';
-        const signButtonOffClass = `${signButtonBaseClass} border-slate-300 bg-white text-slate-700 hover:bg-yellow-100`;
-        const signButtonOnClass = `${signButtonBaseClass} border-yellow-600 bg-yellow-400 text-yellow-950 shadow-sm`;
-
-        function updateSignChoiceButtons() {
-            btnPPlus.className = signPChoice === 1 ? signButtonOnClass : signButtonOffClass;
-            btnPMinus.className = signPChoice === -1 ? signButtonOnClass : signButtonOffClass;
-            btnQPlus.className = signQChoice === 1 ? signButtonOnClass : signButtonOffClass;
-            btnQMinus.className = signQChoice === -1 ? signButtonOnClass : signButtonOffClass;
-            btnPPlus.setAttribute('aria-pressed', signPChoice === 1 ? 'true' : 'false');
-            btnPMinus.setAttribute('aria-pressed', signPChoice === -1 ? 'true' : 'false');
-            btnQPlus.setAttribute('aria-pressed', signQChoice === 1 ? 'true' : 'false');
-            btnQMinus.setAttribute('aria-pressed', signQChoice === -1 ? 'true' : 'false');
-        }
-        function chooseSplitSign(variable, sign) {
-            if (splitVerified) return;
-            if (variable === 'p') signPChoice=sign; else signQChoice=sign;
-            updateSignChoiceButtons();
-            signChoiceFeedback.textContent='Check whether your signed p and q satisfy both the product and sum.';
-            signChoiceFeedback.className='text-[11px] text-slate-500 text-center min-h-[1.25rem]';
+        function toggleCandidateSign(input) {
+            if (!input.value.trim()) {
+                input.value = '-1';
+            } else {
+                const value = Number(input.value);
+                if (!Number.isFinite(value)) return;
+                input.value = String(value === 0 ? 0 : -value);
+            }
+            evaluatePqCandidate();
+            input.focus();
         }
 
-        btnPPlus.addEventListener('click', () => chooseSplitSign('p', 1));
-        btnPMinus.addEventListener('click', () => chooseSplitSign('p', -1));
-        btnQPlus.addEventListener('click', () => chooseSplitSign('q', 1));
-        btnQMinus.addEventListener('click', () => chooseSplitSign('q', -1));
+        function formatCandidateSplit(p, q) {
+            const qPart = q >= 0 ? `+ ${linearText(q)}` : `− ${linearText(Math.abs(q))}`;
+            return `${linearText(workB)} = (${linearText(p)} ${qPart})`;
+        }
 
-        [inputP, inputQ].forEach(input => input.addEventListener('input', () => {
-            if (splitVerified) return;
-            selectedAbsPair = null;
-            signChoiceFeedback.textContent = 'Choose + or − for both values, then check your signed pair.';
-            signChoiceFeedback.className = 'text-[11px] text-slate-500 text-center min-h-[1.25rem]';
-        }));
+        function resetPqLiveCards() {
+            pqLiveProduct.className='rounded-xl border border-slate-200 bg-white p-3 text-center';
+            pqLiveSum.className='rounded-xl border border-slate-200 bg-white p-3 text-center';
+            pqLiveProductEquation.textContent='p × q = ?';
+            pqLiveSumEquation.textContent='p + q = ?';
+            pqLiveProductStatus.textContent='Enter both values.';
+            pqLiveSumStatus.textContent='Enter both values.';
+            pqCandidateSplit.classList.add('hidden');
+            pqCandidateSplitExpression.textContent='';
+        }
 
+        function evaluatePqCandidate() {
+            const pText=inputP.value.trim();
+            const qText=inputQ.value.trim();
+            selectedAbsPair=null;
 
-        // Clicking a target product selects magnitudes only. The student must still choose both signs.
+            if (pText==='' || qText==='') {
+                resetPqLiveCards();
+                signChoiceFeedback.textContent='Try a signed pair. The product and sum checks update as you type.';
+                signChoiceFeedback.className='text-[11px] text-slate-500 text-center min-h-[1.25rem]';
+                updateProgressChecklist();
+                return;
+            }
+
+            const p=Number(pText), q=Number(qText);
+            if (!Number.isInteger(p) || !Number.isInteger(q)) {
+                resetPqLiveCards();
+                signChoiceFeedback.textContent='Use integer values for p and q.';
+                signChoiceFeedback.className='text-[11px] text-rose-600 text-center min-h-[1.25rem] font-bold';
+                return;
+            }
+
+            const product=p*q;
+            const sum=p+q;
+            pqLiveProductEquation.textContent=`${p} × ${q} = ${product}`;
+            pqLiveSumEquation.textContent=`${p} + ${q} = ${sum}`;
+
+            if (!targetsVerified) {
+                pqLiveProduct.className='rounded-xl border border-indigo-200 bg-indigo-50/50 p-3 text-center';
+                pqLiveSum.className='rounded-xl border border-indigo-200 bg-indigo-50/50 p-3 text-center';
+                pqLiveProductStatus.textContent='Verify your target product to compare.';
+                pqLiveSumStatus.textContent='Verify your target sum to compare.';
+                pqCandidateSplit.classList.add('hidden');
+                signChoiceFeedback.textContent='Your candidate values are calculated above. Verify the target product and sum before the app judges the pair.';
+                signChoiceFeedback.className='text-[11px] text-indigo-700 text-center min-h-[1.25rem]';
+                updateProgressChecklist();
+                return;
+            }
+
+            const targetProduct=workA*workC;
+            const targetSum=workB;
+            const productOK=product===targetProduct;
+            const sumOK=sum===targetSum;
+
+            pqLiveProduct.className=productOK
+                ? 'rounded-xl border-2 border-emerald-400 bg-emerald-50 p-3 text-center'
+                : 'rounded-xl border-2 border-rose-300 bg-rose-50 p-3 text-center';
+            pqLiveSum.className=sumOK
+                ? 'rounded-xl border-2 border-emerald-400 bg-emerald-50 p-3 text-center'
+                : 'rounded-xl border-2 border-rose-300 bg-rose-50 p-3 text-center';
+            pqLiveProductStatus.textContent=productOK ? `✓ matches ${targetProduct}` : `Needs to equal ${targetProduct}`;
+            pqLiveSumStatus.textContent=sumOK ? `✓ matches ${targetSum}` : `Needs to equal ${targetSum}`;
+            pqLiveProductStatus.className=productOK ? 'mt-1 text-[10px] text-emerald-700 font-bold' : 'mt-1 text-[10px] text-rose-600 font-bold';
+            pqLiveSumStatus.className=sumOK ? 'mt-1 text-[10px] text-emerald-700 font-bold' : 'mt-1 text-[10px] text-rose-600 font-bold';
+
+            if (productOK && sumOK) {
+                pqCandidateSplit.classList.remove('hidden');
+                pqCandidateSplitExpression.textContent=formatCandidateSplit(p,q);
+                signChoiceFeedback.textContent='✓ This pair satisfies both conditions. The yellow px and qx tiles are ready for the area model.';
+                signChoiceFeedback.className='text-[11px] text-emerald-700 text-center min-h-[1.25rem] font-bold';
+                if (!splitVerified || factorsP!==p || factorsQ!==q) applyVerifiedSplit(p,q,'helper');
+            } else {
+                pqCandidateSplit.classList.add('hidden');
+                if (productOK && !sumOK) {
+                    signChoiceFeedback.textContent='The product works. Adjust one or both signs/values so the sum also matches.';
+                    signChoiceFeedback.className='text-[11px] text-amber-700 text-center min-h-[1.25rem] font-bold';
+                } else if (!productOK && sumOK) {
+                    signChoiceFeedback.textContent='The sum works. Adjust the pair so the product also matches.';
+                    signChoiceFeedback.className='text-[11px] text-amber-700 text-center min-h-[1.25rem] font-bold';
+                } else {
+                    signChoiceFeedback.textContent='Keep adjusting the pair until both checks are green.';
+                    signChoiceFeedback.className='text-[11px] text-slate-600 text-center min-h-[1.25rem]';
+                }
+            }
+            updateProgressChecklist();
+        }
+
+        btnPToggleSign.addEventListener('click',()=>toggleCandidateSign(inputP));
+        btnQToggleSign.addEventListener('click',()=>toggleCandidateSign(inputQ));
+        [inputP,inputQ].forEach(input=>{
+            input.addEventListener('input',evaluatePqCandidate);
+            input.addEventListener('keydown',e=>{ if(e.key==='Enter') evaluatePqCandidate(); });
+        });
+
+        // Clicking a multiplication-chart match loads a candidate magnitude pair.
+        // The student still decides the signs by editing/toggling the signed values.
         function selectChartFactors(f1, f2) {
             const selectedProduct=Math.abs(f1*f2);
             const currentProduct=Math.abs(workA*workC);
-            if (selectedProduct !== currentProduct) {
-                toolChartFeedback.textContent=`Factor pair selected: ${Math.abs(f1)} and ${Math.abs(f2)}. This chart target is ${selectedProduct}; the current |a × c| is ${currentProduct}.`;
+            if (!targetsVerified || selectedProduct!==currentProduct) {
+                toolChartFeedback.textContent=`Candidate magnitudes: ${Math.abs(f1)} and ${Math.abs(f2)}. Verify the current target product before sending a chart pair to the p/q workbench.`;
                 toolChartFeedback.className='text-[10px] text-indigo-700 text-center mb-3 font-bold';
                 return;
             }
-            if (!pairCanReachTarget(f1,f2)) {
-                toolChartFeedback.textContent=`${f1} and ${f2} make the right product magnitude, but no choice of signs makes the required sum ${workB}.`;
-                toolChartFeedback.className='text-[10px] text-amber-700 text-center mb-3 font-bold';
-                return;
-            }
             selectedAbsPair=[Math.abs(f1),Math.abs(f2)];
-            inputP.value=Math.abs(f1);
-            inputQ.value=Math.abs(f2);
-            signPChoice=signQChoice=null;
-            updateSignChoiceButtons();
-            signChoiceFeedback.textContent=`Selected |p| = ${Math.abs(f1)} and |q| = ${Math.abs(f2)}. Choose signs.`;
-            signChoiceFeedback.className='text-[11px] text-yellow-900 text-center min-h-[1.25rem] font-bold';
-            targetDescription.innerHTML=`Selected magnitudes <strong>|p| = ${Math.abs(f1)}</strong> and <strong>|q| = ${Math.abs(f2)}</strong>. Choose signs so p × q = <strong>${workA*workC}</strong> and p + q = <strong>${workB}</strong>.`;
-            updateProgressChecklist();
+            inputP.value=String(Math.abs(f1));
+            inputQ.value=String(Math.abs(f2));
+            toolChartFeedback.textContent=`Loaded candidate magnitudes ${Math.abs(f1)} and ${Math.abs(f2)}. Adjust signs or values in the p/q workbench and watch both checks.`;
+            toolChartFeedback.className='text-[10px] text-indigo-700 text-center mb-3 font-bold';
+            evaluatePqCandidate();
+            targetDescription.innerHTML='A factor pair from the multiplication chart is now in the p/q workbench. Adjust the signed values until both the product and sum checks are green.';
         }
 
         // Snap and place function for TL
@@ -2024,6 +2230,7 @@
                 if (pqSumCondition) pqSumCondition.textContent=`p + q = ${sum}`;
             }
             calculate();
+            if (inputP.value.trim() && inputQ.value.trim()) evaluatePqCandidate();
         }
 
         btnCheckTargets.addEventListener('click', checkStage2Targets);
@@ -2031,48 +2238,7 @@
             if (e.key === 'Enter') checkStage2Targets();
         }));
 
-        // Student sign-choice check for p and q. The numeric boxes hold magnitudes only.
-        btnApplyPq.addEventListener('click', () => {
-            const absP = parseInt(inputP.value, 10);
-            const absQ = parseInt(inputQ.value, 10);
-            if (!Number.isInteger(absP) || !Number.isInteger(absQ) || absP < 0 || absQ < 0) {
-                signChoiceFeedback.textContent = 'Enter non-negative integer magnitudes for |p| and |q|.';
-                signChoiceFeedback.className = 'text-[11px] text-rose-600 text-center min-h-[1.25rem] font-bold';
-                return;
-            }
-            if (signPChoice === null || signQChoice === null) {
-                signChoiceFeedback.textContent = 'Choose either + or − for both p and q before checking.';
-                signChoiceFeedback.className = 'text-[11px] text-rose-600 text-center min-h-[1.25rem] font-bold';
-                return;
-            }
-            const p = signPChoice * absP;
-            const q = signQChoice * absQ;
-            verifySplitPair(p, q, absP, absQ);
-        });
-
-        // Verify magnitudes and signs separately, then let the student place px and qx.
-        function verifySplitPair(p, q, absP = Math.abs(p), absQ = Math.abs(q)) {
-            const ac=workA*workC;
-            const absAc=Math.abs(ac);
-            if (absP*absQ !== absAc) {
-                signChoiceFeedback.textContent=`Those magnitudes multiply to ${absP*absQ}, not |a × c| = ${absAc}.`;
-                signChoiceFeedback.className='text-[11px] text-rose-600 text-center min-h-[1.25rem] font-bold';
-                return;
-            }
-            if (p*q !== ac) {
-                signChoiceFeedback.textContent=ac>0 ? 'The product must be positive, so p and q need matching signs.' : 'The product must be negative, so p and q need different signs.';
-                signChoiceFeedback.className='text-[11px] text-amber-700 text-center min-h-[1.25rem] font-bold';
-                return;
-            }
-            if (p+q !== workB) {
-                signChoiceFeedback.textContent=ac<0
-                    ? `The product sign works, but the signed values must add to ${workB}. With opposite signs, the larger magnitude controls the sign of the sum.`
-                    : `The product sign works, but the signed values must add to ${workB}.`;
-                signChoiceFeedback.className='text-[11px] text-amber-700 text-center min-h-[1.25rem] font-bold';
-                return;
-            }
-            applyVerifiedSplit(p,q,'helper');
-        }
+        // p/q candidate verification is handled live by evaluatePqCandidate().
         function placeTR() {
             if (!splitVerified) return;
             cellTrValue.textContent=linearText(factorsQ);
