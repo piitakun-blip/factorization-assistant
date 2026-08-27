@@ -103,15 +103,27 @@
             box-shadow: 0 0 0 2px rgb(99 102 241 / .35);
             background: rgb(255 255 255 / .8);
         }
-        .progress-dot {
-            width: .65rem;
-            height: .65rem;
+        .section-progress-circle {
+            width: 1.15rem;
+            height: 1.15rem;
             border-radius: 9999px;
-            background: rgb(203 213 225);
+            border: 2px solid rgb(203 213 225);
+            background: white;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             flex: 0 0 auto;
+            font-size: .65rem;
+            line-height: 1;
+            font-weight: 900;
+            transition: background-color .2s ease, border-color .2s ease, transform .2s ease;
         }
-        .progress-dot.done { background: rgb(16 185 129); }
-        .progress-dot.partial { background: rgb(245 158 11); }
+        .section-progress-circle.done {
+            background: rgb(16 185 129);
+            border-color: rgb(5 150 105);
+        }
+        .section-progress-circle.done::after { content: '✓'; }
 
         /* v43: anchor the p/q reasoning directly to the 2x2 area model. */
         #area-model-grid.pq-explain-sum #cell-tr,
@@ -158,8 +170,9 @@
             left: calc(((100% - 24px) / 3) * 2 + 24px);
         }
 
-        /* v52: keep scrollbars visibly present. The left instructional pane
-           remains independently scrollable while the shared polynomial header stays sticky. */
+        /* v54: both desktop workspace columns are equal-height independent
+           scroll panes. Using overflow-y: scroll plus scrollbar-gutter: stable
+           reserves a visible scrollbar track for BOTH columns at all times. */
         .custom-scrollbar {
             scrollbar-width: auto;
             scrollbar-color: rgb(148 163 184) rgb(226 232 240);
@@ -181,10 +194,24 @@
             background: rgb(100 116 139);
         }
         @media (min-width: 1024px) {
-            #instruction-column {
+            #workspace-columns {
+                height: var(--workspace-pane-height, 680px);
+                min-height: 420px;
+                align-items: stretch;
+            }
+            #instruction-column,
+            #workspace-column {
+                height: 100%;
                 min-height: 0;
-                scrollbar-gutter: stable;
                 overflow-y: scroll !important;
+                scrollbar-gutter: stable;
+                overscroll-behavior: contain;
+            }
+            #instruction-column {
+                padding-right: .25rem;
+            }
+            #workspace-column {
+                padding-right: .25rem;
             }
         }
     </style>
@@ -230,7 +257,7 @@
 
 
         <!-- Top Part: Split-Screen Controls and Area Model Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div id="workspace-columns" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             <!-- LEFT COLUMN: Control panel followed by every instructional stage (5 Cols) -->
             <section id="instruction-column" class="lg:col-span-5 flex flex-col gap-6 lg:overflow-y-auto custom-scrollbar pr-1">
@@ -326,29 +353,12 @@
                     <div id="gcf-explanation" class="text-xs text-slate-500 leading-relaxed text-center">No choice is required to continue.</div>
                 </div>
 
-                <!-- v42 NON-LINEAR WORKSPACE PROGRESS: guidance only; nothing is locked by order. -->
-                <div id="workspace-progress-card" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-                    <div class="flex items-start justify-between gap-3 mb-3">
-                        <div>
-                            <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                                <i class="fa-solid fa-route text-indigo-500"></i> Workspace progress
-                            </h3>
-                            <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Work in any order. Type directly into the area model, drag tiles, or use the helpers below. The app checks mathematical relationships when enough information is available.</p>
-                        </div>
-                        <span class="px-2 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[9px] font-extrabold tracking-wide whitespace-nowrap">open workspace</span>
-                    </div>
-                    <div class="grid gap-2 text-[11px] text-slate-600">
-                        <div class="flex items-center gap-2"><span id="progress-dot-outer" class="progress-dot"></span><span id="progress-text-outer">Outer terms: add ax² and c</span></div>
-                        <div class="flex items-center gap-2"><span id="progress-dot-split" class="progress-dot"></span><span id="progress-text-split">Middle-term split: find p and q</span></div>
-                        <div class="flex items-center gap-2"><span id="progress-dot-middle" class="progress-dot"></span><span id="progress-text-middle">Area model: place px and qx</span></div>
-                        <div class="flex items-center gap-2"><span id="progress-dot-borders" class="progress-dot"></span><span id="progress-text-borders">Outside factors: 0 found • 0 placed</span></div>
-                        <div class="flex items-center gap-2"><span id="progress-dot-final" class="progress-dot"></span><span id="progress-text-final">Factored form: waiting for outside factors</span></div>
-                    </div>
-                </div>
-
                 <!-- Full trinomial term strip. The middle term stays visible until the student splits it. -->
                 <div id="term-cards-container" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center gap-3">
-                    <span id="term-cards-heading" class="text-xs font-bold text-slate-500 uppercase tracking-wide">Place terms</span>
+                    <div class="flex items-center justify-center gap-2">
+                        <span id="progress-circle-outer" class="section-progress-circle" role="status" aria-label="Place terms not complete" title="Place terms"></span>
+                        <span id="term-cards-heading" class="text-xs font-bold text-slate-500 uppercase tracking-wide">Place terms</span>
+                    </div>
                     <div class="flex flex-wrap items-center justify-center gap-3">
                         <div id="card-ax2" draggable="true" class="px-5 py-2.5 bg-blue-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-blue-700 active:scale-95 transition-all text-sm select-none touch-action-none">2x²</div>
                         <div id="card-bx" aria-label="Middle term to split" class="px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none">-21x</div>
@@ -370,6 +380,7 @@
                     <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
                         <div>
                             <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <span id="progress-circle-split" class="section-progress-circle" role="status" aria-label="Middle-term split not complete" title="Split the middle term"></span>
                                 <i class="fa-solid fa-scissors text-amber-500"></i> p/q helper: Split the Middle Term
                             </h3>
                             <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Use this helper whenever it is useful. Find two numbers <span class="font-mono font-bold">p</span> and <span class="font-mono font-bold">q</span> that satisfy both conditions below, or enter middle terms directly in the area model if you already know them.</p>
@@ -465,6 +476,7 @@
                 <!-- STAGE 3: Student-generated row/column factors -->
                 <div id="gcf-border-selection-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
                     <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-2 flex items-center gap-1.5">
+                        <span id="progress-circle-borders" class="section-progress-circle" role="status" aria-label="Outside factors not complete" title="Outside factors"></span>
                         <i class="fa-solid fa-border-all text-indigo-500"></i> Outside factors
                     </h3>
                     <p class="text-xs text-slate-600 mb-4 leading-relaxed">
@@ -565,6 +577,7 @@
                 <!-- STAGE 4: Parentheses / conventional form -->
                 <div id="parenthesis-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
                     <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                        <span id="progress-circle-final" class="section-progress-circle" role="status" aria-label="Binomial factors not complete" title="Write the binomial factors"></span>
                         <i class="fa-solid fa-arrow-right-to-bracket text-blue-500"></i> Write the binomial factors
                     </h3>
                     
@@ -594,12 +607,13 @@
             </section>
 
             <!-- RIGHT COLUMN: Persistent mathematical workspace — area model and tools (7 Cols) -->
-            <section id="workspace-column" class="lg:col-span-7 flex flex-col gap-6 order-1 lg:order-last">
+            <section id="workspace-column" class="lg:col-span-7 flex flex-col gap-6 order-1 lg:order-last custom-scrollbar">
                 
                 <!-- Stationary 2x2 Area Model Grid -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center relative">
                     <div class="flex w-full items-center justify-between mb-6 border-b border-slate-100 pb-2">
                         <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                            <span id="progress-circle-middle" class="section-progress-circle" role="status" aria-label="Area model not complete" title="Complete the area model"></span>
                             <i class="fa-solid fa-table-cells-large text-purple-500"></i> The 2x2 Area Model
                         </h3>
                         <span id="active-status-pill" class="px-2 py-0.5 bg-slate-100 text-slate-500 font-bold tracking-wide uppercase text-[9px] rounded-full border border-slate-200">Open workspace</span>
@@ -792,7 +806,7 @@
     <!-- Footer -->
     <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
         <div class="max-w-6xl mx-auto px-4">
-            <p>Interactive Area Model v51 — the active polynomial stays visible above both workspace columns.</p>
+            <p>Interactive Area Model v54 — sticky polynomial with two independent scrollable workspace columns.</p>
         </div>
     </footer>
 
@@ -812,37 +826,39 @@
             requestAnimationFrame(syncStickyPolynomialOffset);
         }
 
-        // Give the left instructional scrollbar extra vertical travel beyond the
-        // right workspace on desktop. The right column can grow when
-        // tools/explanations open, so a ResizeObserver keeps the base height synced.
-        const instructionColumn = document.getElementById('instruction-column');
-        const workspaceColumn = document.getElementById('workspace-column');
+        // v54: size both independent desktop scroll panes from the available
+        // viewport space beneath the shared sticky polynomial card. Neither
+        // column depends on the other column's content height.
+        const workspaceColumns = document.getElementById('workspace-columns');
         const desktopColumnsQuery = window.matchMedia('(min-width: 1024px)');
-        const instructionScrollExtension = 220; // px beyond the right workspace
 
-        function syncInstructionColumnHeight() {
-            if (!instructionColumn || !workspaceColumn) return;
+        function syncWorkspacePaneHeight() {
+            if (!workspaceColumns) return;
             if (desktopColumnsQuery.matches) {
-                instructionColumn.style.height = `${workspaceColumn.getBoundingClientRect().height + instructionScrollExtension}px`;
-                instructionColumn.style.maxHeight = 'none';
-                instructionColumn.style.overflowY = 'scroll';
+                const top = Math.ceil(workspaceColumns.getBoundingClientRect().top);
+                const bottomBreathingRoom = 16;
+                const available = Math.max(420, window.innerHeight - top - bottomBreathingRoom);
+                document.documentElement.style.setProperty('--workspace-pane-height', `${available}px`);
             } else {
-                instructionColumn.style.height = '';
-                instructionColumn.style.maxHeight = '';
-                instructionColumn.style.overflowY = '';
+                document.documentElement.style.removeProperty('--workspace-pane-height');
             }
         }
 
-        if (instructionColumn && workspaceColumn) {
-            const workspaceResizeObserver = new ResizeObserver(syncInstructionColumnHeight);
-            workspaceResizeObserver.observe(workspaceColumn);
-            window.addEventListener('resize', syncInstructionColumnHeight);
+        if (workspaceColumns) {
+            window.addEventListener('resize', syncWorkspacePaneHeight);
+            window.addEventListener('scroll', syncWorkspacePaneHeight, { passive: true });
             if (desktopColumnsQuery.addEventListener) {
-                desktopColumnsQuery.addEventListener('change', syncInstructionColumnHeight);
+                desktopColumnsQuery.addEventListener('change', syncWorkspacePaneHeight);
             } else if (desktopColumnsQuery.addListener) {
-                desktopColumnsQuery.addListener(syncInstructionColumnHeight);
+                desktopColumnsQuery.addListener(syncWorkspacePaneHeight);
             }
-            requestAnimationFrame(syncInstructionColumnHeight);
+            const activeCardForPaneSizing = document.getElementById('active-equation-card');
+            if (activeCardForPaneSizing && 'ResizeObserver' in window) {
+                const paneResizeObserver = new ResizeObserver(syncWorkspacePaneHeight);
+                paneResizeObserver.observe(activeCardForPaneSizing);
+                if (siteHeader) paneResizeObserver.observe(siteHeader);
+            }
+            requestAnimationFrame(syncWorkspacePaneHeight);
         }
 
         // State Machine Variables
@@ -977,16 +993,11 @@
         const cellTrValue = document.getElementById('cell-tr-value');
         const cellBlValue = document.getElementById('cell-bl-value');
         const cellBrValue = document.getElementById('cell-br-value');
-        const progressDotOuter = document.getElementById('progress-dot-outer');
-        const progressDotSplit = document.getElementById('progress-dot-split');
-        const progressDotMiddle = document.getElementById('progress-dot-middle');
-        const progressDotBorders = document.getElementById('progress-dot-borders');
-        const progressDotFinal = document.getElementById('progress-dot-final');
-        const progressTextOuter = document.getElementById('progress-text-outer');
-        const progressTextSplit = document.getElementById('progress-text-split');
-        const progressTextMiddle = document.getElementById('progress-text-middle');
-        const progressTextBorders = document.getElementById('progress-text-borders');
-        const progressTextFinal = document.getElementById('progress-text-final');
+        const progressCircleOuter = document.getElementById('progress-circle-outer');
+        const progressCircleSplit = document.getElementById('progress-circle-split');
+        const progressCircleMiddle = document.getElementById('progress-circle-middle');
+        const progressCircleBorders = document.getElementById('progress-circle-borders');
+        const progressCircleFinal = document.getElementById('progress-circle-final');
         
         const gcfRow1 = document.getElementById('gcf-row1');
         const gcfRow2 = document.getElementById('gcf-row2');
@@ -1109,9 +1120,12 @@
             cell.className = status === 'empty' ? neutralCellClass : cellClasses[position][status];
         }
 
-        function setDot(dot, state) {
-            if (!dot) return;
-            dot.className = `progress-dot${state === 'done' ? ' done' : state === 'partial' ? ' partial' : ''}`;
+        function setSectionProgress(circle, done, label) {
+            if (!circle) return;
+            circle.classList.toggle('done', Boolean(done));
+            const status = done ? 'complete' : 'not complete';
+            circle.setAttribute('aria-label', `${label} ${status}`);
+            circle.title = `${label}: ${status}`;
         }
 
         function syncTermCards() {
@@ -1324,27 +1338,22 @@
         btnClosePqExplanation.addEventListener('click', clearPqExplanation);
 
         function updateProgressChecklist() {
-            const outerCount = Number(placedTL) + Number(placedBR);
-            setDot(progressDotOuter, outerCount === 2 ? 'done' : outerCount ? 'partial' : 'todo');
-            progressTextOuter.textContent = outerCount === 2 ? 'Outer terms: ax² and c verified' : `Outer terms: ${outerCount} of 2 verified`;
-
-            setDot(progressDotSplit, splitVerified ? 'done' : (targetsVerified || inputP.value || inputQ.value ? 'partial' : 'todo'));
-            progressTextSplit.textContent = splitVerified ? `Middle-term split: p = ${factorsP}, q = ${factorsQ}` : 'Middle-term split: find p and q';
-
-            const middleCount = Number(placedBL) + Number(placedTR);
-            setDot(progressDotMiddle, splitVerified && middleCount === 2 ? 'done' : middleCount ? 'partial' : 'todo');
-            progressTextMiddle.textContent = splitVerified && middleCount === 2 ? 'Area model: both middle terms verified' : `Area model: ${middleCount} of 2 middle terms entered correctly`;
-
+            const outerDone = placedTL && placedBR;
+            const middleTermsDone = placedBL && placedTR;
+            const areaModelDone = outerDone && middleTermsDone;
+            // The p/q helper is optional. If the student correctly completes both middle-term
+            // cells directly, the mathematical goal of the split has still been achieved.
+            const splitDone = splitVerified || middleTermsDone;
             const borderCount = Object.values(solvedGCFBorders).filter(v => v !== null).length;
-            const foundCount = Object.values(foundGCFBorders).filter(v => v !== null).length;
-            setDot(progressDotBorders, borderCount === 4 ? 'done' : (borderCount || foundCount) ? 'partial' : 'todo');
-            progressTextBorders.textContent = borderCount === 4
-                ? 'Outside factors: all 4 placed'
-                : `Outside factors: ${foundCount} found • ${borderCount} placed`;
-
+            const bordersDone = borderCount === 4;
             const finalDone = finalFactorsRevealed.factor1 && finalFactorsRevealed.factor2;
-            setDot(progressDotFinal, finalDone ? 'done' : borderCount === 4 ? 'partial' : 'todo');
-            progressTextFinal.textContent = finalDone ? 'Factored form: complete' : (borderCount === 4 ? 'Factored form: ready to reveal/build' : 'Factored form: waiting for outside factors');
+
+            setSectionProgress(progressCircleOuter, outerDone, 'Place terms');
+            setSectionProgress(progressCircleSplit, splitDone, 'Split the middle term');
+            setSectionProgress(progressCircleMiddle, areaModelDone, 'Area model');
+            setSectionProgress(progressCircleBorders, bordersDone, 'Outside factors');
+            setSectionProgress(progressCircleFinal, finalDone, 'Binomial factors');
+
             renderOutsideFactorWorkspace();
         }
 
