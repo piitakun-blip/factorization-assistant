@@ -78,12 +78,10 @@
             left: 0;
             z-index: 40;
         }
-        /* Compact Stage 2 reference stays visible beneath the sticky site header. */
+        /* Compact Stage 2 reference. Kept non-sticky so it never covers the area model. */
         .stage2-sticky-problem {
-            position: sticky;
-            top: 4.75rem;
-            z-index: 35;
-            backdrop-filter: blur(8px);
+            position: relative;
+            z-index: 1;
         }
     </style>
 </head>
