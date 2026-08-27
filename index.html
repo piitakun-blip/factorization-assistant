@@ -1,4 +1,4 @@
-<!-- Trinomial Factorization Helper v47: instant outside-factor tiles -->
+<!-- Trinomial Factorization Helper v48: full-height column factor drop lanes -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -135,6 +135,27 @@
             background: rgb(30 41 59);
             border-color: rgb(30 41 59);
             color: white;
+        }
+
+        /* v48: while dragging a verified column factor, show the full column as its drop lane. */
+        #area-model-grid.factor-drag-col1::before,
+        #area-model-grid.factor-drag-col2::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: calc((100% - 24px) / 3);
+            border: 2px dashed rgb(59 130 246);
+            border-radius: 1rem;
+            background: rgb(219 234 254 / .12);
+            pointer-events: none;
+            z-index: 36;
+        }
+        #area-model-grid.factor-drag-col1::before {
+            left: calc((100% - 24px) / 3 + 12px);
+        }
+        #area-model-grid.factor-drag-col2::before {
+            left: calc(((100% - 24px) / 3) * 2 + 24px);
         }
     </style>
 </head>
@@ -491,7 +512,7 @@
                             </div>
                         </details>
                     </div>
-                    <p id="border-entry-feedback" class="text-[10px] text-slate-400 text-center italic mt-4">Enter a correct common factor in a row or column and its tile appears immediately in Outside factor tiles. Drag it onto the matching area-model border, or type directly into a border as an alternate method.</p>
+                    <p id="border-entry-feedback" class="text-[10px] text-slate-400 text-center italic mt-4">Enter a correct common factor in a row or column and its tile appears immediately in Outside factor tiles. Drag it onto its matching area-model border. For column factors, the full vertical column is also an active drop target. You can still type directly into a border as an alternate method.</p>
                 </div>
 
                 <!-- STAGE 4: Parentheses / conventional form -->
@@ -2551,6 +2572,12 @@
                 e.dataTransfer.setData('text/factor-tile', raw);
                 e.dataTransfer.setData('text/factor-origin-slot', slotId);
                 e.dataTransfer.effectAllowed = 'move';
+                if (slotId === 'col1' || slotId === 'col2') {
+                    areaModelGrid.classList.add(`factor-drag-${slotId}`);
+                }
+            });
+            tile.addEventListener('dragend', () => {
+                areaModelGrid.classList.remove('factor-drag-col1','factor-drag-col2');
             });
             setupFactorTileTouchDrag(tile, raw, slotId);
             factorTileTray.appendChild(tile);
@@ -2634,6 +2661,7 @@
             let ghost=null;
             tile.addEventListener('touchstart',e=>{
                 const touch=e.touches[0];
+                if (originSlot === 'col1' || originSlot === 'col2') areaModelGrid.classList.add(`factor-drag-${originSlot}`);
                 ghost=tile.cloneNode(true);
                 ghost.style.position='fixed'; ghost.style.pointerEvents='none'; ghost.style.zIndex='1000'; ghost.style.opacity='.85';
                 ghost.style.left=`${touch.clientX-28}px`; ghost.style.top=`${touch.clientY-18}px`;
@@ -2644,11 +2672,23 @@
             },{passive:false});
             tile.addEventListener('touchend',e=>{
                 if(!ghost)return; const touch=e.changedTouches[0]; ghost.remove(); ghost=null;
-                for(const [slotId,el] of [['row1',gcfRow1],['row2',gcfRow2],['col1',gcfCol1],['col2',gcfCol2]]) {
+                const dropTargets = [
+                    ['row1',[gcfRow1]],
+                    ['row2',[gcfRow2]],
+                    ['col1',[gcfCol1,cellTl,cellBl]],
+                    ['col2',[gcfCol2,cellTr,cellBr]]
+                ];
+                outer: for(const [slotId,elements] of dropTargets) {
                     if(solvedGCFBorders[slotId]!==null) continue;
-                    const r=el.getBoundingClientRect();
-                    if(touch.clientX>=r.left&&touch.clientX<=r.right&&touch.clientY>=r.top&&touch.clientY<=r.bottom){verifyGCFAssignmentForSlot(slotId,value,false,'drop');break;}
+                    for (const el of elements) {
+                        const r=el.getBoundingClientRect();
+                        if(touch.clientX>=r.left&&touch.clientX<=r.right&&touch.clientY>=r.top&&touch.clientY<=r.bottom){
+                            verifyGCFAssignmentForSlot(slotId,value,false,'drop');
+                            break outer;
+                        }
+                    }
                 }
+                areaModelGrid.classList.remove('factor-drag-col1','factor-drag-col2');
             });
         }
 
@@ -2695,6 +2735,30 @@
         setupGCFBorderDropZone('row2', gcfRow2);
         setupGCFBorderDropZone('col1', gcfCol1);
         setupGCFBorderDropZone('col2', gcfCol2);
+
+        // v48: a column factor can be dropped anywhere down its full visual column.
+        function setupColumnFactorDropLane(slotId, elements) {
+            for (const element of elements) {
+                element.addEventListener('dragover', e => {
+                    if (solvedGCFBorders[slotId] !== null) return;
+                    const types = Array.from(e.dataTransfer?.types || []);
+                    if (!types.includes('text/factor-tile')) return;
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+                element.addEventListener('drop', e => {
+                    if (solvedGCFBorders[slotId] !== null) return;
+                    const value = e.dataTransfer.getData('text/factor-tile');
+                    if (!value) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    verifyGCFAssignmentForSlot(slotId, value, false, 'drop');
+                    areaModelGrid.classList.remove('factor-drag-col1','factor-drag-col2');
+                });
+            }
+        }
+        setupColumnFactorDropLane('col1', [cellTl, cellBl]);
+        setupColumnFactorDropLane('col2', [cellTr, cellBr]);
 
         // Layout controller for the student-facing four-stage workflow.
         function configureFinalFactorSection() {
