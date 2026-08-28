@@ -1,17 +1,18 @@
 <!-- Trinomial Factorization Helper v56: persistent independent scrollbars + corrected mathematical progress monitoring -->
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trinomial Factorization Helper - Area Model</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght=400;500&family=Inter:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Trinomial Factorization Helper - Area Model</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght=400;500&amp;family=Inter:wght=300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- FontAwesome Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
         body {
             font-family: 'Inter', sans-serif;
         }
@@ -170,9 +171,8 @@
             left: calc(((100% - 24px) / 3) * 2 + 24px);
         }
 
-        /* v55: both desktop workspace columns are equal-height independent
-           scroll panes. The pane height is viewport-based and does NOT expand
-           while the outer page scrolls, so both scrollbars remain available. */
+        /* v58: one persistent mathematical workspace at the top, followed by
+           one independently scrollable instructional stream. */
         .custom-scrollbar {
             scrollbar-width: auto;
             scrollbar-color: rgb(148 163 184) rgb(226 232 240);
@@ -193,682 +193,596 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: rgb(100 116 139);
         }
-        @media (min-width: 1024px) {
-            #workspace-columns {
-                height: var(--workspace-pane-height, 680px);
-                min-height: 420px;
-                align-items: stretch;
+        #fixed-workspace {
+            background: rgb(248 250 252 / .97);
+            padding-bottom: .25rem;
+        }
+        @media (min-width: 768px) {
+            #fixed-workspace {
+                position: sticky;
+                top: var(--sticky-workspace-top, 72px);
             }
-            #instruction-column,
-            #workspace-column {
-                height: 100%;
-                min-height: 0;
-                overflow-y: scroll !important;
+            #stage-scroll-container {
+                height: var(--stage-pane-height, 420px);
+                min-height: 260px;
+                overflow-y: scroll;
                 scrollbar-gutter: stable;
                 overscroll-behavior: contain;
             }
-            #instruction-column {
-                padding-right: .25rem;
+        }
+        @media (max-width: 767px) {
+            #fixed-workspace {
+                position: relative;
+                top: auto;
             }
-            #workspace-column {
-                padding-right: .25rem;
+            #stage-scroll-container {
+                overflow: visible;
+                height: auto;
             }
         }
-    </style>
+
+</style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
-
-    <!-- Header Section -->
-    <header id="site-header" class="border-b border-slate-200 bg-white sticky top-0 z-50 shadow-sm">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="p-2.5 bg-blue-600/10 text-blue-600 rounded-xl border border-blue-500/20">
-                    <i class="fa-solid fa-square-root-variable text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight text-slate-900">Algebra II Factoring Helper</h1>
-                    <p class="text-xs text-slate-500">Interactive Trinomial Area Model Solver</p>
-                </div>
-            </div>
-            <span class="hidden sm:inline-flex px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs items-center gap-1.5">
-                <i class="fa-brands fa-github text-sm"></i> Live on GitHub Pages
+<!-- Header Section -->
+<header class="border-b border-slate-200 bg-white sticky top-0 z-50 shadow-sm" id="site-header">
+<div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="p-2.5 bg-blue-600/10 text-blue-600 rounded-xl border border-blue-500/20">
+<i class="fa-solid fa-square-root-variable text-xl"></i>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tight text-slate-900">Algebra II Factoring Helper</h1>
+<p class="text-xs text-slate-500">Interactive Trinomial Area Model Solver</p>
+</div>
+</div>
+<span class="hidden sm:inline-flex px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs items-center gap-1.5">
+<i class="fa-brands fa-github text-sm"></i> Live on GitHub Pages
             </span>
-        </div>
-    </header>
+</div>
+</header>
+<!-- Main Content Layout -->
+<main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 flex flex-col gap-6">
+<!-- v51: Shared sticky active polynomial above both columns -->
 
-    <!-- Main Content Layout -->
-    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 flex flex-col gap-6">
-        
-        <!-- v51: Shared sticky active polynomial above both columns -->
-        <div id="active-equation-card" class="sticky z-40 bg-white/95 backdrop-blur border border-slate-200 rounded-2xl px-5 py-4 shadow-md flex flex-col items-center justify-center gap-2" style="top: var(--sticky-polynomial-top, 72px);">
-            <div id="original-equation-reference" class="hidden w-full text-center border-b border-slate-100 pb-3 mb-1">
-                <span class="text-[10px] font-extrabold tracking-widest text-slate-400">original trinomial</span>
-                <div id="original-equation-display" class="mt-1 text-base font-bold text-slate-600 math-font">2x² - 21x + 40</div>
-            </div>
-            <span id="active-equation-label" class="text-xs font-extrabold tracking-widest text-slate-400">active polynomial expression</span>
-            <div id="equation-display" class="text-3xl font-black text-slate-900 math-font py-1">
+<!-- Top Part: Split-Screen Controls and Area Model Grid -->
+
+        <section class="flex flex-col gap-4 z-40" id="fixed-workspace"><div class="bg-white/95 backdrop-blur border border-slate-200 rounded-2xl px-5 py-4 flex flex-col items-center justify-center gap-2 shadow-sm" id="active-equation-card">
+<div class="hidden w-full text-center border-b border-slate-100 pb-3 mb-1" id="original-equation-reference">
+<span class="text-[10px] font-extrabold tracking-widest text-slate-400">original trinomial</span>
+<div class="mt-1 text-base font-bold text-slate-600 math-font" id="original-equation-display">2x² - 21x + 40</div>
+</div>
+<span class="text-xs font-extrabold tracking-widest text-slate-400" id="active-equation-label">active polynomial expression</span>
+<div class="text-3xl font-black text-slate-900 math-font py-1" id="equation-display">
                 2x² - 21x + 40
             </div>
-            <div id="area-model-expression-reference" class="hidden w-full max-w-2xl mt-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-center">
-                <div class="text-[10px] font-bold tracking-wider text-slate-400">area model represents</div>
-                <div id="area-model-expression-display" class="mt-1 math-font text-sm font-bold text-slate-700"></div>
-            </div>
-        </div>
-
-
-        <!-- Top Part: Split-Screen Controls and Area Model Grid -->
-        <div id="workspace-columns" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <!-- LEFT COLUMN: Control panel followed by every instructional stage (5 Cols) -->
-            <section id="instruction-column" class="lg:col-span-5 flex flex-col gap-6 lg:overflow-y-auto custom-scrollbar pr-1">
-                
-                <!-- Control Panel Card -->
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-extrabold text-slate-950 flex items-center gap-2">
-                            <i class="fa-solid fa-sliders text-blue-500"></i> Control Panel
-                        </h2>
-                        <button id="btn-practice" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-1.5">
-                            <i class="fa-solid fa-dice"></i> Generate Practice
-                        </button>
+<div class="hidden w-full max-w-2xl mt-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-center" id="area-model-expression-reference">
+<div class="text-[10px] font-bold tracking-wider text-slate-400">area model represents</div>
+<div class="mt-1 math-font text-sm font-bold text-slate-700" id="area-model-expression-display"></div>
+</div>
+</div><div class="bg-white border border-slate-200 rounded-2xl shadow-md flex flex-col items-center justify-center relative p-4" data-layout-role="fixed-area-model">
+<div class="flex w-full items-center justify-between mb-6 border-b border-slate-100 pb-2">
+<h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+<span aria-label="Area model not complete" class="section-progress-circle" id="progress-circle-middle" role="status" title="Complete the area model"></span>
+<i class="fa-solid fa-table-cells-large text-purple-500"></i> The 2x2 Area Model
+                        </h3>
+<span class="px-2 py-0.5 bg-slate-100 text-slate-500 font-bold tracking-wide uppercase text-[9px] rounded-full border border-slate-200" id="active-status-pill">Open workspace</span>
+</div>
+<!-- Once p and q are verified, show the split beside the area model. -->
+<div class="hidden w-full mb-5 rounded-xl border-2 border-yellow-300 bg-yellow-50 px-4 py-4 flex-col items-center gap-3 shadow-sm" id="split-term-placement">
+<div class="text-center">
+<div class="text-[10px] font-extrabold tracking-wider text-yellow-800">middle term split</div>
+<p class="text-[10px] text-slate-500 mt-1">These two signed terms are equivalent to the original <span class="font-mono font-bold">bx</span> term.</p>
+</div>
+<div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 font-mono font-black text-lg text-slate-800">
+<div class="px-4 py-2 bg-yellow-100 text-yellow-900 border-2 border-yellow-400 rounded-xl shadow-sm select-none" id="split-bx-tile">bx</div>
+<span class="text-slate-500">=</span>
+<span class="text-slate-500">(</span>
+<div class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none" draggable="true" id="card-px">px</div>
+<span class="text-slate-500">+</span>
+<div class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none" draggable="true" id="card-qx">qx</div>
+<span class="text-slate-500">)</span>
+</div>
+<p class="text-[10px] text-slate-500 text-center">Drag <span class="font-mono font-bold">px</span> to the lower-left and <span class="font-mono font-bold">qx</span> to the upper-right, or click each yellow tile to snap it into place.</p>
+</div>
+<div aria-live="polite" class="hidden w-full mb-4 rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3" id="pq-model-explanation">
+<div class="flex items-start justify-between gap-3">
+<div class="min-w-0">
+<div class="text-[10px] font-extrabold tracking-wider text-slate-500" id="pq-model-explanation-title">p/q connection to the area model</div>
+<div class="mt-1 font-mono text-sm font-black text-slate-900" id="pq-model-explanation-equation"></div>
+<div class="mt-1 text-[10px] leading-relaxed text-slate-600" id="pq-model-explanation-steps"></div>
+</div>
+<button aria-label="Close p q explanation" class="shrink-0 w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-100" id="btn-close-pq-explanation" type="button">×</button>
+</div>
+</div>
+<div class="w-full mb-3 px-3 py-2 rounded-xl border border-indigo-100 bg-indigo-50/40 text-[10px] text-indigo-800 text-center">
+<strong>Open workspace:</strong> click a value inside any of the four cells and type a term directly, or drag a matching tile. Press Enter or click away to check it.
                     </div>
-                    
-                    <div class="flex flex-col gap-6">
-                        <!-- Coefficient A Group -->
-                        <div class="space-y-1.5">
-                            <div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
-                                <label for="force-a-one" class="flex items-center justify-center gap-1 bg-slate-100 px-2 py-1 rounded border border-slate-200 text-[10px] font-black text-slate-600 cursor-pointer select-none whitespace-nowrap">
-                                    <input type="checkbox" id="force-a-one" class="w-3.5 h-3.5 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer">
+<!-- Grid of GCFs and Area Model cells -->
+<div class="relative grid grid-cols-3 grid-rows-3 gap-3 w-80 h-80 text-center text-sm font-bold select-none" id="area-model-grid">
+<!-- Top-Left Spacer -->
+<div></div>
+<!-- Col 1 GCF border -->
+<div class="flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50" id="gcf-col1">
+<!-- Clickable slot for GCF Border -->
+</div>
+<!-- Col 2 GCF border -->
+<div class="flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50" id="gcf-col2">
+<!-- Clickable slot for GCF Border -->
+</div>
+<!-- Row 1 GCF border -->
+<div class="flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50" id="gcf-row1">
+<!-- Clickable slot for GCF Border -->
+</div>
+<!-- Cell TL: ax² -->
+<div class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-900 font-mono transition-all duration-300 relative" id="cell-tl">
+<span aria-label="top-left ax squared term" class="editable-model-value text-2xl font-black" contenteditable="true" data-placeholder="type ax²" id="cell-tl-value" role="textbox" spellcheck="false"></span>
+<span class="text-[9px] text-slate-400 font-sans font-normal mt-1">ax²</span>
+</div>
+<!-- Cell TR: qx -->
+<div class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-600 font-mono transition-all duration-300" id="cell-tr">
+<span aria-label="top-right qx term" class="editable-model-value text-2xl font-black" contenteditable="true" data-placeholder="type qx" id="cell-tr-value" role="textbox" spellcheck="false"></span>
+<span class="text-[9px] text-slate-400 font-sans font-normal mt-1">qx</span>
+</div>
+<!-- Row 2 GCF border -->
+<div class="flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50" id="gcf-row2">
+<!-- Clickable slot for GCF Border -->
+</div>
+<!-- Cell BL: px -->
+<div class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-600 font-mono transition-all duration-300" id="cell-bl">
+<span aria-label="bottom-left px term" class="editable-model-value text-2xl font-black" contenteditable="true" data-placeholder="type px" id="cell-bl-value" role="textbox" spellcheck="false"></span>
+<span class="text-[9px] text-slate-400 font-sans font-normal mt-1">px</span>
+</div>
+<!-- Cell BR: c -->
+<div class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-900 font-mono transition-all duration-300 relative" id="cell-br">
+<span aria-label="bottom-right constant term" class="editable-model-value text-2xl font-black" contenteditable="true" data-placeholder="type c" id="cell-br-value" role="textbox" spellcheck="false"></span>
+<span class="text-[9px] text-slate-400 font-sans font-normal mt-1">c</span>
+</div>
+<!-- Product explanation: diagonal pairs ax²·c and px·qx. -->
+<svg aria-hidden="true" class="absolute inset-0 w-full h-full pointer-events-none z-[24]" id="pq-product-diagonals" viewbox="0 0 320 320">
+<defs>
+<marker id="pq-arrow-indigo" markerheight="7" markerwidth="7" orient="auto" refx="5.5" refy="3.5">
+<path d="M0,0 L7,3.5 L0,7 Z" fill="rgb(79 70 229)"></path>
+</marker>
+<marker id="pq-arrow-amber" markerheight="7" markerwidth="7" orient="auto" refx="5.5" refy="3.5">
+<path d="M0,0 L7,3.5 L0,7 Z" fill="rgb(202 138 4)"></path>
+</marker>
+</defs>
+<line marker-end="url(#pq-arrow-indigo)" stroke="rgb(79 70 229)" stroke-dasharray="7 5" stroke-width="3" x1="160" x2="270.5" y1="160" y2="270.5"></line>
+<line marker-end="url(#pq-arrow-amber)" stroke="rgb(202 138 4)" stroke-dasharray="7 5" stroke-width="3" x1="270.5" x2="160" y1="160" y2="270.5"></line>
+</svg>
+<!-- Strong outline around only the four product cells. -->
+<div aria-hidden="true" class="area-model-inner-border"></div>
+</div>
+<!-- Split-coefficient sign decision (Stage 2) -->
+</div></section><section aria-label="Factoring stages and tools" class="flex flex-col gap-6 custom-scrollbar pr-1" id="stage-scroll-container">
+<div class="sticky top-0 z-20 -mb-2 rounded-xl border border-slate-200 bg-slate-50/95 px-4 py-2 backdrop-blur">
+<div class="flex items-center justify-between gap-3">
+<span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Factoring stages</span>
+<span class="text-[10px] text-slate-400">Scroll through the work below; the area model stays visible above.</span>
+</div>
+</div><!-- Control Panel Card --><div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-xl font-extrabold text-slate-950 flex items-center gap-2">
+<i class="fa-solid fa-sliders text-blue-500"></i> Control Panel
+                        </h2>
+<button class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-1.5" id="btn-practice">
+<i class="fa-solid fa-dice"></i> Generate Practice
+                        </button>
+</div>
+<div class="flex flex-col gap-6">
+<!-- Coefficient A Group -->
+<div class="space-y-1.5">
+<div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
+<label class="flex items-center justify-center gap-1 bg-slate-100 px-2 py-1 rounded border border-slate-200 text-[10px] font-black text-slate-600 cursor-pointer select-none whitespace-nowrap" for="force-a-one">
+<input class="w-3.5 h-3.5 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer" id="force-a-one" type="checkbox"/>
                                     force a=1
                                 </label>
-                                <label for="num-a" class="text-sm font-black tracking-wide text-slate-900">coefficient a</label>
-                                <input type="number" id="num-a" value="2" class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div id="slider-container-a" class="relative flex items-center">
-                                <div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-300 pointer-events-none z-0"></div>
-                                <input type="range" id="slider-a" min="-50" max="50" value="2" step="1" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 relative z-10">
-                            </div>
-                            <div class="flex justify-between text-[10px] text-slate-400 font-mono">
-                                <span>-50</span>
-                                <span>0</span>
-                                <span>+50</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Coefficient B Group -->
-                        <div class="space-y-1.5">
-                            <div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
-                                <span aria-hidden="true"></span>
-                                <label for="num-b" class="text-sm font-black tracking-wide text-slate-900">coefficient b</label>
-                                <input type="number" id="num-b" value="-21" class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div class="relative flex items-center">
-                                <div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-300 pointer-events-none z-0"></div>
-                                <input type="range" id="slider-b" min="-50" max="50" value="-21" step="1" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 relative z-10">
-                            </div>
-                            <div class="flex justify-between text-[10px] text-slate-400 font-mono">
-                                <span>-50</span>
-                                <span>0</span>
-                                <span>+50</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Coefficient C Group -->
-                        <div class="space-y-1.5">
-                            <div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
-                                <span aria-hidden="true"></span>
-                                <label for="num-c" class="text-sm font-black tracking-wide text-slate-900">coefficient c</label>
-                                <input type="number" id="num-c" value="40" class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div class="relative flex items-center">
-                                <div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-300 pointer-events-none z-0"></div>
-                                <input type="range" id="slider-c" min="-50" max="50" value="40" step="1" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600 relative z-10">
-                            </div>
-                            <div class="flex justify-between text-[10px] text-slate-400 font-mono">
-                                <span>-50</span>
-                                <span>0</span>
-                                <span>+50</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- OPTIONAL COMMON-FACTOR TOOL: available without blocking the factoring workflow -->
-                <div id="gcf-scaffolding-card" class="bg-white border border-amber-200 rounded-2xl p-6 shadow-md hidden">
-                    <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-1.5">
-                        <i class="fa-solid fa-compress text-amber-500"></i> Optional: Factor Out a Common Factor
+<label class="text-sm font-black tracking-wide text-slate-900" for="num-a">coefficient a</label>
+<input class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" id="num-a" type="number" value="2"/>
+</div>
+<div class="relative flex items-center" id="slider-container-a">
+<div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-300 pointer-events-none z-0"></div>
+<input class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 relative z-10" id="slider-a" max="50" min="-50" step="1" type="range" value="2"/>
+</div>
+<div class="flex justify-between text-[10px] text-slate-400 font-mono">
+<span>-50</span>
+<span>0</span>
+<span>+50</span>
+</div>
+</div>
+<!-- Coefficient B Group -->
+<div class="space-y-1.5">
+<div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
+<span aria-hidden="true"></span>
+<label class="text-sm font-black tracking-wide text-slate-900" for="num-b">coefficient b</label>
+<input class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" id="num-b" type="number" value="-21"/>
+</div>
+<div class="relative flex items-center">
+<div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-300 pointer-events-none z-0"></div>
+<input class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 relative z-10" id="slider-b" max="50" min="-50" step="1" type="range" value="-21"/>
+</div>
+<div class="flex justify-between text-[10px] text-slate-400 font-mono">
+<span>-50</span>
+<span>0</span>
+<span>+50</span>
+</div>
+</div>
+<!-- Coefficient C Group -->
+<div class="space-y-1.5">
+<div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
+<span aria-hidden="true"></span>
+<label class="text-sm font-black tracking-wide text-slate-900" for="num-c">coefficient c</label>
+<input class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" id="num-c" type="number" value="40"/>
+</div>
+<div class="relative flex items-center">
+<div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-300 pointer-events-none z-0"></div>
+<input class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600 relative z-10" id="slider-c" max="50" min="-50" step="1" type="range" value="40"/>
+</div>
+<div class="flex justify-between text-[10px] text-slate-400 font-mono">
+<span>-50</span>
+<span>0</span>
+<span>+50</span>
+</div>
+</div>
+</div>
+</div><!-- OPTIONAL COMMON-FACTOR TOOL: available without blocking the factoring workflow --><div class="bg-white border border-amber-200 rounded-2xl p-6 shadow-md hidden" id="gcf-scaffolding-card">
+<h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-1.5">
+<i class="fa-solid fa-compress text-amber-500"></i> Optional: Factor Out a Common Factor
                     </h3>
-                    <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+<p class="text-xs text-slate-600 mb-4 leading-relaxed">
                         Factoring out a common factor is optional. You may simplify now, keep working with the trinomial as written, or factor further after the binomials are formed.
                     </p>
-                    <div class="bg-amber-50 p-3 rounded-xl border border-amber-100 flex justify-around text-xs font-mono mb-4 text-slate-700">
-                        <span id="gcf-label-a">a = 4</span>
-                        <span id="gcf-label-b">b = -42</span>
-                        <span id="gcf-label-c">c = 80</span>
-                    </div>
-                    <p class="text-[11px] text-slate-500 text-center mb-3">If you factor something out after starting the area model, the workspace will restart using the equivalent simplified trinomial.</p>
-                    <div id="gcf-options-container" class="flex flex-wrap gap-2 justify-center mb-4">
-                        <!-- Populated dynamically -->
-                    </div>
-                    <div id="gcf-explanation" class="text-xs text-slate-500 leading-relaxed text-center">No choice is required to continue.</div>
-                </div>
-
-                <!-- Full trinomial term strip. The middle term stays visible until the student splits it. -->
-                <div id="term-cards-container" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center gap-3">
-                    <div class="flex items-center justify-center gap-2">
-                        <span id="progress-circle-outer" class="section-progress-circle" role="status" aria-label="Place terms not complete" title="Place terms"></span>
-                        <span id="term-cards-heading" class="text-xs font-bold text-slate-500 uppercase tracking-wide">Place terms</span>
-                    </div>
-                    <div class="flex flex-wrap items-center justify-center gap-3">
-                        <div id="card-ax2" draggable="true" class="px-5 py-2.5 bg-blue-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-blue-700 active:scale-95 transition-all text-sm select-none touch-action-none">2x²</div>
-                        <button id="card-bx" type="button" aria-label="Open p q helper for the middle term" aria-expanded="false" aria-controls="multiplication-card" class="px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none cursor-pointer hover:bg-amber-200 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">-21x</button>
-                        <div id="card-c" draggable="true" class="px-5 py-2.5 bg-purple-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-purple-700 active:scale-95 transition-all text-sm select-none touch-action-none">40</div>
-                    </div>
-                    <p id="term-cards-help" class="text-[11px] text-slate-500 italic text-center">Drag, click, or type directly into the area-model cells. Press the yellow middle term to open the p/q helper below.</p>
-                </div>
-
-
-                <!-- STAGE 2: Split the middle term -->
-                <div id="multiplication-card" class="hidden bg-white border border-amber-200 rounded-2xl p-6 shadow-md">
-                    <div id="stage2-sticky-problem" class="stage2-sticky-problem -mx-2 mb-4 px-3 py-2.5 rounded-xl border border-amber-200 bg-white/95 shadow-sm">
-                        <div class="flex flex-wrap items-center justify-center gap-2 text-center">
-                            <span class="text-[10px] font-bold tracking-wide text-slate-500">current problem</span>
-                            <div id="stage2-problem-expression" class="font-mono font-black text-lg text-slate-900" aria-live="polite"></div>
-                        </div>
-                        <p class="text-[10px] text-slate-500 text-center mt-1">The yellow term is the middle term being split into <span class="font-mono font-bold">px + qx</span>.</p>
-                    </div>
-                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
-                        <div>
-                            <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <span id="progress-circle-split" class="section-progress-circle" role="status" aria-label="Middle-term split not complete" title="Split the middle term"></span>
-                                <i class="fa-solid fa-scissors text-amber-500"></i> p/q helper: Split the Middle Term
+<div class="bg-amber-50 p-3 rounded-xl border border-amber-100 flex justify-around text-xs font-mono mb-4 text-slate-700">
+<span id="gcf-label-a">a = 4</span>
+<span id="gcf-label-b">b = -42</span>
+<span id="gcf-label-c">c = 80</span>
+</div>
+<p class="text-[11px] text-slate-500 text-center mb-3">If you factor something out after starting the area model, the workspace will restart using the equivalent simplified trinomial.</p>
+<div class="flex flex-wrap gap-2 justify-center mb-4" id="gcf-options-container">
+<!-- Populated dynamically -->
+</div>
+<div class="text-xs text-slate-500 leading-relaxed text-center" id="gcf-explanation">No choice is required to continue.</div>
+</div><!-- Full trinomial term strip. The middle term stays visible until the student splits it. --><div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center gap-3" id="term-cards-container">
+<div class="flex items-center justify-center gap-2">
+<span aria-label="Place terms not complete" class="section-progress-circle" id="progress-circle-outer" role="status" title="Place terms"></span>
+<span class="text-xs font-bold text-slate-500 uppercase tracking-wide" id="term-cards-heading">Place terms</span>
+</div>
+<div class="flex flex-wrap items-center justify-center gap-3">
+<div class="px-5 py-2.5 bg-blue-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-blue-700 active:scale-95 transition-all text-sm select-none touch-action-none" draggable="true" id="card-ax2">2x²</div>
+<button aria-controls="multiplication-card" aria-expanded="false" aria-label="Open p q helper for the middle term" class="px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none cursor-pointer hover:bg-amber-200 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" id="card-bx" type="button">-21x</button>
+<div class="px-5 py-2.5 bg-purple-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-purple-700 active:scale-95 transition-all text-sm select-none touch-action-none" draggable="true" id="card-c">40</div>
+</div>
+<p class="text-[11px] text-slate-500 italic text-center" id="term-cards-help">Drag, click, or type directly into the area-model cells. Press the yellow middle term to open the p/q helper in the stages below.</p>
+</div><!-- STAGE 2: Split the middle term --><div class="hidden bg-white border border-amber-200 rounded-2xl p-6 shadow-md" id="multiplication-card">
+<div class="stage2-sticky-problem -mx-2 mb-4 px-3 py-2.5 rounded-xl border border-amber-200 bg-white/95 shadow-sm" id="stage2-sticky-problem">
+<div class="flex flex-wrap items-center justify-center gap-2 text-center">
+<span class="text-[10px] font-bold tracking-wide text-slate-500">current problem</span>
+<div aria-live="polite" class="font-mono font-black text-lg text-slate-900" id="stage2-problem-expression"></div>
+</div>
+<p class="text-[10px] text-slate-500 text-center mt-1">The yellow term is the middle term being split into <span class="font-mono font-bold">px + qx</span>.</p>
+</div>
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
+<div>
+<h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+<span aria-label="Middle-term split not complete" class="section-progress-circle" id="progress-circle-split" role="status" title="Split the middle term"></span>
+<i class="fa-solid fa-scissors text-amber-500"></i> p/q helper: Split the Middle Term
                             </h3>
-                            <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Use this helper whenever it is useful. Find two numbers <span class="font-mono font-bold">p</span> and <span class="font-mono font-bold">q</span> that satisfy both conditions below, or enter middle terms directly in the area model if you already know them.</p>
-                        </div>
-                        <div class="flex items-center gap-2 self-start">
-                            <div id="product-target-display" class="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-500 rounded-xl font-mono text-xs font-bold text-center">
+<p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Use this helper whenever it is useful. Find two numbers <span class="font-mono font-bold">p</span> and <span class="font-mono font-bold">q</span> that satisfy both conditions below, or enter middle terms directly in the area model if you already know them.</p>
+</div>
+<div class="flex items-center gap-2 self-start">
+<div class="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-500 rounded-xl font-mono text-xs font-bold text-center" id="product-target-display">
                                 Find p and q
                             </div>
-                            <button id="btn-collapse-pq-helper" type="button" class="w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500" aria-label="Close p q helper" title="Close p/q helper">
-                                <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="target-entry-panel" class="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 mb-4">
-                        <div class="grid sm:grid-cols-2 gap-3">
-                            <label class="text-xs font-bold text-slate-700">
+<button aria-label="Close p q helper" class="w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500" id="btn-collapse-pq-helper" title="Close p/q helper" type="button">
+<i aria-hidden="true" class="fa-solid fa-chevron-up"></i>
+</button>
+</div>
+</div>
+<div class="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 mb-4" id="target-entry-panel">
+<div class="grid sm:grid-cols-2 gap-3">
+<label class="text-xs font-bold text-slate-700">
                                 Target product: p × q = a × c
-                                <input id="input-product-target" type="number" class="mt-1 w-full px-3 py-2 text-base text-center font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="a × c">
-                            </label>
-                            <label class="text-xs font-bold text-slate-700">
+                                <input class="mt-1 w-full px-3 py-2 text-base text-center font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" id="input-product-target" placeholder="a × c" type="number"/>
+</label>
+<label class="text-xs font-bold text-slate-700">
                                 Target sum: p + q = b
-                                <input id="input-sum-target" type="number" class="mt-1 w-full px-3 py-2 text-base text-center font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="b">
-                            </label>
-                        </div>
-                        <div class="mt-3 flex flex-wrap items-center justify-center gap-3">
-                            <button id="btn-check-targets" type="button" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm">Check targets</button>
-                            <span id="target-entry-feedback" class="text-[11px] text-slate-500">Enter what <span class="font-mono font-bold">p × q</span> must equal and what <span class="font-mono font-bold">p + q</span> must equal.</span>
-                        </div>
-                    </div>
-
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 mb-4 text-center">
-                        <p class="text-[10px] text-slate-500">Need arithmetic help? Open the <strong>Calculator</strong> or <strong>Multiplication chart</strong> beside the area model whenever you need them.</p>
-                    </div>
-
-                    <div id="target-description" class="text-xs text-slate-600 font-medium mb-4 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2">
+                                <input class="mt-1 w-full px-3 py-2 text-base text-center font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" id="input-sum-target" placeholder="b" type="number"/>
+</label>
+</div>
+<div class="mt-3 flex flex-wrap items-center justify-center gap-3">
+<button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm" id="btn-check-targets" type="button">Check targets</button>
+<span class="text-[11px] text-slate-500" id="target-entry-feedback">Enter what <span class="font-mono font-bold">p × q</span> must equal and what <span class="font-mono font-bold">p + q</span> must equal.</span>
+</div>
+</div>
+<div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 mb-4 text-center">
+<p class="text-[10px] text-slate-500">Need arithmetic help? Open the <strong>Calculator</strong> or <strong>Multiplication chart</strong> beside the area model whenever you need them.</p>
+</div>
+<div class="text-xs text-slate-600 font-medium mb-4 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2" id="target-description">
                         Find the two targets first: <strong>p × q = a × c</strong> and <strong>p + q = b</strong>. Then determine p and q so both equations are true.
                     </div>
-
-                    <!-- p/q constraint-solving workbench -->
-                    <div id="factor-inputs-row" class="mt-5 w-full border-t border-amber-100 pt-5 flex flex-col gap-4">
-                        <div class="text-center">
-                            <span class="text-sm font-extrabold text-slate-800 tracking-wide">Try a candidate pair</span>
-                            <p class="text-[10px] text-slate-500 mt-1">Enter signed values for <span class="font-mono font-bold">p</span> and <span class="font-mono font-bold">q</span>. Both conditions must be true at the same time.</p>
-                            <div class="mt-2 flex flex-wrap items-center justify-center gap-2 text-[11px] font-mono font-bold text-slate-600">
-                                <span id="pq-product-condition" class="px-2 py-1 rounded-lg border border-slate-200 bg-white">p × q = a × c</span>
-                                <span id="pq-sum-condition" class="px-2 py-1 rounded-lg border border-slate-200 bg-white">p + q = b</span>
-                            </div>
-                            <div class="mt-3 flex flex-wrap items-center justify-center gap-2">
-                                <button id="btn-explain-pq-sum" type="button" aria-pressed="false" class="pq-reason-button px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 text-[10px] font-bold transition-all">
-                                    <i class="fa-solid fa-plus mr-1"></i> Why p + q = b?
+<!-- p/q constraint-solving workbench -->
+<div class="mt-5 w-full border-t border-amber-100 pt-5 flex flex-col gap-4" id="factor-inputs-row">
+<div class="text-center">
+<span class="text-sm font-extrabold text-slate-800 tracking-wide">Try a candidate pair</span>
+<p class="text-[10px] text-slate-500 mt-1">Enter signed values for <span class="font-mono font-bold">p</span> and <span class="font-mono font-bold">q</span>. Both conditions must be true at the same time.</p>
+<div class="mt-2 flex flex-wrap items-center justify-center gap-2 text-[11px] font-mono font-bold text-slate-600">
+<span class="px-2 py-1 rounded-lg border border-slate-200 bg-white" id="pq-product-condition">p × q = a × c</span>
+<span class="px-2 py-1 rounded-lg border border-slate-200 bg-white" id="pq-sum-condition">p + q = b</span>
+</div>
+<div class="mt-3 flex flex-wrap items-center justify-center gap-2">
+<button aria-pressed="false" class="pq-reason-button px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 text-[10px] font-bold transition-all" id="btn-explain-pq-sum" type="button">
+<i class="fa-solid fa-plus mr-1"></i> Why p + q = b?
                                 </button>
-                                <button id="btn-explain-pq-product" type="button" aria-pressed="false" class="pq-reason-button px-3 py-1.5 rounded-lg border border-indigo-300 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 text-[10px] font-bold transition-all">
-                                    <i class="fa-solid fa-xmark mr-1"></i> Why p × q = a × c?
+<button aria-pressed="false" class="pq-reason-button px-3 py-1.5 rounded-lg border border-indigo-300 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 text-[10px] font-bold transition-all" id="btn-explain-pq-product" type="button">
+<i class="fa-solid fa-xmark mr-1"></i> Why p × q = a × c?
                                 </button>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 w-full">
-                            <label class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
-                                <span class="text-sm font-mono text-yellow-900 font-black">p</span>
-                                <div class="flex items-center gap-2">
-                                    <button type="button" id="btn-p-toggle-sign" class="w-10 h-10 rounded-lg border-2 border-yellow-400 bg-white text-yellow-900 font-mono font-black text-lg hover:bg-yellow-100" title="Change the sign of p">±</button>
-                                    <input type="number" id="input-p" placeholder="-5" class="w-24 px-2.5 py-2 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
-                                </div>
-                            </label>
-                            <label class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
-                                <span class="text-sm font-mono text-yellow-900 font-black">q</span>
-                                <div class="flex items-center gap-2">
-                                    <button type="button" id="btn-q-toggle-sign" class="w-10 h-10 rounded-lg border-2 border-yellow-400 bg-white text-yellow-900 font-mono font-black text-lg hover:bg-yellow-100" title="Change the sign of q">±</button>
-                                    <input type="number" id="input-q" placeholder="-16" class="w-24 px-2.5 py-2 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none">
-                                </div>
-                            </label>
-                        </div>
-
-                        <div class="grid sm:grid-cols-2 gap-3 w-full">
-                            <div id="pq-live-product" class="rounded-xl border border-slate-200 bg-white p-3 text-center">
-                                <div class="text-[10px] uppercase tracking-wide font-bold text-slate-400">Product check</div>
-                                <div id="pq-live-product-equation" class="mt-1 font-mono font-bold text-slate-700">p × q = ?</div>
-                                <div id="pq-live-product-status" class="mt-1 text-[10px] text-slate-500">Enter both values.</div>
-                            </div>
-                            <div id="pq-live-sum" class="rounded-xl border border-slate-200 bg-white p-3 text-center">
-                                <div class="text-[10px] uppercase tracking-wide font-bold text-slate-400">Sum check</div>
-                                <div id="pq-live-sum-equation" class="mt-1 font-mono font-bold text-slate-700">p + q = ?</div>
-                                <div id="pq-live-sum-status" class="mt-1 text-[10px] text-slate-500">Enter both values.</div>
-                            </div>
-                        </div>
-
-                        <div id="pq-candidate-split" class="hidden rounded-xl border-2 border-yellow-300 bg-yellow-50 p-3 text-center">
-                            <div class="text-[10px] uppercase tracking-wide font-bold text-yellow-800">Candidate middle-term split</div>
-                            <div id="pq-candidate-split-expression" class="mt-1 font-mono font-black text-yellow-950"></div>
-                        </div>
-                        <p id="sign-choice-feedback" class="text-[11px] text-slate-500 text-center min-h-[1.25rem]">Try a signed pair. The product and sum checks update as you type.</p>
-                    </div>
-                </div>
-
-
-                <!-- STAGE 3: Student-generated row/column factors -->
-                <div id="gcf-border-selection-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
-                    <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-2 flex items-center gap-1.5">
-                        <span id="progress-circle-borders" class="section-progress-circle" role="status" aria-label="Outside factors not complete" title="Outside factors"></span>
-                        <i class="fa-solid fa-border-all text-indigo-500"></i> Outside factors
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 w-full">
+<label class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
+<span class="text-sm font-mono text-yellow-900 font-black">p</span>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-lg border-2 border-yellow-400 bg-white text-yellow-900 font-mono font-black text-lg hover:bg-yellow-100" id="btn-p-toggle-sign" title="Change the sign of p" type="button">±</button>
+<input class="w-24 px-2.5 py-2 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none" id="input-p" placeholder="-5" type="number"/>
+</div>
+</label>
+<label class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
+<span class="text-sm font-mono text-yellow-900 font-black">q</span>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 rounded-lg border-2 border-yellow-400 bg-white text-yellow-900 font-mono font-black text-lg hover:bg-yellow-100" id="btn-q-toggle-sign" title="Change the sign of q" type="button">±</button>
+<input class="w-24 px-2.5 py-2 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none" id="input-q" placeholder="-16" type="number"/>
+</div>
+</label>
+</div>
+<div class="grid sm:grid-cols-2 gap-3 w-full">
+<div class="rounded-xl border border-slate-200 bg-white p-3 text-center" id="pq-live-product">
+<div class="text-[10px] uppercase tracking-wide font-bold text-slate-400">Product check</div>
+<div class="mt-1 font-mono font-bold text-slate-700" id="pq-live-product-equation">p × q = ?</div>
+<div class="mt-1 text-[10px] text-slate-500" id="pq-live-product-status">Enter both values.</div>
+</div>
+<div class="rounded-xl border border-slate-200 bg-white p-3 text-center" id="pq-live-sum">
+<div class="text-[10px] uppercase tracking-wide font-bold text-slate-400">Sum check</div>
+<div class="mt-1 font-mono font-bold text-slate-700" id="pq-live-sum-equation">p + q = ?</div>
+<div class="mt-1 text-[10px] text-slate-500" id="pq-live-sum-status">Enter both values.</div>
+</div>
+</div>
+<div class="hidden rounded-xl border-2 border-yellow-300 bg-yellow-50 p-3 text-center" id="pq-candidate-split">
+<div class="text-[10px] uppercase tracking-wide font-bold text-yellow-800">Candidate middle-term split</div>
+<div class="mt-1 font-mono font-black text-yellow-950" id="pq-candidate-split-expression"></div>
+</div>
+<p class="text-[11px] text-slate-500 text-center min-h-[1.25rem]" id="sign-choice-feedback">Try a signed pair. The product and sum checks update as you type.</p>
+</div>
+</div><div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm" id="student-tools-card">
+<div class="flex flex-wrap items-center justify-between gap-3">
+<div>
+<h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+<i class="fa-solid fa-toolbox text-slate-500"></i> Tools
+                            </h3>
+<p class="text-[10px] text-slate-500 mt-0.5">Open either tool whenever you want. The tools do not fill factoring answers for you.</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<button aria-expanded="false" class="px-3.5 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold shadow-sm" id="btn-tool-calculator" type="button">
+<i class="fa-solid fa-calculator mr-1"></i> Calculator
+                            </button>
+<button aria-expanded="false" class="px-3.5 py-2 rounded-lg border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold shadow-sm" id="btn-tool-chart" type="button">
+<i class="fa-solid fa-table-cells mr-1"></i> Multiplication chart
+                            </button>
+</div>
+</div>
+<!-- Four-function calculator -->
+<div class="hidden mt-4 border-t border-slate-100 pt-4" id="tool-calculator-panel">
+<div class="mx-auto w-full max-w-[19rem] rounded-2xl border-2 border-slate-300 bg-slate-800 p-3 shadow-md">
+<div class="mb-3 rounded-xl bg-slate-100 px-4 py-3 text-right overflow-hidden">
+<div class="text-[9px] font-bold tracking-wider text-slate-400">calculator</div>
+<output aria-live="polite" class="block min-h-[2.25rem] font-mono text-2xl font-black text-slate-900 break-all" id="calculator-display">0</output>
+</div>
+<div class="grid grid-cols-4 gap-2" id="calculator-keypad">
+<button class="h-11 rounded-lg bg-slate-500 hover:bg-slate-400 text-white font-bold" data-calc-action="clear" type="button">C</button>
+<button class="h-11 rounded-lg bg-slate-500 hover:bg-slate-400 text-white font-bold" data-calc-action="sign" type="button">±</button>
+<button aria-label="Backspace" class="h-11 rounded-lg bg-slate-500 hover:bg-slate-400 text-white font-bold" data-calc-action="backspace" type="button">⌫</button>
+<button class="h-11 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-lg font-black" data-calc-operator="divide" type="button">÷</button>
+<button class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold" data-calc-digit="7" type="button">7</button>
+<button class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold" data-calc-digit="8" type="button">8</button>
+<button class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold" data-calc-digit="9" type="button">9</button>
+<button class="h-11 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-lg font-black" data-calc-operator="multiply" type="button">×</button>
+<button class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold" data-calc-digit="4" type="button">4</button>
+<button class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold" data-calc-digit="5" type="button">5</button>
+<button class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold" data-calc-digit="6" type="button">6</button>
+<button class="h-11 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-lg font-black" data-calc-operator="subtract" type="button">−</button>
+<button class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold" data-calc-digit="1" type="button">1</button>
+<button class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold" data-calc-digit="2" type="button">2</button>
+<button class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold" data-calc-digit="3" type="button">3</button>
+<button class="h-11 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-lg font-black" data-calc-operator="add" type="button">+</button>
+<button class="col-span-2 h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold" data-calc-digit="0" type="button">0</button>
+<button class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-black" data-calc-action="decimal" type="button">.</button>
+<button class="h-11 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-lg font-black" data-calc-action="equals" type="button">=</button>
+</div>
+</div>
+<p class="text-[10px] text-slate-400 text-center mt-2">Four-function scratch calculator. Results are never copied into factoring fields automatically.</p>
+</div>
+<!-- Multiplication chart tool -->
+<div class="hidden mt-4 border-t border-slate-100 pt-4" id="tool-chart-panel">
+<div class="flex flex-col sm:flex-row sm:items-end justify-center gap-3 mb-3">
+<label class="text-xs font-bold text-slate-700">
+                                Target product
+                                <input class="mt-1 w-full sm:w-40 px-3 py-2 text-base text-center font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" id="tool-chart-target" inputmode="numeric" placeholder="enter product" type="number"/>
+</label>
+<button class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm" id="btn-show-tool-chart" type="button">Show chart</button>
+<button class="px-3 py-2 border border-slate-300 bg-white hover:bg-slate-100 text-slate-600 rounded-lg text-xs font-bold" id="btn-clear-tool-chart" type="button">Clear</button>
+</div>
+<p class="text-[10px] text-slate-500 text-center mb-3" id="tool-chart-feedback">Enter the product you want to investigate. For a negative product, the chart uses its positive magnitude.</p>
+<div class="hidden" id="multiplication-chart-wrapper">
+<p class="text-[10px] text-slate-500 mb-2 text-center">Scroll in either direction. Row headings stay fixed on the left and column headings stay fixed at the top.</p>
+<div class="w-full max-h-[30rem] overflow-auto custom-scrollbar border border-slate-200 rounded-xl bg-white">
+<div class="min-w-max p-1" id="multiplication-chart-container"></div>
+</div>
+</div>
+</div>
+</div><!-- STAGE 3: Student-generated row/column factors --><div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md" id="gcf-border-selection-card">
+<h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-2 flex items-center gap-1.5">
+<span aria-label="Outside factors not complete" class="section-progress-circle" id="progress-circle-borders" role="status" title="Outside factors"></span>
+<i class="fa-solid fa-border-all text-indigo-500"></i> Outside factors
                     </h3>
-                    <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+<p class="text-xs text-slate-600 mb-4 leading-relaxed">
                         Inspect the two terms in each row and column and determine what factor they share. As soon as you enter a correct common factor, its draggable tile appears in the Outside factor tiles section.
                     </p>
-
-                    <div id="outside-factor-pairs" class="space-y-4 mb-4">
-                        <div>
-                            <div class="text-[10px] font-extrabold tracking-wide text-emerald-700 mb-2">Rows</div>
-                            <div class="grid gap-2">
-                                <div id="outside-pair-row1" class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3">
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <span class="text-[10px] font-bold text-emerald-700 w-12">Row 1</span>
-                                        <div class="flex items-center gap-1.5 flex-1 min-w-[150px]">
-                                            <span id="outside-row1-term1" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-emerald-200 rounded-lg">?</span>
-                                            <span class="text-emerald-500 font-bold">and</span>
-                                            <span id="outside-row1-term2" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-emerald-200 rounded-lg">?</span>
-                                        </div>
-                                        <span class="text-slate-400">→</span>
-                                        <input id="outside-input-row1" type="text" autocomplete="off" spellcheck="false" placeholder="factor" aria-label="Row 1 common factor" class="w-24 px-2 py-2 text-center text-sm font-mono font-black bg-white border border-emerald-300 rounded-lg text-emerald-800 focus:ring-2 focus:ring-emerald-400 focus:outline-none">
-                                        <button id="outside-check-row1" type="button" class="px-2.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold">Check</button>
-                                    </div>
-                                    <div id="outside-status-row1" class="mt-1 text-[10px] text-emerald-700 min-h-[14px]"></div>
-                                </div>
-                                <div id="outside-pair-row2" class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3">
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <span class="text-[10px] font-bold text-emerald-700 w-12">Row 2</span>
-                                        <div class="flex items-center gap-1.5 flex-1 min-w-[150px]">
-                                            <span id="outside-row2-term1" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-emerald-200 rounded-lg">?</span>
-                                            <span class="text-emerald-500 font-bold">and</span>
-                                            <span id="outside-row2-term2" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-emerald-200 rounded-lg">?</span>
-                                        </div>
-                                        <span class="text-slate-400">→</span>
-                                        <input id="outside-input-row2" type="text" autocomplete="off" spellcheck="false" placeholder="factor" aria-label="Row 2 common factor" class="w-24 px-2 py-2 text-center text-sm font-mono font-black bg-white border border-emerald-300 rounded-lg text-emerald-800 focus:ring-2 focus:ring-emerald-400 focus:outline-none">
-                                        <button id="outside-check-row2" type="button" class="px-2.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold">Check</button>
-                                    </div>
-                                    <div id="outside-status-row2" class="mt-1 text-[10px] text-emerald-700 min-h-[14px]"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="text-[10px] font-extrabold tracking-wide text-blue-700 mb-2">Columns</div>
-                            <div class="grid gap-2">
-                                <div id="outside-pair-col1" class="rounded-xl border border-blue-200 bg-blue-50/50 p-3">
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <span class="text-[10px] font-bold text-blue-700 w-14">Column 1</span>
-                                        <div class="flex items-center gap-1.5 flex-1 min-w-[150px]">
-                                            <span id="outside-col1-term1" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-blue-200 rounded-lg">?</span>
-                                            <span class="text-blue-500 font-bold">and</span>
-                                            <span id="outside-col1-term2" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-blue-200 rounded-lg">?</span>
-                                        </div>
-                                        <span class="text-slate-400">→</span>
-                                        <input id="outside-input-col1" type="text" autocomplete="off" spellcheck="false" placeholder="factor" aria-label="Column 1 common factor" class="w-24 px-2 py-2 text-center text-sm font-mono font-black bg-white border border-blue-300 rounded-lg text-blue-800 focus:ring-2 focus:ring-blue-400 focus:outline-none">
-                                        <button id="outside-check-col1" type="button" class="px-2.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold">Check</button>
-                                    </div>
-                                    <div id="outside-status-col1" class="mt-1 text-[10px] text-blue-700 min-h-[14px]"></div>
-                                </div>
-                                <div id="outside-pair-col2" class="rounded-xl border border-blue-200 bg-blue-50/50 p-3">
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <span class="text-[10px] font-bold text-blue-700 w-14">Column 2</span>
-                                        <div class="flex items-center gap-1.5 flex-1 min-w-[150px]">
-                                            <span id="outside-col2-term1" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-blue-200 rounded-lg">?</span>
-                                            <span class="text-blue-500 font-bold">and</span>
-                                            <span id="outside-col2-term2" class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-blue-200 rounded-lg">?</span>
-                                        </div>
-                                        <span class="text-slate-400">→</span>
-                                        <input id="outside-input-col2" type="text" autocomplete="off" spellcheck="false" placeholder="factor" aria-label="Column 2 common factor" class="w-24 px-2 py-2 text-center text-sm font-mono font-black bg-white border border-blue-300 rounded-lg text-blue-800 focus:ring-2 focus:ring-blue-400 focus:outline-none">
-                                        <button id="outside-check-col2" type="button" class="px-2.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold">Check</button>
-                                    </div>
-                                    <div id="outside-status-col2" class="mt-1 text-[10px] text-blue-700 min-h-[14px]"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <div class="flex items-start justify-between gap-3 flex-wrap">
-                            <div>
-                                <div class="text-[11px] font-bold uppercase tracking-wide text-slate-600">Outside factor tiles</div>
-                                <p class="text-[10px] text-slate-500 mt-1">As soon as a correct row or column common factor is entered above, its draggable tile appears here. Drag it to the matching border of the area model.</p>
-                            </div>
-                        </div>
-                        <div id="factor-tile-tray" class="mt-3 flex flex-wrap gap-2 min-h-[42px] items-center">
-                            <span class="text-[10px] text-slate-400 italic">Correct common factors will appear here automatically as draggable tiles.</span>
-                        </div>
-                        <details class="mt-3 border-t border-slate-200 pt-3">
-                            <summary class="cursor-pointer text-[10px] font-bold text-slate-500 hover:text-slate-700">Make a scratch factor tile instead</summary>
-                            <div class="flex flex-wrap items-center gap-2 mt-3">
-                                <input id="factor-tile-input" type="text" inputmode="text" placeholder="e.g. 2x or -5" class="min-w-[150px] flex-1 px-3 py-2 text-sm font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                                <button id="btn-make-factor-tile" type="button" class="px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-bold shadow-sm">Make scratch tile</button>
-                            </div>
-                        </details>
-                    </div>
-                    <p id="border-entry-feedback" class="text-[10px] text-slate-400 text-center italic mt-4">Enter a correct common factor in a row or column and its tile appears immediately in Outside factor tiles. Drag it onto its matching area-model border. For column factors, the full vertical column is also an active drop target. You can still type directly into a border as an alternate method.</p>
-                </div>
-
-                <!-- STAGE 4: Parentheses / conventional form -->
-                <div id="parenthesis-card" class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
-                    <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                        <span id="progress-circle-final" class="section-progress-circle" role="status" aria-label="Binomial factors not complete" title="Write the binomial factors"></span>
-                        <i class="fa-solid fa-arrow-right-to-bracket text-blue-500"></i> Write the binomial factors
+<div class="space-y-4 mb-4" id="outside-factor-pairs">
+<div>
+<div class="text-[10px] font-extrabold tracking-wide text-emerald-700 mb-2">Rows</div>
+<div class="grid gap-2">
+<div class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3" id="outside-pair-row1">
+<div class="flex flex-wrap items-center gap-2">
+<span class="text-[10px] font-bold text-emerald-700 w-12">Row 1</span>
+<div class="flex items-center gap-1.5 flex-1 min-w-[150px]">
+<span class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-emerald-200 rounded-lg" id="outside-row1-term1">?</span>
+<span class="text-emerald-500 font-bold">and</span>
+<span class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-emerald-200 rounded-lg" id="outside-row1-term2">?</span>
+</div>
+<span class="text-slate-400">→</span>
+<input aria-label="Row 1 common factor" autocomplete="off" class="w-24 px-2 py-2 text-center text-sm font-mono font-black bg-white border border-emerald-300 rounded-lg text-emerald-800 focus:ring-2 focus:ring-emerald-400 focus:outline-none" id="outside-input-row1" placeholder="factor" spellcheck="false" type="text"/>
+<button class="px-2.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold" id="outside-check-row1" type="button">Check</button>
+</div>
+<div class="mt-1 text-[10px] text-emerald-700 min-h-[14px]" id="outside-status-row1"></div>
+</div>
+<div class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3" id="outside-pair-row2">
+<div class="flex flex-wrap items-center gap-2">
+<span class="text-[10px] font-bold text-emerald-700 w-12">Row 2</span>
+<div class="flex items-center gap-1.5 flex-1 min-w-[150px]">
+<span class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-emerald-200 rounded-lg" id="outside-row2-term1">?</span>
+<span class="text-emerald-500 font-bold">and</span>
+<span class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-emerald-200 rounded-lg" id="outside-row2-term2">?</span>
+</div>
+<span class="text-slate-400">→</span>
+<input aria-label="Row 2 common factor" autocomplete="off" class="w-24 px-2 py-2 text-center text-sm font-mono font-black bg-white border border-emerald-300 rounded-lg text-emerald-800 focus:ring-2 focus:ring-emerald-400 focus:outline-none" id="outside-input-row2" placeholder="factor" spellcheck="false" type="text"/>
+<button class="px-2.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold" id="outside-check-row2" type="button">Check</button>
+</div>
+<div class="mt-1 text-[10px] text-emerald-700 min-h-[14px]" id="outside-status-row2"></div>
+</div>
+</div>
+</div>
+<div>
+<div class="text-[10px] font-extrabold tracking-wide text-blue-700 mb-2">Columns</div>
+<div class="grid gap-2">
+<div class="rounded-xl border border-blue-200 bg-blue-50/50 p-3" id="outside-pair-col1">
+<div class="flex flex-wrap items-center gap-2">
+<span class="text-[10px] font-bold text-blue-700 w-14">Column 1</span>
+<div class="flex items-center gap-1.5 flex-1 min-w-[150px]">
+<span class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-blue-200 rounded-lg" id="outside-col1-term1">?</span>
+<span class="text-blue-500 font-bold">and</span>
+<span class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-blue-200 rounded-lg" id="outside-col1-term2">?</span>
+</div>
+<span class="text-slate-400">→</span>
+<input aria-label="Column 1 common factor" autocomplete="off" class="w-24 px-2 py-2 text-center text-sm font-mono font-black bg-white border border-blue-300 rounded-lg text-blue-800 focus:ring-2 focus:ring-blue-400 focus:outline-none" id="outside-input-col1" placeholder="factor" spellcheck="false" type="text"/>
+<button class="px-2.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold" id="outside-check-col1" type="button">Check</button>
+</div>
+<div class="mt-1 text-[10px] text-blue-700 min-h-[14px]" id="outside-status-col1"></div>
+</div>
+<div class="rounded-xl border border-blue-200 bg-blue-50/50 p-3" id="outside-pair-col2">
+<div class="flex flex-wrap items-center gap-2">
+<span class="text-[10px] font-bold text-blue-700 w-14">Column 2</span>
+<div class="flex items-center gap-1.5 flex-1 min-w-[150px]">
+<span class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-blue-200 rounded-lg" id="outside-col2-term1">?</span>
+<span class="text-blue-500 font-bold">and</span>
+<span class="flex-1 min-w-[64px] px-2 py-2 text-center font-mono font-black text-slate-800 bg-white border border-blue-200 rounded-lg" id="outside-col2-term2">?</span>
+</div>
+<span class="text-slate-400">→</span>
+<input aria-label="Column 2 common factor" autocomplete="off" class="w-24 px-2 py-2 text-center text-sm font-mono font-black bg-white border border-blue-300 rounded-lg text-blue-800 focus:ring-2 focus:ring-blue-400 focus:outline-none" id="outside-input-col2" placeholder="factor" spellcheck="false" type="text"/>
+<button class="px-2.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold" id="outside-check-col2" type="button">Check</button>
+</div>
+<div class="mt-1 text-[10px] text-blue-700 min-h-[14px]" id="outside-status-col2"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+<div class="flex items-start justify-between gap-3 flex-wrap">
+<div>
+<div class="text-[11px] font-bold uppercase tracking-wide text-slate-600">Outside factor tiles</div>
+<p class="text-[10px] text-slate-500 mt-1">As soon as a correct row or column common factor is entered above, its draggable tile appears here. Drag it to the matching border of the area model.</p>
+</div>
+</div>
+<div class="mt-3 flex flex-wrap gap-2 min-h-[42px] items-center" id="factor-tile-tray">
+<span class="text-[10px] text-slate-400 italic">Correct common factors will appear here automatically as draggable tiles.</span>
+</div>
+<details class="mt-3 border-t border-slate-200 pt-3">
+<summary class="cursor-pointer text-[10px] font-bold text-slate-500 hover:text-slate-700">Make a scratch factor tile instead</summary>
+<div class="flex flex-wrap items-center gap-2 mt-3">
+<input class="min-w-[150px] flex-1 px-3 py-2 text-sm font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" id="factor-tile-input" inputmode="text" placeholder="e.g. 2x or -5" type="text"/>
+<button class="px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-bold shadow-sm" id="btn-make-factor-tile" type="button">Make scratch tile</button>
+</div>
+</details>
+</div>
+<p class="text-[10px] text-slate-400 text-center italic mt-4" id="border-entry-feedback">Enter a correct common factor in a row or column and its tile appears immediately in Outside factor tiles. Drag it onto its matching area-model border. For column factors, the full vertical column is also an active drop target. You can still type directly into a border as an alternate method.</p>
+</div><!-- STAGE 4: Parentheses / conventional form --><div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md" id="parenthesis-card">
+<h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+<span aria-label="Binomial factors not complete" class="section-progress-circle" id="progress-circle-final" role="status" title="Write the binomial factors"></span>
+<i class="fa-solid fa-arrow-right-to-bracket text-blue-500"></i> Write the binomial factors
                     </h3>
-                    
-                    <!-- Click binomial outputs -->
-                    <div class="flex items-center justify-center gap-1 text-2xl font-bold math-font py-4 text-slate-400">
-                        <span id="parenthesis-gcf-prefix" class="text-slate-950 hidden font-bold mr-1"></span>
-                        <span class="text-slate-950">(</span>
-                        <div id="parenthesis-factor-1" class="min-w-[110px] px-3 py-1 border-2 border-dashed border-emerald-300 rounded-xl text-center text-emerald-500 bg-emerald-50/50 text-sm select-none cursor-pointer hover:bg-emerald-50 transition-all font-mono font-bold">Row Factor</div>
-                        <span class="text-slate-950">)(</span>
-                        <div id="parenthesis-factor-2" class="min-w-[110px] px-3 py-1 border-2 border-dashed border-blue-300 rounded-xl text-center text-blue-500 bg-blue-50/50 text-base select-none cursor-pointer hover:bg-blue-50 transition-all font-mono font-bold">Col Factor</div>
-                        <span class="text-slate-950">)</span>
-                    </div>
+<!-- Click binomial outputs -->
+<div class="flex items-center justify-center gap-1 text-2xl font-bold math-font py-4 text-slate-400">
+<span class="text-slate-950 hidden font-bold mr-1" id="parenthesis-gcf-prefix"></span>
+<span class="text-slate-950">(</span>
+<div class="min-w-[110px] px-3 py-1 border-2 border-dashed border-emerald-300 rounded-xl text-center text-emerald-500 bg-emerald-50/50 text-sm select-none cursor-pointer hover:bg-emerald-50 transition-all font-mono font-bold" id="parenthesis-factor-1">Row Factor</div>
+<span class="text-slate-950">)(</span>
+<div class="min-w-[110px] px-3 py-1 border-2 border-dashed border-blue-300 rounded-xl text-center text-blue-500 bg-blue-50/50 text-base select-none cursor-pointer hover:bg-blue-50 transition-all font-mono font-bold" id="parenthesis-factor-2">Col Factor</div>
+<span class="text-slate-950">)</span>
+</div>
+<p class="text-xs text-slate-500 text-center leading-relaxed" id="parenthesis-tips">Transfer the green row factors and blue column factors into the two binomials.</p>
+<div class="hidden mt-4 rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-4 text-center" id="final-equality">
+<div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Equivalent expressions</div>
+<div class="math-font text-lg sm:text-xl font-black text-slate-900 break-words" id="final-equality-expression"></div>
+</div>
+<div class="hidden mt-5 p-4 rounded-xl border border-amber-200 bg-amber-50" id="further-factor-card">
+<p class="text-xs font-bold text-amber-800 text-center mb-3" id="further-factor-message">Hint: one or more binomial factors can be factored further.</p>
+<div class="flex flex-wrap gap-2 justify-center" id="further-factor-actions"></div>
+</div>
+</div></section>
+</main>
+<!-- Footer -->
+<footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
+<div class="max-w-6xl mx-auto px-4">
+<p>Interactive Area Model v58 — fixed area model with a single scrollable instructional workflow.</p>
+</div>
+</footer>
+<!-- Interactive App Script -->
+<script>
 
-                    <p id="parenthesis-tips" class="text-xs text-slate-500 text-center leading-relaxed">Transfer the green row factors and blue column factors into the two binomials.</p>
-
-                    <div id="final-equality" class="hidden mt-4 rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-4 text-center">
-                        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Equivalent expressions</div>
-                        <div id="final-equality-expression" class="math-font text-lg sm:text-xl font-black text-slate-900 break-words"></div>
-                    </div>
-
-                    <div id="further-factor-card" class="hidden mt-5 p-4 rounded-xl border border-amber-200 bg-amber-50">
-                        <p id="further-factor-message" class="text-xs font-bold text-amber-800 text-center mb-3">Hint: one or more binomial factors can be factored further.</p>
-                        <div id="further-factor-actions" class="flex flex-wrap gap-2 justify-center"></div>
-                    </div>
-                </div>
-
-            </section>
-
-            <!-- RIGHT COLUMN: Persistent mathematical workspace — area model and tools (7 Cols) -->
-            <section id="workspace-column" class="lg:col-span-7 flex flex-col gap-6 order-1 lg:order-last custom-scrollbar">
-                
-                <!-- Stationary 2x2 Area Model Grid -->
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md flex flex-col items-center justify-center relative">
-                    <div class="flex w-full items-center justify-between mb-6 border-b border-slate-100 pb-2">
-                        <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                            <span id="progress-circle-middle" class="section-progress-circle" role="status" aria-label="Area model not complete" title="Complete the area model"></span>
-                            <i class="fa-solid fa-table-cells-large text-purple-500"></i> The 2x2 Area Model
-                        </h3>
-                        <span id="active-status-pill" class="px-2 py-0.5 bg-slate-100 text-slate-500 font-bold tracking-wide uppercase text-[9px] rounded-full border border-slate-200">Open workspace</span>
-                    </div>
-
-                    <!-- Once p and q are verified, show the split beside the area model. -->
-                    <div id="split-term-placement" class="hidden w-full mb-5 rounded-xl border-2 border-yellow-300 bg-yellow-50 px-4 py-4 flex-col items-center gap-3 shadow-sm">
-                        <div class="text-center">
-                            <div class="text-[10px] font-extrabold tracking-wider text-yellow-800">middle term split</div>
-                            <p class="text-[10px] text-slate-500 mt-1">These two signed terms are equivalent to the original <span class="font-mono font-bold">bx</span> term.</p>
-                        </div>
-                        <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 font-mono font-black text-lg text-slate-800">
-                            <div id="split-bx-tile" class="px-4 py-2 bg-yellow-100 text-yellow-900 border-2 border-yellow-400 rounded-xl shadow-sm select-none">bx</div>
-                            <span class="text-slate-500">=</span>
-                            <span class="text-slate-500">(</span>
-                            <div id="card-px" draggable="true" class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none">px</div>
-                            <span class="text-slate-500">+</span>
-                            <div id="card-qx" draggable="true" class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none">qx</div>
-                            <span class="text-slate-500">)</span>
-                        </div>
-                        <p class="text-[10px] text-slate-500 text-center">Drag <span class="font-mono font-bold">px</span> to the lower-left and <span class="font-mono font-bold">qx</span> to the upper-right, or click each yellow tile to snap it into place.</p>
-                    </div>
-                    
-                    <div id="pq-model-explanation" class="hidden w-full mb-4 rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3" aria-live="polite">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="min-w-0">
-                                <div id="pq-model-explanation-title" class="text-[10px] font-extrabold tracking-wider text-slate-500">p/q connection to the area model</div>
-                                <div id="pq-model-explanation-equation" class="mt-1 font-mono text-sm font-black text-slate-900"></div>
-                                <div id="pq-model-explanation-steps" class="mt-1 text-[10px] leading-relaxed text-slate-600"></div>
-                            </div>
-                            <button id="btn-close-pq-explanation" type="button" class="shrink-0 w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-100" aria-label="Close p q explanation">×</button>
-                        </div>
-                    </div>
-
-                    <div class="w-full mb-3 px-3 py-2 rounded-xl border border-indigo-100 bg-indigo-50/40 text-[10px] text-indigo-800 text-center">
-                        <strong>Open workspace:</strong> click a value inside any of the four cells and type a term directly, or drag a matching tile. Press Enter or click away to check it.
-                    </div>
-
-                    <!-- Grid of GCFs and Area Model cells -->
-                    <div id="area-model-grid" class="relative grid grid-cols-3 grid-rows-3 gap-3 w-80 h-80 text-center text-sm font-bold select-none">
-                        <!-- Top-Left Spacer -->
-                        <div></div>
-                        
-                        <!-- Col 1 GCF border -->
-                        <div id="gcf-col1" class="flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50">
-                            <!-- Clickable slot for GCF Border -->
-                        </div>
-                        
-                        <!-- Col 2 GCF border -->
-                        <div id="gcf-col2" class="flex flex-col items-center justify-center text-blue-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-blue-50/50">
-                            <!-- Clickable slot for GCF Border -->
-                        </div>
-                        
-                        <!-- Row 1 GCF border -->
-                        <div id="gcf-row1" class="flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50">
-                            <!-- Clickable slot for GCF Border -->
-                        </div>
-                        
-                        <!-- Cell TL: ax² -->
-                        <div id="cell-tl" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-900 font-mono transition-all duration-300 relative">
-                            <span id="cell-tl-value" contenteditable="true" role="textbox" aria-label="top-left ax squared term" spellcheck="false" data-placeholder="type ax²" class="editable-model-value text-2xl font-black"></span>
-                            <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">ax²</span>
-                        </div>
-                        
-                        <!-- Cell TR: qx -->
-                        <div id="cell-tr" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-600 font-mono transition-all duration-300">
-                            <span id="cell-tr-value" contenteditable="true" role="textbox" aria-label="top-right qx term" spellcheck="false" data-placeholder="type qx" class="editable-model-value text-2xl font-black"></span>
-                            <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">qx</span>
-                        </div>
-                        
-                        <!-- Row 2 GCF border -->
-                        <div id="gcf-row2" class="flex flex-col items-center justify-center text-emerald-600 border border-dashed border-slate-300 rounded-2xl bg-slate-50 transition-all font-mono text-base border-2 cursor-pointer hover:bg-emerald-50/50">
-                            <!-- Clickable slot for GCF Border -->
-                        </div>
-                        
-                        <!-- Cell BL: px -->
-                        <div id="cell-bl" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-600 font-mono transition-all duration-300">
-                            <span id="cell-bl-value" contenteditable="true" role="textbox" aria-label="bottom-left px term" spellcheck="false" data-placeholder="type px" class="editable-model-value text-2xl font-black"></span>
-                            <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">px</span>
-                        </div>
-                        
-                        <!-- Cell BR: c -->
-                        <div id="cell-br" class="flex flex-col items-center justify-center bg-slate-50 border border-dashed border-slate-300 text-slate-900 font-mono transition-all duration-300 relative">
-                            <span id="cell-br-value" contenteditable="true" role="textbox" aria-label="bottom-right constant term" spellcheck="false" data-placeholder="type c" class="editable-model-value text-2xl font-black"></span>
-                            <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">c</span>
-                        </div>
-
-                        <!-- Product explanation: diagonal pairs ax²·c and px·qx. -->
-                        <svg id="pq-product-diagonals" class="absolute inset-0 w-full h-full pointer-events-none z-[24]" viewBox="0 0 320 320" aria-hidden="true">
-                            <defs>
-                                <marker id="pq-arrow-indigo" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
-                                    <path d="M0,0 L7,3.5 L0,7 Z" fill="rgb(79 70 229)"></path>
-                                </marker>
-                                <marker id="pq-arrow-amber" markerWidth="7" markerHeight="7" refX="5.5" refY="3.5" orient="auto">
-                                    <path d="M0,0 L7,3.5 L0,7 Z" fill="rgb(202 138 4)"></path>
-                                </marker>
-                            </defs>
-                            <line x1="160" y1="160" x2="270.5" y2="270.5" stroke="rgb(79 70 229)" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#pq-arrow-indigo)"></line>
-                            <line x1="270.5" y1="160" x2="160" y2="270.5" stroke="rgb(202 138 4)" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#pq-arrow-amber)"></line>
-                        </svg>
-
-                        <!-- Strong outline around only the four product cells. -->
-                        <div class="area-model-inner-border" aria-hidden="true"></div>
-                    </div>
-
-                    <!-- Split-coefficient sign decision (Stage 2) -->
-                    
-                </div>
-
-                <!-- STUDENT TOOLS: available throughout the factoring workflow -->
-                <div id="student-tools-card" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                            <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                                <i class="fa-solid fa-toolbox text-slate-500"></i> Tools
-                            </h3>
-                            <p class="text-[10px] text-slate-500 mt-0.5">Open either tool whenever you want. The tools do not fill factoring answers for you.</p>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            <button id="btn-tool-calculator" type="button" aria-expanded="false" class="px-3.5 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold shadow-sm">
-                                <i class="fa-solid fa-calculator mr-1"></i> Calculator
-                            </button>
-                            <button id="btn-tool-chart" type="button" aria-expanded="false" class="px-3.5 py-2 rounded-lg border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold shadow-sm">
-                                <i class="fa-solid fa-table-cells mr-1"></i> Multiplication chart
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Four-function calculator -->
-                    <div id="tool-calculator-panel" class="hidden mt-4 border-t border-slate-100 pt-4">
-                        <div class="mx-auto w-full max-w-[19rem] rounded-2xl border-2 border-slate-300 bg-slate-800 p-3 shadow-md">
-                            <div class="mb-3 rounded-xl bg-slate-100 px-4 py-3 text-right overflow-hidden">
-                                <div class="text-[9px] font-bold tracking-wider text-slate-400">calculator</div>
-                                <output id="calculator-display" aria-live="polite" class="block min-h-[2.25rem] font-mono text-2xl font-black text-slate-900 break-all">0</output>
-                            </div>
-                            <div id="calculator-keypad" class="grid grid-cols-4 gap-2">
-                                <button type="button" data-calc-action="clear" class="h-11 rounded-lg bg-slate-500 hover:bg-slate-400 text-white font-bold">C</button>
-                                <button type="button" data-calc-action="sign" class="h-11 rounded-lg bg-slate-500 hover:bg-slate-400 text-white font-bold">±</button>
-                                <button type="button" data-calc-action="backspace" aria-label="Backspace" class="h-11 rounded-lg bg-slate-500 hover:bg-slate-400 text-white font-bold">⌫</button>
-                                <button type="button" data-calc-operator="divide" class="h-11 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-lg font-black">÷</button>
-
-                                <button type="button" data-calc-digit="7" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">7</button>
-                                <button type="button" data-calc-digit="8" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">8</button>
-                                <button type="button" data-calc-digit="9" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">9</button>
-                                <button type="button" data-calc-operator="multiply" class="h-11 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-lg font-black">×</button>
-
-                                <button type="button" data-calc-digit="4" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">4</button>
-                                <button type="button" data-calc-digit="5" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">5</button>
-                                <button type="button" data-calc-digit="6" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">6</button>
-                                <button type="button" data-calc-operator="subtract" class="h-11 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-lg font-black">−</button>
-
-                                <button type="button" data-calc-digit="1" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">1</button>
-                                <button type="button" data-calc-digit="2" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">2</button>
-                                <button type="button" data-calc-digit="3" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">3</button>
-                                <button type="button" data-calc-operator="add" class="h-11 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-lg font-black">+</button>
-
-                                <button type="button" data-calc-digit="0" class="col-span-2 h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-bold">0</button>
-                                <button type="button" data-calc-action="decimal" class="h-11 rounded-lg bg-slate-100 hover:bg-white text-slate-900 font-mono font-black">.</button>
-                                <button type="button" data-calc-action="equals" class="h-11 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-lg font-black">=</button>
-                            </div>
-                        </div>
-                        <p class="text-[10px] text-slate-400 text-center mt-2">Four-function scratch calculator. Results are never copied into factoring fields automatically.</p>
-                    </div>
-
-                    <!-- Multiplication chart tool -->
-                    <div id="tool-chart-panel" class="hidden mt-4 border-t border-slate-100 pt-4">
-                        <div class="flex flex-col sm:flex-row sm:items-end justify-center gap-3 mb-3">
-                            <label class="text-xs font-bold text-slate-700">
-                                Target product
-                                <input id="tool-chart-target" type="number" inputmode="numeric" class="mt-1 w-full sm:w-40 px-3 py-2 text-base text-center font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="enter product">
-                            </label>
-                            <button id="btn-show-tool-chart" type="button" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm">Show chart</button>
-                            <button id="btn-clear-tool-chart" type="button" class="px-3 py-2 border border-slate-300 bg-white hover:bg-slate-100 text-slate-600 rounded-lg text-xs font-bold">Clear</button>
-                        </div>
-                        <p id="tool-chart-feedback" class="text-[10px] text-slate-500 text-center mb-3">Enter the product you want to investigate. For a negative product, the chart uses its positive magnitude.</p>
-                        <div id="multiplication-chart-wrapper" class="hidden">
-                            <p class="text-[10px] text-slate-500 mb-2 text-center">Scroll in either direction. Row headings stay fixed on the left and column headings stay fixed at the top.</p>
-                            <div class="w-full max-h-[30rem] overflow-auto custom-scrollbar border border-slate-200 rounded-xl bg-white">
-                                <div id="multiplication-chart-container" class="min-w-max p-1"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-            </section>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
-        <div class="max-w-6xl mx-auto px-4">
-            <p>Interactive Area Model v56 — sticky polynomial, independent scrollbars, and mathematically grounded section progress.</p>
-        </div>
-    </footer>
-
-    <!-- Interactive App Script -->
-    <script>
-
-        // v52: keep the shared active-polynomial card directly beneath the sticky site header.
+        // v58: keep the mathematical workspace beneath the sticky site header,
+        // and size the single stage pane from the remaining viewport height.
         const siteHeader = document.getElementById('site-header');
-        function syncStickyPolynomialOffset() {
+        const fixedWorkspace = document.getElementById('fixed-workspace');
+        const stageScrollContainer = document.getElementById('stage-scroll-container');
+        const persistentWorkspaceQuery = window.matchMedia('(min-width: 768px)');
+
+        function syncSingleWorkspaceLayout() {
             const headerHeight = siteHeader ? Math.ceil(siteHeader.getBoundingClientRect().height) : 72;
-            document.documentElement.style.setProperty('--sticky-polynomial-top', `${headerHeight + 8}px`);
-        }
-        if (siteHeader) {
-            const headerResizeObserver = new ResizeObserver(syncStickyPolynomialOffset);
-            headerResizeObserver.observe(siteHeader);
-            window.addEventListener('resize', syncStickyPolynomialOffset);
-            requestAnimationFrame(syncStickyPolynomialOffset);
-        }
+            document.documentElement.style.setProperty('--sticky-workspace-top', `${headerHeight + 8}px`);
 
-        // v55: give both desktop columns one fixed viewport-based height.
-        // IMPORTANT: do not recompute this from getBoundingClientRect().top on
-        // page scroll; doing so lets the panes grow as the document moves and
-        // can remove overflow (and therefore a scrollbar).
-        const workspaceColumns = document.getElementById('workspace-columns');
-        const desktopColumnsQuery = window.matchMedia('(min-width: 1024px)');
-        const activeCardForPaneSizing = document.getElementById('active-equation-card');
-
-        function syncWorkspacePaneHeight() {
-            if (!workspaceColumns) return;
-            if (desktopColumnsQuery.matches) {
-                const headerHeight = siteHeader ? Math.ceil(siteHeader.getBoundingClientRect().height) : 72;
-                const activeHeight = activeCardForPaneSizing ? Math.ceil(activeCardForPaneSizing.getBoundingClientRect().height) : 110;
-                // main top padding (32) + gap below active card (24) + bottom breathing room (20)
-                const reserved = headerHeight + activeHeight + 76;
-                const available = Math.max(420, window.innerHeight - reserved);
-                document.documentElement.style.setProperty('--workspace-pane-height', `${available}px`);
+            if (persistentWorkspaceQuery.matches && fixedWorkspace && stageScrollContainer) {
+                const fixedHeight = Math.ceil(fixedWorkspace.getBoundingClientRect().height);
+                // 8px sticky offset + 24px main gap + 20px bottom breathing room.
+                const available = Math.max(260, window.innerHeight - headerHeight - fixedHeight - 52);
+                document.documentElement.style.setProperty('--stage-pane-height', `${available}px`);
             } else {
-                document.documentElement.style.removeProperty('--workspace-pane-height');
+                document.documentElement.style.removeProperty('--stage-pane-height');
             }
         }
 
-        if (workspaceColumns) {
-            window.addEventListener('resize', syncWorkspacePaneHeight);
-            if (desktopColumnsQuery.addEventListener) {
-                desktopColumnsQuery.addEventListener('change', syncWorkspacePaneHeight);
-            } else if (desktopColumnsQuery.addListener) {
-                desktopColumnsQuery.addListener(syncWorkspacePaneHeight);
-            }
-            if (activeCardForPaneSizing && 'ResizeObserver' in window) {
-                const paneResizeObserver = new ResizeObserver(syncWorkspacePaneHeight);
-                paneResizeObserver.observe(activeCardForPaneSizing);
-                if (siteHeader) paneResizeObserver.observe(siteHeader);
-            }
-            requestAnimationFrame(syncWorkspacePaneHeight);
+        window.addEventListener('resize', syncSingleWorkspaceLayout);
+        if (persistentWorkspaceQuery.addEventListener) {
+            persistentWorkspaceQuery.addEventListener('change', syncSingleWorkspaceLayout);
+        } else if (persistentWorkspaceQuery.addListener) {
+            persistentWorkspaceQuery.addListener(syncSingleWorkspaceLayout);
         }
+        if ('ResizeObserver' in window) {
+            const layoutResizeObserver = new ResizeObserver(syncSingleWorkspaceLayout);
+            if (siteHeader) layoutResizeObserver.observe(siteHeader);
+            if (fixedWorkspace) layoutResizeObserver.observe(fixedWorkspace);
+        }
+        requestAnimationFrame(syncSingleWorkspaceLayout);
 
-        // State Machine Variables
+// State Machine Variables
         let currentStage = 0; // v42 compatibility only: mathematical state, not stage order, controls the workspace
         let pendingBorderEntries = { row1: "", row2: "", col1: "", col2: "" };
         let pendingBorderSource = { row1: 'workspace', row2: 'workspace', col1: 'workspace', col2: 'workspace' };
@@ -951,7 +865,7 @@
         const gcfScaffoldingCard = document.getElementById('gcf-scaffolding-card');
         const multiplicationCard = document.getElementById('multiplication-card');
         const btnCollapsePqHelper = document.getElementById('btn-collapse-pq-helper');
-        const instructionColumn = document.getElementById('instruction-column');
+        const instructionColumn = document.getElementById('stage-scroll-container');
         const gcfBorderSelectionCard = document.getElementById('gcf-border-selection-card');
         const parenthesisCard = document.getElementById('parenthesis-card');
 
@@ -1066,7 +980,7 @@
             pqHelperOpen = true;
             syncPqHelperVisibility();
             requestAnimationFrame(() => {
-                if (instructionColumn && window.matchMedia('(min-width: 1024px)').matches) {
+                if (instructionColumn && window.matchMedia('(min-width: 768px)').matches) {
                     const targetTop = Math.max(0, multiplicationCard.offsetTop - instructionColumn.offsetTop - 10);
                     instructionColumn.scrollTo({ top: targetTop, behavior: 'smooth' });
                 } else {
@@ -1842,7 +1756,7 @@
             syncPqHelperVisibility();
             termCardsContainer.classList.remove('hidden');
             termCardsHeading.textContent = 'Place terms';
-            termCardsHelp.textContent = 'Drag, click, or type directly into the area-model cells. Press the yellow middle term to open the p/q helper below.';
+            termCardsHelp.textContent = 'Drag, click, or type directly into the area-model cells. Press the yellow middle term to open the p/q helper in the stages below.';
 
             parenthesisGCFPrefix.classList.add('hidden');
             parenthesisGCFPrefix.textContent='';
