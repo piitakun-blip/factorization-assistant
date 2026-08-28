@@ -1,5 +1,5 @@
-<!-- Trinomial Factorization Helper v60: visible auto-floating area model + compact collapsible problem setup -->
 <!DOCTYPE html>
+<!-- Trinomial Factorization Helper v61: unified floating factoring workspace -->
 
 <html lang="en">
 <head>
@@ -276,6 +276,33 @@
             #floating-area-model-card { min-width: 0; }
         }
 
+
+        /* v61: active polynomial + compact problem setup live inside the same floating workspace. */
+        #floating-area-model-card {
+            width: min(100%, 620px);
+            min-width: 420px;
+        }
+        #floating-area-model-card.is-floating {
+            width: 520px;
+            min-width: 420px;
+            max-width: calc(100vw - 32px);
+        }
+        #problem-setup-card {
+            width: 100%;
+            align-self: stretch;
+        }
+        #problem-setup-body {
+            max-height: 42vh;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        #active-equation-card #equation-display {
+            font-size: clamp(1.35rem, 3vw, 1.9rem);
+        }
+        @media (max-width: 599px) {
+            #floating-area-model-card { min-width: 0; width: 100%; }
+            #problem-setup-body { max-height: none; overflow: visible; }
+        }
 </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
@@ -299,10 +326,20 @@
 <!-- Main Content Layout -->
 <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 flex flex-col gap-6">
 <!-- v51: Shared sticky active polynomial above both columns -->
-
 <!-- Top Part: Split-Screen Controls and Area Model Grid -->
-
-        <section class="flex flex-col gap-4 z-40" id="fixed-workspace"><div class="bg-white/95 backdrop-blur border border-slate-200 rounded-2xl px-5 py-4 flex flex-col items-center justify-center gap-2 shadow-sm" id="active-equation-card">
+<section class="flex flex-col gap-4 z-40" id="fixed-workspace"><div class="bg-white border border-slate-200 rounded-2xl shadow-md flex flex-col items-center justify-center relative p-4" data-layout-role="fixed-area-model" id="floating-area-model-card">
+<div class="area-model-window-header flex w-full items-center justify-between gap-3 mb-6 border-b border-slate-100 pb-2" id="area-model-window-header">
+<h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+<span aria-label="Area model not complete" class="section-progress-circle" id="progress-circle-middle" role="status" title="Complete the area model"></span>
+<span class="hidden text-[9px] font-extrabold tracking-wide uppercase px-2 py-1 rounded-full bg-indigo-100 text-indigo-700" id="area-model-window-state">Floating</span>
+<i class="fa-solid fa-window-restore text-purple-500"></i> Factoring Workspace</h3>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="hidden sm:inline-flex px-2 py-0.5 bg-slate-100 text-slate-500 font-bold tracking-wide uppercase text-[9px] rounded-full border border-slate-200" id="active-status-pill">Open workspace</span>
+<button class="px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-[10px] font-extrabold hover:bg-indigo-100 transition-colors" id="btn-float-area-model" title="Float the area model" type="button">Float</button>
+<button class="hidden px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 text-[10px] font-extrabold hover:bg-slate-100 transition-colors" id="btn-dock-area-model" title="Dock the area model" type="button">Dock</button>
+<button aria-label="Minimize area model" class="w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-600 text-xs font-bold hover:bg-slate-100 transition-colors" id="btn-minimize-area-model" title="Minimize area model" type="button">−</button>
+</div>
+</div><div class="w-full px-2 pb-4 mb-4 border-b border-slate-100 flex flex-col items-center justify-center gap-2" id="active-equation-card">
 <div class="hidden w-full text-center border-b border-slate-100 pb-3 mb-1" id="original-equation-reference">
 <span class="text-[10px] font-extrabold tracking-widest text-slate-400">original trinomial</span>
 <div class="mt-1 text-base font-bold text-slate-600 math-font" id="original-equation-display">2x² - 21x + 40</div>
@@ -315,22 +352,78 @@
 <div class="text-[10px] font-bold tracking-wider text-slate-400">area model represents</div>
 <div class="mt-1 math-font text-sm font-bold text-slate-700" id="area-model-expression-display"></div>
 </div>
-</div><div class="bg-white border border-slate-200 rounded-2xl shadow-md flex flex-col items-center justify-center relative p-4" data-layout-role="fixed-area-model" id="floating-area-model-card">
-<div class="area-model-window-header flex w-full items-center justify-between gap-3 mb-6 border-b border-slate-100 pb-2" id="area-model-window-header">
-<h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-<span aria-label="Area model not complete" class="section-progress-circle" id="progress-circle-middle" role="status" title="Complete the area model"></span>
-<span id="area-model-window-state" class="hidden text-[9px] font-extrabold tracking-wide uppercase px-2 py-1 rounded-full bg-indigo-100 text-indigo-700">Floating</span>
-<i class="fa-solid fa-table-cells-large text-purple-500"></i> The 2x2 Area Model
-                        </h3>
-<div class="flex items-center gap-1.5 shrink-0">
-<span class="hidden sm:inline-flex px-2 py-0.5 bg-slate-100 text-slate-500 font-bold tracking-wide uppercase text-[9px] rounded-full border border-slate-200" id="active-status-pill">Open workspace</span>
-<button class="px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-[10px] font-extrabold hover:bg-indigo-100 transition-colors" id="btn-float-area-model" type="button" title="Float the area model">Float</button>
-<button class="hidden px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 text-[10px] font-extrabold hover:bg-slate-100 transition-colors" id="btn-dock-area-model" type="button" title="Dock the area model">Dock</button>
-<button class="w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-600 text-xs font-bold hover:bg-slate-100 transition-colors" id="btn-minimize-area-model" type="button" aria-label="Minimize area model" title="Minimize area model">−</button>
+</div><div class="w-full px-2 pb-4 mb-4 border-b border-slate-100" id="problem-setup-card">
+<div class="flex flex-wrap items-center justify-between gap-3">
+<div class="min-w-0">
+<div class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-sliders text-blue-500"></i> Problem setup</div>
+<div class="mt-1 font-mono font-black text-sm text-slate-900 truncate" id="problem-setup-summary">2x² - 21x + 40</div>
+</div>
+<div class="flex items-center gap-2">
+<button aria-controls="problem-setup-body" aria-expanded="false" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold transition-all" id="btn-toggle-problem-setup" type="button"><i class="fa-solid fa-pen-to-square mr-1"></i>Edit</button>
+<button class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-1.5" id="btn-practice" type="button">
+<i class="fa-solid fa-dice"></i> Generate Practice
+                        </button>
+</div>
+</div>
+<div class="flex flex-col gap-6 mt-5 pt-5 border-t border-slate-100" hidden="" id="problem-setup-body">
+<!-- Coefficient A Group -->
+<div class="space-y-1.5">
+<div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
+<label class="flex items-center justify-center gap-1 bg-slate-100 px-2 py-1 rounded border border-slate-200 text-[10px] font-black text-slate-600 cursor-pointer select-none whitespace-nowrap" for="force-a-one">
+<input class="w-3.5 h-3.5 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer" id="force-a-one" type="checkbox"/>
+                                    force a=1
+                                </label>
+<label class="text-sm font-black tracking-wide text-slate-900" for="num-a">coefficient a</label>
+<input class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" id="num-a" type="number" value="2"/>
+</div>
+<div class="relative flex items-center" id="slider-container-a">
+<div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-300 pointer-events-none z-0"></div>
+<input class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 relative z-10" id="slider-a" max="50" min="-50" step="1" type="range" value="2"/>
+</div>
+<div class="flex justify-between text-[10px] text-slate-400 font-mono">
+<span>-50</span>
+<span>0</span>
+<span>+50</span>
+</div>
+</div>
+<!-- Coefficient B Group -->
+<div class="space-y-1.5">
+<div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
+<span aria-hidden="true"></span>
+<label class="text-sm font-black tracking-wide text-slate-900" for="num-b">coefficient b</label>
+<input class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" id="num-b" type="number" value="-21"/>
+</div>
+<div class="relative flex items-center">
+<div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-300 pointer-events-none z-0"></div>
+<input class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 relative z-10" id="slider-b" max="50" min="-50" step="1" type="range" value="-21"/>
+</div>
+<div class="flex justify-between text-[10px] text-slate-400 font-mono">
+<span>-50</span>
+<span>0</span>
+<span>+50</span>
+</div>
+</div>
+<!-- Coefficient C Group -->
+<div class="space-y-1.5">
+<div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
+<span aria-hidden="true"></span>
+<label class="text-sm font-black tracking-wide text-slate-900" for="num-c">coefficient c</label>
+<input class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" id="num-c" type="number" value="40"/>
+</div>
+<div class="relative flex items-center">
+<div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-300 pointer-events-none z-0"></div>
+<input class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600 relative z-10" id="slider-c" max="50" min="-50" step="1" type="range" value="40"/>
+</div>
+<div class="flex justify-between text-[10px] text-slate-400 font-mono">
+<span>-50</span>
+<span>0</span>
+<span>+50</span>
+</div>
+</div>
 </div>
 </div>
 <!-- Once p and q are verified, show the split beside the area model. -->
-<div class="hidden w-full mb-5 rounded-xl border-2 border-yellow-300 bg-yellow-50 px-4 py-4 flex-col items-center gap-3 shadow-sm" id="split-term-placement">
+<div class="w-full flex items-center justify-between gap-3 mb-3 px-2" id="area-model-section-heading"><div class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-table-cells-large text-purple-500"></i> Area model</div></div><div class="hidden w-full mb-5 rounded-xl border-2 border-yellow-300 bg-yellow-50 px-4 py-4 flex-col items-center gap-3 shadow-sm" id="split-term-placement">
 <div class="text-center">
 <div class="text-[10px] font-extrabold tracking-wider text-yellow-800">middle term split</div>
 <p class="text-[10px] text-slate-500 mt-1">These two signed terms are equivalent to the original <span class="font-mono font-bold">bx</span> term.</p>
@@ -420,78 +513,9 @@
 <div class="sticky top-0 z-20 -mb-2 rounded-xl border border-slate-200 bg-slate-50/95 px-4 py-2 backdrop-blur">
 <div class="flex items-center justify-between gap-3">
 <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Factoring stages</span>
-<span class="text-[10px] text-slate-400">Scroll through the work below. Float the area model whenever you want it beside your work.</span>
+<span class="text-[10px] text-slate-400">Scroll through the instructional work below. Keep the Factoring Workspace beside your work.</span>
 </div>
-</div><!-- Compact Problem Setup --><div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm" id="problem-setup-card">
-<div class="flex flex-wrap items-center justify-between gap-3">
-<div class="min-w-0">
-<div class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-sliders text-blue-500"></i> Problem setup</div>
-<div class="mt-1 font-mono font-black text-base text-slate-900 truncate" id="problem-setup-summary">2x² - 21x + 40</div>
-</div>
-<div class="flex items-center gap-2">
-<button aria-controls="problem-setup-body" aria-expanded="false" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold transition-all" id="btn-toggle-problem-setup" type="button"><i class="fa-solid fa-pen-to-square mr-1"></i>Edit</button>
-<button class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-1.5" id="btn-practice" type="button">
-<i class="fa-solid fa-dice"></i> Generate Practice
-                        </button>
-</div>
-</div>
-<div class="flex flex-col gap-6 mt-5 pt-5 border-t border-slate-100" id="problem-setup-body" hidden>
-<!-- Coefficient A Group -->
-<div class="space-y-1.5">
-<div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
-<label class="flex items-center justify-center gap-1 bg-slate-100 px-2 py-1 rounded border border-slate-200 text-[10px] font-black text-slate-600 cursor-pointer select-none whitespace-nowrap" for="force-a-one">
-<input class="w-3.5 h-3.5 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 cursor-pointer" id="force-a-one" type="checkbox"/>
-                                    force a=1
-                                </label>
-<label class="text-sm font-black tracking-wide text-slate-900" for="num-a">coefficient a</label>
-<input class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" id="num-a" type="number" value="2"/>
-</div>
-<div class="relative flex items-center" id="slider-container-a">
-<div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-300 pointer-events-none z-0"></div>
-<input class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 relative z-10" id="slider-a" max="50" min="-50" step="1" type="range" value="2"/>
-</div>
-<div class="flex justify-between text-[10px] text-slate-400 font-mono">
-<span>-50</span>
-<span>0</span>
-<span>+50</span>
-</div>
-</div>
-<!-- Coefficient B Group -->
-<div class="space-y-1.5">
-<div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
-<span aria-hidden="true"></span>
-<label class="text-sm font-black tracking-wide text-slate-900" for="num-b">coefficient b</label>
-<input class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" id="num-b" type="number" value="-21"/>
-</div>
-<div class="relative flex items-center">
-<div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-300 pointer-events-none z-0"></div>
-<input class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 relative z-10" id="slider-b" max="50" min="-50" step="1" type="range" value="-21"/>
-</div>
-<div class="flex justify-between text-[10px] text-slate-400 font-mono">
-<span>-50</span>
-<span>0</span>
-<span>+50</span>
-</div>
-</div>
-<!-- Coefficient C Group -->
-<div class="space-y-1.5">
-<div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
-<span aria-hidden="true"></span>
-<label class="text-sm font-black tracking-wide text-slate-900" for="num-c">coefficient c</label>
-<input class="w-14 px-1.5 py-0.5 text-sm text-center font-mono font-bold bg-slate-50 border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" id="num-c" type="number" value="40"/>
-</div>
-<div class="relative flex items-center">
-<div class="absolute left-1/2 -translate-x-1/2 w-0.5 h-3 bg-slate-300 pointer-events-none z-0"></div>
-<input class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600 relative z-10" id="slider-c" max="50" min="-50" step="1" type="range" value="40"/>
-</div>
-<div class="flex justify-between text-[10px] text-slate-400 font-mono">
-<span>-50</span>
-<span>0</span>
-<span>+50</span>
-</div>
-</div>
-</div>
-</div><!-- OPTIONAL COMMON-FACTOR TOOL: available without blocking the factoring workflow --><div class="bg-white border border-amber-200 rounded-2xl p-6 shadow-md hidden" id="gcf-scaffolding-card">
+</div><!-- Compact Problem Setup --><!-- OPTIONAL COMMON-FACTOR TOOL: available without blocking the factoring workflow --><div class="bg-white border border-amber-200 rounded-2xl p-6 shadow-md hidden" id="gcf-scaffolding-card">
 <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-1.5">
 <i class="fa-solid fa-compress text-amber-500"></i> Optional: Factor Out a Common Factor
                     </h3>
@@ -1044,7 +1068,7 @@
         const furtherFactorMessage = document.getElementById('further-factor-message');
         const furtherFactorActions = document.getElementById('further-factor-actions');
 
-// v59: compact problem setup + dockable floating area model.
+// v61: compact problem setup + active polynomial are integrated with the dockable/floating area model.
         function setProblemSetupOpen(open) {
             if (!problemSetupBody || !btnToggleProblemSetup) return;
             problemSetupBody.hidden = !open;
@@ -1083,7 +1107,7 @@
             const rect = floatingAreaModelCard.getBoundingClientRect();
             areaModelFloating = true;
             floatingAreaModelCard.classList.add('is-floating');
-            const width = Math.min(Math.max(rect.width, 390), 520);
+            const width = Math.min(Math.max(rect.width, 480), 620);
             floatingAreaModelCard.style.width = `${width}px`;
             floatingAreaModelCard.style.right = '24px';
             floatingAreaModelCard.style.left = 'auto';
