@@ -127,30 +127,6 @@
         }
         .section-progress-circle.done::after { content: '✓'; }
 
-        /* v43: anchor the p/q reasoning directly to the 2x2 area model. */
-        #area-model-grid.pq-explain-sum #cell-tr,
-        #area-model-grid.pq-explain-sum #cell-bl {
-            box-shadow: inset 0 0 0 3px rgb(234 179 8), 0 0 0 4px rgb(254 240 138 / .85);
-            z-index: 30;
-        }
-        #area-model-grid.pq-explain-product #cell-tl,
-        #area-model-grid.pq-explain-product #cell-br {
-            box-shadow: inset 0 0 0 3px rgb(79 70 229), 0 0 0 4px rgb(199 210 254 / .8);
-            z-index: 30;
-        }
-        #area-model-grid.pq-explain-product #cell-tr,
-        #area-model-grid.pq-explain-product #cell-bl {
-            box-shadow: inset 0 0 0 3px rgb(234 179 8), 0 0 0 4px rgb(254 240 138 / .75);
-            z-index: 30;
-        }
-        #pq-product-diagonals { display: none; }
-        #area-model-grid.pq-explain-product #pq-product-diagonals { display: block; }
-        .pq-reason-button[aria-pressed="true"] {
-            background: rgb(30 41 59);
-            border-color: rgb(30 41 59);
-            color: white;
-        }
-
         /* v48: while dragging a verified column factor, show the full column as its drop lane. */
         #area-model-grid.factor-drag-col1::before,
         #area-model-grid.factor-drag-col2::before {
@@ -490,6 +466,103 @@
         #floating-area-model-card.is-minimized #final-equality {
             display: none !important;
         }
+
+
+        /* v79: keep the workspace title bar outside its scroll body and give tools their own floating windows. */
+        #workspace-scroll-body {
+            width: 100%;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #floating-area-model-card.is-floating {
+            overflow: hidden !important;
+        }
+        #floating-area-model-card.is-floating .area-model-window-header {
+            position: relative !important;
+            top: auto !important;
+            flex: 0 0 auto;
+            z-index: 145;
+            margin-bottom: 0 !important;
+        }
+        #floating-area-model-card.is-floating #workspace-scroll-body {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            scrollbar-gutter: stable;
+            padding-top: .35rem;
+        }
+        #floating-area-model-card.is-floating #active-equation-card {
+            position: sticky;
+            top: 0;
+            z-index: 138;
+            background: rgba(255,255,255,.985);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 1px 0 rgb(226 232 240 / .9);
+            padding-top: .45rem;
+        }
+        #floating-area-model-card.is-minimized #workspace-scroll-body {
+            display: none !important;
+        }
+
+        .floating-tool-window {
+            position: fixed;
+            display: none;
+            flex-direction: column;
+            box-sizing: border-box;
+            min-width: 280px;
+            max-width: calc(100vw - 24px);
+            max-height: calc(100vh - 110px);
+            background: white;
+            border: 2px solid rgb(203 213 225);
+            border-radius: 16px;
+            box-shadow: 0 22px 55px rgb(15 23 42 / .24);
+            overflow: hidden;
+            resize: both;
+            z-index: 160;
+        }
+        .floating-tool-window.is-open { display: flex; }
+        #calculator-tool-window { width: 350px; }
+        #chart-tool-window { width: min(590px, calc(100vw - 24px)); }
+        .floating-tool-window-header {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .75rem;
+            padding: .6rem .75rem;
+            border-bottom: 1px solid rgb(226 232 240);
+            background: rgba(248,250,252,.985);
+            cursor: move;
+            user-select: none;
+            touch-action: none;
+        }
+        .floating-tool-window-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: auto;
+            padding: .75rem;
+            overscroll-behavior: contain;
+            scrollbar-gutter: stable;
+        }
+        .floating-tool-window .tool-window-close,
+        .floating-tool-window .tool-window-reset {
+            min-width: 34px;
+            height: 30px;
+        }
+        @media (max-width: 599px) {
+            .floating-tool-window {
+                left: 8px !important;
+                right: 8px !important;
+                width: auto !important;
+                min-width: 0;
+                max-width: none;
+                resize: none;
+            }
+        }
+
 </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
@@ -527,7 +600,7 @@
 <button class="hidden px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 text-[10px] font-extrabold hover:bg-slate-100 transition-colors" id="btn-recenter-area-model" title="Move the floating workspace back into a safe visible position" type="button"><i class="fa-solid fa-crosshairs mr-1"></i>Reset</button>
 <button aria-label="Minimize area model" class="w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-600 text-xs font-bold hover:bg-slate-100 transition-colors" id="btn-minimize-area-model" title="Minimize area model" type="button">−</button>
 </div>
-</div><div class="w-full px-2 pb-4 mb-4 border-b border-slate-100 flex flex-col items-center justify-center gap-2" id="active-equation-card">
+</div><div id="workspace-scroll-body"><div class="w-full px-2 pb-4 mb-4 border-b border-slate-100 flex flex-col items-center justify-center gap-2" id="active-equation-card">
 <div class="hidden w-full text-center border-b border-slate-100 pb-3 mb-1" id="original-equation-reference">
 <span class="text-[10px] font-extrabold tracking-widest text-slate-400">original trinomial</span>
 <div class="mt-1 text-base font-bold text-slate-600 math-font" id="original-equation-display">2x² - 21x + 40</div>
@@ -610,17 +683,7 @@
 </div>
 </div>
 </div>
-<div class="w-full flex items-center justify-between gap-3 mb-3 px-2" id="area-model-section-heading"><div class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-table-cells-large text-purple-500"></i> Area model</div></div><div aria-live="polite" class="hidden w-full mb-4 rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3" id="pq-model-explanation">
-<div class="flex items-start justify-between gap-3">
-<div class="min-w-0">
-<div class="text-[10px] font-extrabold tracking-wider text-slate-500" id="pq-model-explanation-title">Middle-term split and the area model</div>
-<div class="mt-1 font-mono text-sm font-black text-slate-900" id="pq-model-explanation-equation"></div>
-<div class="mt-1 text-[10px] leading-relaxed text-slate-600" id="pq-model-explanation-steps"></div>
-</div>
-<button aria-label="Close middle-term explanation" class="shrink-0 w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-100" id="btn-close-pq-explanation" type="button">×</button>
-</div>
-</div>
-<div class="w-full mb-3 px-3 py-2 rounded-xl border border-indigo-100 bg-indigo-50/40 text-[10px] text-indigo-800 text-center">
+<div class="w-full flex items-center justify-between gap-3 mb-3 px-2" id="area-model-section-heading"><div class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-table-cells-large text-purple-500"></i> Area model</div></div><div class="w-full mb-3 px-3 py-2 rounded-xl border border-indigo-100 bg-indigo-50/40 text-[10px] text-indigo-800 text-center">
 <strong>Open workspace:</strong> click a value inside any of the four cells and type a term directly, or drag a matching tile. Press Enter or click away to check it.
                     </div>
 <!-- Grid of GCFs and Area Model cells -->
@@ -663,25 +726,12 @@
 <span aria-label="bottom-right constant term" class="editable-model-value text-2xl font-black" contenteditable="true" data-placeholder="type c" id="cell-br-value" role="textbox" spellcheck="false"></span>
 <span class="text-[9px] text-slate-400 font-sans font-normal mt-1">c</span>
 </div>
-<!-- Product explanation: diagonal pairs ax²·c and px·qx. -->
-<svg aria-hidden="true" class="absolute inset-0 w-full h-full pointer-events-none z-[24]" id="pq-product-diagonals" viewbox="0 0 320 320">
-<defs>
-<marker id="pq-arrow-indigo" markerheight="7" markerwidth="7" orient="auto" refx="5.5" refy="3.5">
-<path d="M0,0 L7,3.5 L0,7 Z" fill="rgb(79 70 229)"></path>
-</marker>
-<marker id="pq-arrow-amber" markerheight="7" markerwidth="7" orient="auto" refx="5.5" refy="3.5">
-<path d="M0,0 L7,3.5 L0,7 Z" fill="rgb(202 138 4)"></path>
-</marker>
-</defs>
-<line marker-end="url(#pq-arrow-indigo)" stroke="rgb(79 70 229)" stroke-dasharray="7 5" stroke-width="3" x1="160" x2="270.5" y1="160" y2="270.5"></line>
-<line marker-end="url(#pq-arrow-amber)" stroke="rgb(202 138 4)" stroke-dasharray="7 5" stroke-width="3" x1="270.5" x2="160" y1="160" y2="270.5"></line>
-</svg>
 <!-- Strong outline around only the four product cells. -->
 <div aria-hidden="true" class="area-model-inner-border"></div>
 </div><div class="w-full px-2 pb-4 mb-4 border-b border-slate-100" id="student-tools-card">
 <div class="flex flex-wrap items-center justify-between gap-2">
 <div>
-<h3 class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-toolbox text-slate-500"></i> Student tools</h3>
+<h3 class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-toolbox text-slate-500"></i> Student tools</h3><div class="text-[9px] text-slate-400 mt-0.5">Open as movable windows</div>
 </div>
 <div class="flex flex-wrap gap-2">
 <button aria-expanded="false" class="px-3.5 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold shadow-sm" id="btn-tool-calculator" type="button">
@@ -693,7 +743,27 @@
 </div>
 </div>
 <!-- Four-function calculator -->
-<div class="hidden border-t border-slate-100 mt-3 pt-3" id="tool-calculator-panel">
+
+
+</div>
+<div aria-live="polite" class="hidden w-full mt-3 rounded-xl border-2 border-emerald-300 bg-emerald-50/95 px-4 py-4 text-center shadow-sm" id="final-equality">
+<div class="flex items-center justify-center gap-2 text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 mb-1">
+<i class="fa-solid fa-circle-check"></i> Equivalent expressions
+</div>
+<div class="math-font text-lg sm:text-xl font-black text-slate-900 break-words" id="final-equality-expression"></div>
+<div class="mt-1 text-[10px] text-emerald-700">This final equality remains visible in the Factoring Workspace.</div>
+</div>
+<!-- Split-coefficient sign decision (Stage 2) -->
+</div></div></section><!-- v79: independent floating student tool windows -->
+<div aria-label="Calculator" aria-modal="false" class="floating-tool-window" id="calculator-tool-window" role="dialog">
+  <div class="floating-tool-window-header" id="calculator-tool-window-header">
+    <div class="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-2"><i class="fa-solid fa-calculator text-slate-500"></i>Calculator</div>
+    <div class="flex items-center gap-1.5">
+      <button class="tool-window-reset px-2 rounded-lg border border-slate-300 bg-white text-slate-600 text-[10px] font-extrabold hover:bg-slate-100" id="btn-reset-calculator-window" type="button" title="Reset window position"><i class="fa-solid fa-crosshairs"></i></button>
+      <button aria-label="Close calculator" class="tool-window-close px-2 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold hover:bg-slate-100" id="btn-close-calculator-window" type="button">×</button>
+    </div>
+  </div>
+  <div class="floating-tool-window-body"><div class="" id="tool-calculator-panel">
 <div class="mx-auto w-full max-w-[19rem] rounded-2xl border-2 border-slate-300 bg-slate-800 p-3 shadow-md">
 <div class="mb-3 rounded-xl bg-slate-100 px-4 py-3 text-right overflow-hidden">
 <div class="text-[9px] font-bold tracking-wider text-slate-400">calculator</div>
@@ -722,9 +792,17 @@
 </div>
 </div>
 <p class="text-[10px] text-slate-400 text-center mt-2">Four-function scratch calculator. Results are never copied into factoring fields automatically.</p>
+</div></div>
 </div>
-<!-- Multiplication chart tool -->
-<div class="hidden border-t border-slate-100 mt-3 pt-3" id="tool-chart-panel">
+<div aria-label="Multiplication chart" aria-modal="false" class="floating-tool-window" id="chart-tool-window" role="dialog">
+  <div class="floating-tool-window-header" id="chart-tool-window-header">
+    <div class="text-xs font-extrabold uppercase tracking-wider text-indigo-700 flex items-center gap-2"><i class="fa-solid fa-table-cells"></i>Multiplication chart</div>
+    <div class="flex items-center gap-1.5">
+      <button class="tool-window-reset px-2 rounded-lg border border-slate-300 bg-white text-slate-600 text-[10px] font-extrabold hover:bg-slate-100" id="btn-reset-chart-window" type="button" title="Reset window position"><i class="fa-solid fa-crosshairs"></i></button>
+      <button aria-label="Close multiplication chart" class="tool-window-close px-2 rounded-lg border border-slate-300 bg-white text-slate-600 font-bold hover:bg-slate-100" id="btn-close-chart-window" type="button">×</button>
+    </div>
+  </div>
+  <div class="floating-tool-window-body"><div class="" id="tool-chart-panel">
 <div class="flex flex-col sm:flex-row sm:items-end justify-center gap-3 mb-3">
 <label class="text-xs font-bold text-slate-700">
                                 Target product
@@ -740,17 +818,9 @@
 <div class="min-w-max p-1" id="multiplication-chart-container"></div>
 </div>
 </div>
+</div></div>
 </div>
-</div>
-<div aria-live="polite" class="hidden w-full mt-3 rounded-xl border-2 border-emerald-300 bg-emerald-50/95 px-4 py-4 text-center shadow-sm" id="final-equality">
-<div class="flex items-center justify-center gap-2 text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 mb-1">
-<i class="fa-solid fa-circle-check"></i> Equivalent expressions
-</div>
-<div class="math-font text-lg sm:text-xl font-black text-slate-900 break-words" id="final-equality-expression"></div>
-<div class="mt-1 text-[10px] text-emerald-700">This final equality remains visible in the Factoring Workspace.</div>
-</div>
-<!-- Split-coefficient sign decision (Stage 2) -->
-</div></section><button aria-controls="stage-scroll-container" aria-expanded="true" aria-label="Open factoring stages" id="stage-drawer-tab" type="button"><span>Stages</span></button><section aria-label="Factoring stages and tools" class="is-open flex flex-col gap-6 custom-scrollbar" id="stage-scroll-container">
+<button aria-controls="stage-scroll-container" aria-expanded="true" aria-label="Open factoring stages" id="stage-drawer-tab" type="button"><span>Stages</span></button><section aria-label="Factoring stages and tools" class="is-open flex flex-col gap-6 custom-scrollbar" id="stage-scroll-container">
 <div id="stage-drawer-header">
 <div class="flex items-center justify-between gap-3">
 <div class="min-w-0">
@@ -808,14 +878,14 @@
 <span aria-label="Middle-term split not complete" class="section-progress-circle" id="progress-circle-split" role="status" title="Split the middle term"></span>
 <i class="fa-solid fa-scissors text-amber-500"></i> Split the Middle Term
 </h3>
-<p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Rewrite the middle term as <strong>two x-terms</strong>. Their coefficients must add to the middle coefficient and multiply to the product of the outer coefficients.</p>
+<p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Split <strong class="font-mono text-amber-800" id="split-middle-term-label">−21x</strong> into <strong>two x-terms</strong>. Their coefficients must add to its coefficient and multiply to the product of the outer coefficients.</p>
 </div>
 <button aria-label="Close middle-term split helper" class="w-8 h-8 shrink-0 rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500" id="btn-collapse-pq-helper" title="Close middle-term split helper" type="button"><i aria-hidden="true" class="fa-solid fa-chevron-up"></i></button>
 </div>
 <div class="rounded-xl border border-indigo-100 bg-indigo-50/40 p-3 mb-4" id="target-entry-panel">
 <div class="text-center mb-2">
 <div class="text-xs font-extrabold text-slate-800">Build the clues from the polynomial</div>
-<p class="text-[10px] text-slate-500 mt-1">You already selected the middle term, so its coefficient is the <strong>sum</strong>. Now click the <strong>first term and constant term</strong> to build the product clue.</p>
+<p class="text-[10px] text-slate-500 mt-1">The term shown above is the one being split, so its coefficient is already the <strong>target sum</strong>. Click the <strong>first term and constant term</strong> to build the product clue.</p>
 </div>
 <div class="grid sm:grid-cols-2 gap-2 items-stretch">
 <div class="rounded-xl border-2 border-indigo-300 bg-indigo-50 px-3 py-2.5 flex flex-col items-center justify-center text-center">
@@ -841,7 +911,7 @@
 </div>
 </div>
 <div class="flex flex-wrap items-center justify-center gap-2 font-mono font-black text-lg">
-<div class="px-3 py-2 bg-yellow-100 text-yellow-900 border-2 border-yellow-400 rounded-xl shadow-sm select-none" id="split-bx-tile">middle term</div>
+<div class="px-3 py-2 bg-yellow-100 text-yellow-900 border-2 border-yellow-400 rounded-xl shadow-sm select-none" id="split-bx-tile">−21x</div>
 <span class="text-slate-500">=</span><span class="text-slate-500">(</span>
 <div class="min-w-[132px] px-2 py-2 bg-yellow-100 text-yellow-950 border-2 border-yellow-400 rounded-xl shadow-sm transition-all select-none" draggable="false" id="card-px">
 <div class="flex items-center justify-center gap-1.5" id="split-editor-p">
@@ -872,14 +942,10 @@
 <p class="text-[10px] text-emerald-700 font-bold">✓ Both clues work. Drag the two yellow tiles above into the matching open cells of the area model.</p>
 </div>
 <p class="text-[11px] text-slate-500 text-center min-h-[1.25rem]" id="sign-choice-feedback">Choose signs and coefficients for the two yellow split terms.</p>
-<div class="flex items-center justify-center gap-2">
-<button aria-pressed="false" class="pq-reason-button px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 text-[10px] font-bold transition-all" id="btn-explain-pq-sum" type="button"><i class="fa-solid fa-plus mr-1"></i> Why the sum?</button>
-<button aria-pressed="false" class="pq-reason-button px-3 py-1.5 rounded-lg border border-indigo-300 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 text-[10px] font-bold transition-all" id="btn-explain-pq-product" type="button"><i class="fa-solid fa-xmark mr-1"></i> Why the product?</button>
-</div>
 </div>
 <div class="hidden" id="product-target-display">Build the two clues</div>
 <div class="hidden" id="target-description"></div>
-</div></div><!-- STAGE 3: Student-generated row/column factors --><div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md" id="gcf-border-selection-card">
+</div></div><!-- STAGE 3: Student-generated row/column factors --><div class="hidden bg-white border border-slate-200 rounded-2xl p-6 shadow-md" id="gcf-border-selection-card">
 <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-2 flex items-center gap-1.5">
 <span aria-label="Outside factors not complete" class="section-progress-circle" id="progress-circle-borders" role="status" title="Outside factors"></span>
 <i class="fa-solid fa-border-all text-indigo-500"></i> Outside factors
@@ -931,7 +997,7 @@
 </div>
 </div>
 <p class="text-[10px] text-slate-400 text-center italic mt-4" id="border-entry-feedback">Enter a common factor around the mini model and press Check. If it is correct, drag the generated tile to the matching border of the main area model. You can still type directly into a main-model border as an alternate method.</p>
-</div><!-- STAGE 4: Parentheses / conventional form --><div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md" id="parenthesis-card">
+</div><!-- STAGE 4: Parentheses / conventional form --><div class="hidden bg-white border border-slate-200 rounded-2xl p-6 shadow-md" id="parenthesis-card">
 <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
 <span aria-label="Binomial factors not complete" class="section-progress-circle" id="progress-circle-final" role="status" title="Write the binomial factors"></span>
 <i class="fa-solid fa-arrow-right-to-bracket text-blue-500"></i> Write the binomial factors
@@ -962,7 +1028,7 @@
 <!-- Interactive App Script -->
 <script>
 
-        // v76: persistent final equality in floating workspace + protected floating window + auto-collapsing stages.
+        // v77: progressive stage disclosure + explicit middle-term split + persistent final equality.
         const siteHeader = document.getElementById('site-header');
         const fixedWorkspace = document.getElementById('fixed-workspace');
         const stageScrollContainer = document.getElementById('stage-scroll-container');
@@ -1009,7 +1075,6 @@
         let signQChoice = null;
         let targetsVerified = false;
         let splitVerified = false;
-        let pqExplanationMode = null; // 'sum' or 'product'; visual only, never reveals an unverified numeric target.
         let pqHelperOpen = false; // The middle-term tile opens this optional helper on demand.
         // v67: students identify the two split clues by clicking terms in the displayed polynomial.
         let splitClueOuterA = false;
@@ -1070,6 +1135,14 @@
         const btnToolChart = document.getElementById('btn-tool-chart');
         const toolCalculatorPanel = document.getElementById('tool-calculator-panel');
         const toolChartPanel = document.getElementById('tool-chart-panel');
+        const calculatorToolWindow = document.getElementById('calculator-tool-window');
+        const chartToolWindow = document.getElementById('chart-tool-window');
+        const calculatorToolWindowHeader = document.getElementById('calculator-tool-window-header');
+        const chartToolWindowHeader = document.getElementById('chart-tool-window-header');
+        const btnCloseCalculatorWindow = document.getElementById('btn-close-calculator-window');
+        const btnCloseChartWindow = document.getElementById('btn-close-chart-window');
+        const btnResetCalculatorWindow = document.getElementById('btn-reset-calculator-window');
+        const btnResetChartWindow = document.getElementById('btn-reset-chart-window');
         const calculatorDisplay = document.getElementById('calculator-display');
         const calculatorKeypad = document.getElementById('calculator-keypad');
         const toolChartTarget = document.getElementById('tool-chart-target');
@@ -1164,16 +1237,10 @@
         const signChoiceFeedback = document.getElementById('sign-choice-feedback');
         const pqProductCondition = document.getElementById('pq-product-condition');
         const pqSumCondition = document.getElementById('pq-sum-condition');
-        const btnExplainPqSum = document.getElementById('btn-explain-pq-sum');
-        const btnExplainPqProduct = document.getElementById('btn-explain-pq-product');
-        const btnClosePqExplanation = document.getElementById('btn-close-pq-explanation');
-        const pqModelExplanation = document.getElementById('pq-model-explanation');
-        const pqModelExplanationTitle = document.getElementById('pq-model-explanation-title');
-        const pqModelExplanationEquation = document.getElementById('pq-model-explanation-equation');
-        const pqModelExplanationSteps = document.getElementById('pq-model-explanation-steps');
         const areaModelGrid = document.getElementById('area-model-grid');
         const splitTermPlacement = document.getElementById('split-term-placement');
         const splitBxTile = document.getElementById('split-bx-tile');
+        const splitMiddleTermLabel = document.getElementById('split-middle-term-label');
         const cardPx = document.getElementById('card-px');
         const cardQx = document.getElementById('card-qx');
         const splitEditorP = document.getElementById('split-editor-p');
@@ -1206,6 +1273,10 @@
                 // Re-check after the drawer's slide transition reaches its final edge.
                 window.setTimeout(() => scheduleFloatingConstraint(), 280);
             }
+            requestAnimationFrame(() => {
+                constrainFloatingTool?.(calculatorToolWindow, { kind: 'calculator' });
+                constrainFloatingTool?.(chartToolWindow, { kind: 'chart' });
+            });
             if (stagesDrawerOpen && focus && instructionColumn) {
                 requestAnimationFrame(() => instructionColumn.focus?.({ preventScroll: true }));
             }
@@ -1804,54 +1875,6 @@
             });
         }
 
-        function clearPqExplanation() {
-            pqExplanationMode = null;
-            areaModelGrid.classList.remove('pq-explain-sum', 'pq-explain-product');
-            pqModelExplanation.classList.add('hidden');
-            btnExplainPqSum.setAttribute('aria-pressed', 'false');
-            btnExplainPqProduct.setAttribute('aria-pressed', 'false');
-        }
-
-        function renderPqExplanation() {
-            if (!pqExplanationMode) return;
-            areaModelGrid.classList.remove('pq-explain-sum', 'pq-explain-product');
-            areaModelGrid.classList.add(pqExplanationMode === 'sum' ? 'pq-explain-sum' : 'pq-explain-product');
-            pqModelExplanation.classList.remove('hidden');
-            btnExplainPqSum.setAttribute('aria-pressed', pqExplanationMode === 'sum' ? 'true' : 'false');
-            btnExplainPqProduct.setAttribute('aria-pressed', pqExplanationMode === 'product' ? 'true' : 'false');
-
-            if (pqExplanationMode === 'sum') {
-                pqModelExplanation.className = 'w-full mb-4 rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-3';
-                pqModelExplanationTitle.textContent = 'Why must the two numbers add to the middle coefficient?';
-                pqModelExplanationEquation.innerHTML = '<span class="text-amber-900">split term 1 + split term 2 = original middle term</span>';
-                pqModelExplanationSteps.innerHTML = 'The two <strong>yellow middle cells</strong> replace the original middle term, so their coefficients must add to the original middle coefficient.';
-                pqModelExplanationSteps.innerHTML += ` For this polynomial, the required sum is <span class="font-mono font-bold">${workB}</span>.`;
-            } else {
-                pqModelExplanation.className = 'w-full mb-4 rounded-xl border-2 border-indigo-300 bg-indigo-50 px-4 py-3';
-                pqModelExplanationTitle.textContent = 'Why must the two numbers multiply to the outer-coefficient product?';
-                pqModelExplanationEquation.innerHTML = '<span class="text-indigo-900">outer-cell product = middle-cell product</span>';
-                pqModelExplanationSteps.innerHTML = 'The dashed diagonals pair opposite cells. In a completed area model, those diagonal products are equal, so the two split coefficients must multiply to the product of the first and constant coefficients.';
-                if (targetsVerified) {
-                    pqModelExplanationSteps.innerHTML += ` For this polynomial, the required product is <span class="font-mono font-bold">${workA * workC}</span>.`;
-                }
-            }
-        }
-
-        function togglePqExplanation(mode) {
-            if (pqExplanationMode === mode) {
-                clearPqExplanation();
-                return;
-            }
-            pqExplanationMode = mode;
-            renderPqExplanation();
-            // Keep the visual anchored to the model without forcing a stage transition.
-            pqModelExplanation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
-        btnExplainPqSum.addEventListener('click', () => togglePqExplanation('sum'));
-        btnExplainPqProduct.addEventListener('click', () => togglePqExplanation('product'));
-        btnClosePqExplanation.addEventListener('click', clearPqExplanation);
-
         function getLiveProgressState() {
             // Read the mathematics that is actually visible in the workspace instead of relying
             // on older stage flags. This prevents a circle from staying green after a student
@@ -1898,6 +1921,40 @@
             final: { card: parenthesisCard, title: 'Write the binomial factors', wasDone: false, reopened: false }
         };
         let stagesDrawerAutoClosedForCompletion = false;
+        const progressiveStageState = { outsideShown: false, finalShown: false };
+
+        function scrollStageIntoView(card) {
+            if (!card || !instructionColumn) return;
+            requestAnimationFrame(() => {
+                const targetTop = Math.max(0, card.offsetTop - instructionColumn.offsetTop - 58);
+                instructionColumn.scrollTo({ top: targetTop, behavior: 'smooth' });
+            });
+        }
+
+        function syncProgressiveStageVisibility(progress) {
+            // Stage 1 is always available. Stage 2 is disclosed by selecting the middle term.
+            // Later stages are not shown until the mathematics makes them relevant.
+            const outsideAvailable = Boolean(progress.areaModelDone || progress.bordersDone || progress.finalDone);
+            const finalAvailable = Boolean(progress.bordersDone || progress.finalDone);
+
+            if (gcfBorderSelectionCard) {
+                gcfBorderSelectionCard.classList.toggle('hidden', !outsideAvailable);
+                if (outsideAvailable && !progressiveStageState.outsideShown) {
+                    progressiveStageState.outsideShown = true;
+                    setStagesDrawerOpen(true);
+                    scrollStageIntoView(gcfBorderSelectionCard);
+                }
+            }
+
+            if (parenthesisCard) {
+                parenthesisCard.classList.toggle('hidden', !finalAvailable);
+                if (finalAvailable && !progressiveStageState.finalShown) {
+                    progressiveStageState.finalShown = true;
+                    setStagesDrawerOpen(true);
+                    scrollStageIntoView(parenthesisCard);
+                }
+            }
+        }
 
         function initStageAutoCollapse() {
             Object.entries(stageAutoCollapseState).forEach(([key, state]) => {
@@ -1955,6 +2012,8 @@
             setSectionProgress(progressCircleMiddle, progress.areaModelDone, 'Area model');
             setSectionProgress(progressCircleBorders, progress.bordersDone, 'Outside factors');
             setSectionProgress(progressCircleFinal, progress.finalDone, 'Binomial factors');
+
+            syncProgressiveStageVisibility(progress);
 
             // Keep a stage open while the student still needs the manipulatives it contains.
             const placeTermsReadyToCollapse = progress.outerDone && (pqHelperOpen || progress.splitDone);
@@ -2467,6 +2526,10 @@
             correctGCFBorders = { row1:'',row2:'',col1:'',col2:'' };
             pendingBorderEntries = { row1:'',row2:'',col1:'',col2:'' };
             borderAttemptState = { row1:'idle',row2:'idle',col1:'idle',col2:'idle' };
+            progressiveStageState.outsideShown = false;
+            progressiveStageState.finalShown = false;
+            if (gcfBorderSelectionCard) gcfBorderSelectionCard.classList.add('hidden');
+            if (parenthesisCard) parenthesisCard.classList.add('hidden');
 
             [cellTlValue,cellTrValue,cellBlValue,cellBrValue].forEach(el => el.textContent='');
             ['tl','tr','bl','br'].forEach(pos => setCellVisual(pos,'empty'));
@@ -2520,7 +2583,8 @@
             signChoiceFeedback.className='text-[11px] text-slate-500 text-center min-h-[1.25rem]';
             splitTermPlacement.classList.add('hidden');
             splitTermPlacement.classList.remove('flex');
-            splitBxTile.textContent='middle term';
+            splitBxTile.textContent=linearText(workB);
+            if (splitMiddleTermLabel) splitMiddleTermLabel.textContent=linearText(workB);
             if (previewSplit1) previewSplit1.textContent='?x';
             if (previewSplit2) previewSplit2.textContent='?x';
 
@@ -2590,6 +2654,8 @@
             cardAx2.textContent=quadraticText(workA);
             cardBx.textContent=linearText(workB);
             cardC.textContent=String(workC);
+            splitBxTile.textContent=linearText(workB);
+            if (splitMiddleTermLabel) splitMiddleTermLabel.textContent=linearText(workB);
 
             const ac=workA*workC;
             updateSplitClueDisplays();
@@ -2601,7 +2667,6 @@
             }
 
             manageLayoutProgressFlow();
-            if (pqExplanationMode) renderPqExplanation();
             updateProgressChecklist();
         }
 
@@ -3000,30 +3065,158 @@
             updateProgressChecklist();
         }
 
-        // ---- Always-available student tools ----
-        let activeTool = null;
+        // ---- Always-available student tools: each opens in its own floating window ----
         let calcValue = '0';
         let calcStoredValue = null;
         let calcOperator = null;
         let calcWaitingForOperand = false;
         let calcJustEvaluated = false;
+        let floatingToolZ = 160;
+        const floatingToolState = new Map();
 
-        function setActiveTool(tool) {
-            const nextTool = activeTool === tool ? null : tool;
-            activeTool = nextTool;
-            toolCalculatorPanel.classList.toggle('hidden', nextTool !== 'calculator');
-            toolChartPanel.classList.toggle('hidden', nextTool !== 'chart');
-            btnToolCalculator.setAttribute('aria-expanded', nextTool === 'calculator' ? 'true' : 'false');
-            btnToolChart.setAttribute('aria-expanded', nextTool === 'chart' ? 'true' : 'false');
-            const openedPanel = nextTool === 'calculator' ? toolCalculatorPanel : nextTool === 'chart' ? toolChartPanel : null;
-            if (openedPanel && areaModelFloating) {
-                requestAnimationFrame(() => openedPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
-            }
-            if (nextTool === 'chart') toolChartTarget.focus();
+        function floatingToolSafeTop() {
+            const headerRect = siteHeader ? siteHeader.getBoundingClientRect() : null;
+            const headerBottom = headerRect && Number.isFinite(headerRect.bottom) ? headerRect.bottom : 72;
+            return Math.max(16, Math.ceil(headerBottom) + 12);
         }
 
-        btnToolCalculator.addEventListener('click', () => setActiveTool('calculator'));
-        btnToolChart.addEventListener('click', () => setActiveTool('chart'));
+        function floatingToolHorizontalBounds(panelWidth) {
+            const margin = 12;
+            let minLeft = margin;
+            if (stagesDrawerOpen && instructionColumn) {
+                const drawerRect = instructionColumn.getBoundingClientRect();
+                const preferred = Math.ceil(drawerRect.right) + margin;
+                const available = window.innerWidth - preferred - margin;
+                if (available >= Math.min(panelWidth, 300)) minLeft = preferred;
+            } else if (stageDrawerTab) {
+                const tabRect = stageDrawerTab.getBoundingClientRect();
+                minLeft = Math.max(margin, Math.ceil(tabRect.right) + margin);
+            }
+            const maxLeft = Math.max(minLeft, window.innerWidth - Math.min(panelWidth, window.innerWidth - margin * 2) - margin);
+            return { minLeft, maxLeft };
+        }
+
+        function bringFloatingToolToFront(win) {
+            if (!win) return;
+            floatingToolZ += 1;
+            win.style.zIndex = String(floatingToolZ);
+        }
+
+        function constrainFloatingTool(win, { recenter = false, kind = 'calculator' } = {}) {
+            if (!win || !win.classList.contains('is-open')) return;
+            const margin = 12;
+            const safeTop = floatingToolSafeTop();
+            let rect = win.getBoundingClientRect();
+            const bounds = floatingToolHorizontalBounds(rect.width);
+            let left = Number.parseFloat(win.style.left);
+            let top = Number.parseFloat(win.style.top);
+            if (!Number.isFinite(left)) left = rect.left;
+            if (!Number.isFinite(top)) top = rect.top;
+            if (recenter) {
+                const preferredTop = safeTop + (kind === 'chart' ? 56 : 18);
+                const preferredLeft = kind === 'chart'
+                    ? Math.max(bounds.minLeft, Math.min(bounds.maxLeft, bounds.minLeft + 36))
+                    : Math.max(bounds.minLeft, bounds.maxLeft);
+                left = preferredLeft;
+                top = preferredTop;
+                win.style.width = kind === 'chart'
+                    ? `${Math.min(590, Math.max(420, window.innerWidth - left - margin))}px`
+                    : `${Math.min(350, Math.max(300, window.innerWidth - left - margin))}px`;
+                win.style.height = '';
+                rect = win.getBoundingClientRect();
+            }
+            const header = win.querySelector('.floating-tool-window-header');
+            const headerHeight = Math.max(44, header ? header.getBoundingClientRect().height : 44);
+            const maxTop = Math.max(safeTop, window.innerHeight - headerHeight - margin);
+            top = Math.min(maxTop, Math.max(safeTop, top));
+            rect = win.getBoundingClientRect();
+            const newBounds = floatingToolHorizontalBounds(rect.width);
+            left = Math.min(newBounds.maxLeft, Math.max(newBounds.minLeft, left));
+            win.style.left = `${left}px`;
+            win.style.top = `${top}px`;
+            win.style.right = 'auto';
+            win.style.maxWidth = `${Math.max(280, window.innerWidth - left - margin)}px`;
+            win.style.maxHeight = `${Math.max(headerHeight + 40, window.innerHeight - top - margin)}px`;
+            rect = win.getBoundingClientRect();
+            if (rect.right > window.innerWidth - margin) {
+                win.style.width = `${Math.max(280, window.innerWidth - left - margin)}px`;
+            }
+            if (rect.bottom > window.innerHeight - margin) {
+                win.style.height = `${Math.max(headerHeight + 40, window.innerHeight - top - margin)}px`;
+            }
+        }
+
+        function setFloatingToolOpen(kind, open) {
+            const isCalc = kind === 'calculator';
+            const win = isCalc ? calculatorToolWindow : chartToolWindow;
+            const btn = isCalc ? btnToolCalculator : btnToolChart;
+            if (!win || !btn) return;
+            win.classList.toggle('is-open', Boolean(open));
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (open) {
+                bringFloatingToolToFront(win);
+                requestAnimationFrame(() => constrainFloatingTool(win, { recenter: !floatingToolState.get(kind), kind }));
+                floatingToolState.set(kind, true);
+                if (!isCalc) requestAnimationFrame(() => toolChartTarget?.focus());
+            }
+        }
+
+        function toggleFloatingTool(kind) {
+            const win = kind === 'calculator' ? calculatorToolWindow : chartToolWindow;
+            setFloatingToolOpen(kind, !win?.classList.contains('is-open'));
+        }
+
+        function makeFloatingToolDraggable(win, header, kind) {
+            if (!win || !header) return;
+            let drag = null;
+            header.addEventListener('pointerdown', (event) => {
+                if (event.button !== 0 || event.target.closest('button')) return;
+                const rect = win.getBoundingClientRect();
+                drag = { pointerId: event.pointerId, offsetX: event.clientX - rect.left, offsetY: event.clientY - rect.top };
+                bringFloatingToolToFront(win);
+                header.setPointerCapture?.(event.pointerId);
+                event.preventDefault();
+            });
+            header.addEventListener('pointermove', (event) => {
+                if (!drag || event.pointerId !== drag.pointerId) return;
+                const rect = win.getBoundingClientRect();
+                const safeTop = floatingToolSafeTop();
+                const bounds = floatingToolHorizontalBounds(rect.width);
+                const headerHeight = Math.max(44, header.getBoundingClientRect().height);
+                const maxTop = Math.max(safeTop, window.innerHeight - headerHeight - 12);
+                const left = Math.min(bounds.maxLeft, Math.max(bounds.minLeft, event.clientX - drag.offsetX));
+                const top = Math.min(maxTop, Math.max(safeTop, event.clientY - drag.offsetY));
+                win.style.left = `${left}px`;
+                win.style.top = `${top}px`;
+            });
+            const endDrag = (event) => {
+                if (!drag || (event && event.pointerId !== drag.pointerId)) return;
+                try { header.releasePointerCapture?.(drag.pointerId); } catch (_) {}
+                drag = null;
+                constrainFloatingTool(win, { kind });
+            };
+            header.addEventListener('pointerup', endDrag);
+            header.addEventListener('pointercancel', endDrag);
+            win.addEventListener('pointerdown', () => bringFloatingToolToFront(win));
+            if ('ResizeObserver' in window) {
+                const ro = new ResizeObserver(() => constrainFloatingTool(win, { kind }));
+                ro.observe(win);
+            }
+        }
+
+        btnToolCalculator.addEventListener('click', () => toggleFloatingTool('calculator'));
+        btnToolChart.addEventListener('click', () => toggleFloatingTool('chart'));
+        btnCloseCalculatorWindow?.addEventListener('click', () => setFloatingToolOpen('calculator', false));
+        btnCloseChartWindow?.addEventListener('click', () => setFloatingToolOpen('chart', false));
+        btnResetCalculatorWindow?.addEventListener('click', () => constrainFloatingTool(calculatorToolWindow, { recenter: true, kind: 'calculator' }));
+        btnResetChartWindow?.addEventListener('click', () => constrainFloatingTool(chartToolWindow, { recenter: true, kind: 'chart' }));
+        makeFloatingToolDraggable(calculatorToolWindow, calculatorToolWindowHeader, 'calculator');
+        makeFloatingToolDraggable(chartToolWindow, chartToolWindowHeader, 'chart');
+
+        window.addEventListener('resize', () => {
+            constrainFloatingTool(calculatorToolWindow, { kind: 'calculator' });
+            constrainFloatingTool(chartToolWindow, { kind: 'chart' });
+        });
 
         function updateCalculatorDisplay() {
             calculatorDisplay.textContent = calcValue;
@@ -3607,7 +3800,6 @@
         // Layout controller for the student-facing four-stage workflow.
         function configureFinalFactorSection() {
             const allSolved=Object.values(solvedGCFBorders).every(v=>v!==null);
-            parenthesisCard.classList.remove('hidden');
             if (!allSolved) {
                 finalFactorData=null;
                 parenthesisFactor1.onclick=null;
@@ -3620,6 +3812,7 @@
                 return;
             }
 
+            parenthesisCard.classList.remove('hidden');
             finalFactorData=getFinalFactorDataFromBorders();
             const rawFactor1=formatBorderBinomial(solvedGCFBorders.row1,solvedGCFBorders.row2);
             const rawFactor2=formatBorderBinomial(solvedGCFBorders.col1,solvedGCFBorders.col2);
@@ -3647,8 +3840,6 @@
             termCardsContainer.classList.remove('hidden');
             syncPqHelperVisibility();
             factorInputsRow.classList.remove('hidden');
-            gcfBorderSelectionCard.classList.remove('hidden');
-            parenthesisCard.classList.remove('hidden');
             termCardsHeading.textContent='Place terms';
             termCardsHelp.textContent='Place the outer terms. The two yellow ?x tiles show that the middle term must be split before it can fill the two open middle cells.';
             if (splitVerified) {
