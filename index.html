@@ -315,7 +315,7 @@
 
         /* v63: instructional stages live in a left slide-out drawer. */
         :root {
-            --stage-drawer-width: min(440px, calc(100vw - 72px));
+            --stage-drawer-width: min(580px, calc(100vw - 56px));
             --stage-drawer-top: 88px;
         }
         #stage-scroll-container {
@@ -390,10 +390,60 @@
             flex: 0 0 auto;
         }
         @media (max-width: 599px) {
-            :root { --stage-drawer-width: min(92vw, 390px); }
+            :root { --stage-drawer-width: min(96vw, 520px); }
             #stage-scroll-container { bottom: 8px; border-radius: 0 14px 14px 0; }
             #stage-drawer-tab { width: 40px; min-height: 104px; }
         }
+        /* v72: completed instructional stages collapse to a compact, reopenable summary. */
+        .stage-collapse-summary {
+            display: none;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            gap: .75rem;
+            padding: .15rem 0;
+            color: rgb(15 23 42);
+            background: transparent;
+            border: 0;
+            text-align: left;
+            cursor: pointer;
+        }
+        .stage-collapse-summary .stage-summary-check {
+            width: 1.35rem;
+            height: 1.35rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            background: rgb(16 185 129);
+            color: white;
+            font-size: .72rem;
+            font-weight: 900;
+        }
+        .stage-auto-collapsed {
+            padding-top: .85rem !important;
+            padding-bottom: .85rem !important;
+            border-color: rgb(167 243 208) !important;
+            background: rgb(240 253 250 / .7) !important;
+        }
+        .stage-auto-collapsed > :not(.stage-collapse-summary) {
+            display: none !important;
+        }
+        .stage-auto-collapsed > .stage-collapse-summary {
+            display: flex !important;
+        }
+        .stage-auto-collapsed .stage-summary-chevron {
+            color: rgb(71 85 105);
+        }
+        #outside-factor-pairs input {
+            min-width: 76px !important;
+        }
+        #outside-factor-pairs [id^="outside-pair-col"],
+        #outside-factor-pairs [id^="outside-pair-row"] {
+            min-width: 0;
+        }
+
         @media (prefers-reduced-motion: reduce) {
             #stage-scroll-container, #stage-drawer-tab { transition: none; }
         }
@@ -845,7 +895,7 @@
                     </p>
 <div class="mb-4" id="outside-factor-pairs">
 <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-3">
-<div class="grid gap-2 items-stretch" style="grid-template-columns:minmax(86px,0.8fr) repeat(2,minmax(92px,1fr)); grid-template-rows:auto repeat(2,minmax(74px,auto));">
+<div class="grid gap-2 items-stretch" style="grid-template-columns:minmax(130px,0.85fr) repeat(2,minmax(150px,1fr)); grid-template-rows:auto repeat(2,minmax(74px,auto));">
 <div></div>
 <div class="rounded-xl border border-blue-200 bg-blue-50/60 p-2 text-center" id="outside-pair-col1">
 <div class="flex items-center justify-center gap-1.5">
@@ -915,13 +965,13 @@
 <!-- Footer -->
 <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
 <div class="max-w-6xl mx-auto px-4">
-<p>Interactive Area Model v68 — protected floating workspace with built-in student tools.</p>
+<p>Interactive Area Model v72 — wider stages drawer with auto-collapsing completed stages.</p>
 </div>
 </footer>
 <!-- Interactive App Script -->
 <script>
 
-        // v65: the factoring workspace floats independently; instructional stages generate the manipulatives used in the model.
+        // v72: floating factoring workspace + wider, auto-collapsing instructional stages drawer.
         const siteHeader = document.getElementById('site-header');
         const fixedWorkspace = document.getElementById('fixed-workspace');
         const stageScrollContainer = document.getElementById('stage-scroll-container');
@@ -1389,7 +1439,12 @@
         function openPqHelper({ focus = false } = {}) {
             pqHelperOpen = true;
             setStagesDrawerOpen(true);
+            if (multiplicationCard && multiplicationCard.classList.contains('stage-auto-collapsed')) {
+                multiplicationCard.classList.remove('stage-auto-collapsed');
+                if (stageAutoCollapseState && stageAutoCollapseState.split) stageAutoCollapseState.split.reopened = true;
+            }
             syncPqHelperVisibility();
+            updateProgressChecklist();
             requestAnimationFrame(() => {
                 if (instructionColumn) {
                     const targetTop = Math.max(0, multiplicationCard.offsetTop - instructionColumn.offsetTop - 58);
@@ -1736,6 +1791,62 @@
             };
         }
 
+        const stageAutoCollapseState = {
+            outer: { card: termCardsContainer, title: 'Place terms', wasDone: false, reopened: false },
+            split: { card: multiplicationCard, title: 'Split the middle term', wasDone: false, reopened: false },
+            borders: { card: gcfBorderSelectionCard, title: 'Outside factors', wasDone: false, reopened: false },
+            final: { card: parenthesisCard, title: 'Write the binomial factors', wasDone: false, reopened: false }
+        };
+        let stagesDrawerAutoClosedForCompletion = false;
+
+        function initStageAutoCollapse() {
+            Object.entries(stageAutoCollapseState).forEach(([key, state]) => {
+                const card = state.card;
+                if (!card || card.querySelector(':scope > .stage-collapse-summary')) return;
+                const summary = document.createElement('button');
+                summary.type = 'button';
+                summary.className = 'stage-collapse-summary';
+                summary.setAttribute('aria-label', `Reopen completed stage: ${state.title}`);
+                summary.innerHTML = `
+                    <span class="flex items-center gap-2 min-w-0">
+                        <span class="stage-summary-check" aria-hidden="true">✓</span>
+                        <span class="text-xs font-extrabold uppercase tracking-wider truncate">${state.title}</span>
+                    </span>
+                    <span class="stage-summary-chevron text-xs" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>`;
+                summary.addEventListener('click', () => {
+                    card.classList.remove('stage-auto-collapsed');
+                    state.reopened = true;
+                    requestAnimationFrame(() => {
+                        const firstFocusable = card.querySelector('button:not(.stage-collapse-summary), input, [tabindex="0"]');
+                        if (firstFocusable && typeof firstFocusable.focus === 'function') firstFocusable.focus({ preventScroll: true });
+                    });
+                });
+                card.insertBefore(summary, card.firstChild);
+            });
+        }
+
+        function syncStageAutoCollapse(key, done) {
+            const state = stageAutoCollapseState[key];
+            if (!state || !state.card) return;
+            const card = state.card;
+
+            if (!done) {
+                card.classList.remove('stage-auto-collapsed');
+                state.wasDone = false;
+                state.reopened = false;
+                return;
+            }
+
+            if (!state.wasDone) {
+                state.wasDone = true;
+                state.reopened = false;
+                card.classList.add('stage-auto-collapsed');
+                return;
+            }
+
+            if (!state.reopened) card.classList.add('stage-auto-collapsed');
+        }
+
         function updateProgressChecklist() {
             const progress = getLiveProgressState();
 
@@ -1744,6 +1855,22 @@
             setSectionProgress(progressCircleMiddle, progress.areaModelDone, 'Area model');
             setSectionProgress(progressCircleBorders, progress.bordersDone, 'Outside factors');
             setSectionProgress(progressCircleFinal, progress.finalDone, 'Binomial factors');
+
+            // Keep a stage open while the student still needs the manipulatives it contains.
+            const placeTermsReadyToCollapse = progress.outerDone && (pqHelperOpen || progress.splitDone);
+            syncStageAutoCollapse('outer', placeTermsReadyToCollapse);
+            syncStageAutoCollapse('split', progress.areaModelDone);
+            syncStageAutoCollapse('borders', progress.bordersDone);
+            syncStageAutoCollapse('final', progress.finalDone);
+
+            // Once the full factorization is complete, tuck away the whole stages drawer once.
+            // The Stages tab can immediately reopen it and it will stay open until the next problem.
+            if (progress.finalDone && !stagesDrawerAutoClosedForCompletion) {
+                stagesDrawerAutoClosedForCompletion = true;
+                setStagesDrawerOpen(false);
+            } else if (!progress.finalDone) {
+                stagesDrawerAutoClosedForCompletion = false;
+            }
 
             // Give useful detail without adding another progress card.
             if (progressCircleBorders && !progress.bordersDone) {
@@ -3453,6 +3580,7 @@
         attachEditableCell(cellBrValue,'br');
 
         // Run initial open-workspace configuration.
+        initStageAutoCollapse();
         prepareBorderEntrySlots();
         calculate();
     
