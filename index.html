@@ -1,4 +1,4 @@
-<!-- Trinomial Factorization Helper v56: persistent independent scrollbars + corrected mathematical progress monitoring -->
+<!-- Trinomial Factorization Helper v59: floating/dockable area model + compact collapsible problem setup -->
 <!DOCTYPE html>
 
 <html lang="en">
@@ -221,6 +221,61 @@
             }
         }
 
+        /* v59: dockable floating area-model window and compact problem setup. */
+        #floating-area-model-card {
+            min-width: 360px;
+            transition: box-shadow .18s ease, border-color .18s ease;
+        }
+        #floating-area-model-card.is-floating {
+            position: fixed !important;
+            top: 104px;
+            right: 24px;
+            width: 430px;
+            max-width: calc(100vw - 32px);
+            max-height: calc(100vh - 128px);
+            z-index: 90;
+            overflow: auto;
+            resize: both;
+            box-shadow: 0 24px 60px rgb(15 23 42 / .24);
+            border-color: rgb(129 140 248);
+        }
+        #floating-area-model-card.is-floating .area-model-window-header {
+            cursor: move;
+            user-select: none;
+        }
+        #floating-area-model-card.is-minimized {
+            min-width: 300px;
+            width: 360px;
+            resize: none;
+        }
+        #floating-area-model-card.is-minimized > :not(.area-model-window-header) {
+            display: none !important;
+        }
+        #floating-area-model-card.is-minimized .area-model-window-header {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+            border-bottom: 0 !important;
+        }
+        #problem-setup-card {
+            width: min(100%, 620px);
+            align-self: flex-start;
+        }
+        #problem-setup-body[hidden] { display: none !important; }
+        @media (max-width: 767px) {
+            #floating-area-model-card.is-floating {
+                position: relative !important;
+                top: auto !important;
+                left: auto !important;
+                right: auto !important;
+                width: 100% !important;
+                max-width: none !important;
+                max-height: none !important;
+                resize: none !important;
+            }
+            #btn-float-area-model, #btn-dock-area-model { display: none !important; }
+            #floating-area-model-card { min-width: 0; }
+        }
+
 </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
@@ -260,13 +315,18 @@
 <div class="text-[10px] font-bold tracking-wider text-slate-400">area model represents</div>
 <div class="mt-1 math-font text-sm font-bold text-slate-700" id="area-model-expression-display"></div>
 </div>
-</div><div class="bg-white border border-slate-200 rounded-2xl shadow-md flex flex-col items-center justify-center relative p-4" data-layout-role="fixed-area-model">
-<div class="flex w-full items-center justify-between mb-6 border-b border-slate-100 pb-2">
+</div><div class="bg-white border border-slate-200 rounded-2xl shadow-md flex flex-col items-center justify-center relative p-4" data-layout-role="fixed-area-model" id="floating-area-model-card">
+<div class="area-model-window-header flex w-full items-center justify-between gap-3 mb-6 border-b border-slate-100 pb-2" id="area-model-window-header">
 <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
 <span aria-label="Area model not complete" class="section-progress-circle" id="progress-circle-middle" role="status" title="Complete the area model"></span>
 <i class="fa-solid fa-table-cells-large text-purple-500"></i> The 2x2 Area Model
                         </h3>
-<span class="px-2 py-0.5 bg-slate-100 text-slate-500 font-bold tracking-wide uppercase text-[9px] rounded-full border border-slate-200" id="active-status-pill">Open workspace</span>
+<div class="flex items-center gap-1.5 shrink-0">
+<span class="hidden sm:inline-flex px-2 py-0.5 bg-slate-100 text-slate-500 font-bold tracking-wide uppercase text-[9px] rounded-full border border-slate-200" id="active-status-pill">Open workspace</span>
+<button class="px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-[10px] font-extrabold hover:bg-indigo-100 transition-colors" id="btn-float-area-model" type="button" title="Float the area model">Float</button>
+<button class="hidden px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 text-[10px] font-extrabold hover:bg-slate-100 transition-colors" id="btn-dock-area-model" type="button" title="Dock the area model">Dock</button>
+<button class="w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-600 text-xs font-bold hover:bg-slate-100 transition-colors" id="btn-minimize-area-model" type="button" aria-label="Minimize area model" title="Minimize area model">−</button>
+</div>
 </div>
 <!-- Once p and q are verified, show the split beside the area model. -->
 <div class="hidden w-full mb-5 rounded-xl border-2 border-yellow-300 bg-yellow-50 px-4 py-4 flex-col items-center gap-3 shadow-sm" id="split-term-placement">
@@ -359,18 +419,22 @@
 <div class="sticky top-0 z-20 -mb-2 rounded-xl border border-slate-200 bg-slate-50/95 px-4 py-2 backdrop-blur">
 <div class="flex items-center justify-between gap-3">
 <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Factoring stages</span>
-<span class="text-[10px] text-slate-400">Scroll through the work below; the area model stays visible above.</span>
+<span class="text-[10px] text-slate-400">Scroll through the work below. Float the area model whenever you want it beside your work.</span>
 </div>
-</div><!-- Control Panel Card --><div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md">
-<div class="flex justify-between items-center mb-6">
-<h2 class="text-xl font-extrabold text-slate-950 flex items-center gap-2">
-<i class="fa-solid fa-sliders text-blue-500"></i> Control Panel
-                        </h2>
-<button class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-1.5" id="btn-practice">
+</div><!-- Compact Problem Setup --><div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm" id="problem-setup-card">
+<div class="flex flex-wrap items-center justify-between gap-3">
+<div class="min-w-0">
+<div class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-sliders text-blue-500"></i> Problem setup</div>
+<div class="mt-1 font-mono font-black text-base text-slate-900 truncate" id="problem-setup-summary">2x² - 21x + 40</div>
+</div>
+<div class="flex items-center gap-2">
+<button aria-controls="problem-setup-body" aria-expanded="false" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold transition-all" id="btn-toggle-problem-setup" type="button"><i class="fa-solid fa-pen-to-square mr-1"></i>Edit</button>
+<button class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-1.5" id="btn-practice" type="button">
 <i class="fa-solid fa-dice"></i> Generate Practice
                         </button>
 </div>
-<div class="flex flex-col gap-6">
+</div>
+<div class="flex flex-col gap-6 mt-5 pt-5 border-t border-slate-100" id="problem-setup-body" hidden>
 <!-- Coefficient A Group -->
 <div class="space-y-1.5">
 <div class="grid grid-cols-[84px_1fr_56px] items-center gap-2">
@@ -742,14 +806,14 @@
 <!-- Footer -->
 <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
 <div class="max-w-6xl mx-auto px-4">
-<p>Interactive Area Model v58 — fixed area model with a single scrollable instructional workflow.</p>
+<p>Interactive Area Model v59 — dockable floating area model with compact problem setup.</p>
 </div>
 </footer>
 <!-- Interactive App Script -->
 <script>
 
-        // v58: keep the mathematical workspace beneath the sticky site header,
-        // and size the single stage pane from the remaining viewport height.
+        // v59: keep the docked workspace beneath the sticky site header; when the area model floats,
+        // the instructional pane automatically receives the freed vertical space.
         const siteHeader = document.getElementById('site-header');
         const fixedWorkspace = document.getElementById('fixed-workspace');
         const stageScrollContainer = document.getElementById('stage-scroll-container');
@@ -832,6 +896,15 @@
         const chkForceA = document.getElementById('force-a-one');
 
         const btnPractice = document.getElementById('btn-practice');
+        const problemSetupCard = document.getElementById('problem-setup-card');
+        const problemSetupBody = document.getElementById('problem-setup-body');
+        const btnToggleProblemSetup = document.getElementById('btn-toggle-problem-setup');
+        const problemSetupSummary = document.getElementById('problem-setup-summary');
+        const floatingAreaModelCard = document.getElementById('floating-area-model-card');
+        const areaModelWindowHeader = document.getElementById('area-model-window-header');
+        const btnFloatAreaModel = document.getElementById('btn-float-area-model');
+        const btnDockAreaModel = document.getElementById('btn-dock-area-model');
+        const btnMinimizeAreaModel = document.getElementById('btn-minimize-area-model');
         const equationDisplay = document.getElementById('equation-display');
         const originalEquationReference = document.getElementById('original-equation-reference');
         const originalEquationDisplay = document.getElementById('original-equation-display');
@@ -968,6 +1041,108 @@
         const furtherFactorCard = document.getElementById('further-factor-card');
         const furtherFactorMessage = document.getElementById('further-factor-message');
         const furtherFactorActions = document.getElementById('further-factor-actions');
+
+// v59: compact problem setup + dockable floating area model.
+        function setProblemSetupOpen(open) {
+            if (!problemSetupBody || !btnToggleProblemSetup) return;
+            problemSetupBody.hidden = !open;
+            btnToggleProblemSetup.setAttribute('aria-expanded', String(open));
+            btnToggleProblemSetup.innerHTML = open
+                ? '<i class="fa-solid fa-chevron-up mr-1"></i>Close'
+                : '<i class="fa-solid fa-pen-to-square mr-1"></i>Edit';
+            requestAnimationFrame(syncSingleWorkspaceLayout);
+        }
+
+        if (btnToggleProblemSetup) {
+            btnToggleProblemSetup.addEventListener('click', () => {
+                setProblemSetupOpen(problemSetupBody ? problemSetupBody.hidden : false);
+            });
+        }
+
+        let areaModelFloating = false;
+        let areaModelMinimized = false;
+        let floatingDrag = null;
+
+        function dockAreaModel() {
+            if (!floatingAreaModelCard) return;
+            areaModelFloating = false;
+            floatingAreaModelCard.classList.remove('is-floating');
+            floatingAreaModelCard.style.left = '';
+            floatingAreaModelCard.style.top = '';
+            floatingAreaModelCard.style.right = '';
+            if (btnFloatAreaModel) btnFloatAreaModel.classList.remove('hidden');
+            if (btnDockAreaModel) btnDockAreaModel.classList.add('hidden');
+            requestAnimationFrame(syncSingleWorkspaceLayout);
+        }
+
+        function floatAreaModel() {
+            if (!floatingAreaModelCard || !window.matchMedia('(min-width: 768px)').matches) return;
+            const rect = floatingAreaModelCard.getBoundingClientRect();
+            areaModelFloating = true;
+            floatingAreaModelCard.classList.add('is-floating');
+            const width = Math.min(Math.max(rect.width, 390), 520);
+            floatingAreaModelCard.style.width = `${width}px`;
+            floatingAreaModelCard.style.right = '24px';
+            floatingAreaModelCard.style.left = 'auto';
+            const headerHeight = siteHeader ? siteHeader.getBoundingClientRect().height : 72;
+            floatingAreaModelCard.style.top = `${Math.max(headerHeight + 14, 86)}px`;
+            if (btnFloatAreaModel) btnFloatAreaModel.classList.add('hidden');
+            if (btnDockAreaModel) btnDockAreaModel.classList.remove('hidden');
+            requestAnimationFrame(syncSingleWorkspaceLayout);
+        }
+
+        function setAreaModelMinimized(minimized) {
+            if (!floatingAreaModelCard || !btnMinimizeAreaModel) return;
+            areaModelMinimized = minimized;
+            floatingAreaModelCard.classList.toggle('is-minimized', minimized);
+            btnMinimizeAreaModel.textContent = minimized ? '+' : '−';
+            btnMinimizeAreaModel.setAttribute('aria-label', minimized ? 'Expand area model' : 'Minimize area model');
+            btnMinimizeAreaModel.title = minimized ? 'Expand area model' : 'Minimize area model';
+            requestAnimationFrame(syncSingleWorkspaceLayout);
+        }
+
+        if (btnFloatAreaModel) btnFloatAreaModel.addEventListener('click', floatAreaModel);
+        if (btnDockAreaModel) btnDockAreaModel.addEventListener('click', dockAreaModel);
+        if (btnMinimizeAreaModel) btnMinimizeAreaModel.addEventListener('click', () => setAreaModelMinimized(!areaModelMinimized));
+
+        if (areaModelWindowHeader && floatingAreaModelCard) {
+            areaModelWindowHeader.addEventListener('pointerdown', (event) => {
+                if (!areaModelFloating || event.button !== 0 || event.target.closest('button')) return;
+                const rect = floatingAreaModelCard.getBoundingClientRect();
+                floatingAreaModelCard.style.right = 'auto';
+                floatingAreaModelCard.style.left = `${rect.left}px`;
+                floatingDrag = {
+                    pointerId: event.pointerId,
+                    offsetX: event.clientX - rect.left,
+                    offsetY: event.clientY - rect.top
+                };
+                areaModelWindowHeader.setPointerCapture?.(event.pointerId);
+                event.preventDefault();
+            });
+            areaModelWindowHeader.addEventListener('pointermove', (event) => {
+                if (!floatingDrag || event.pointerId !== floatingDrag.pointerId) return;
+                const rect = floatingAreaModelCard.getBoundingClientRect();
+                const maxLeft = Math.max(8, window.innerWidth - rect.width - 8);
+                const maxTop = Math.max(8, window.innerHeight - Math.min(rect.height, window.innerHeight - 16) - 8);
+                const left = Math.min(maxLeft, Math.max(8, event.clientX - floatingDrag.offsetX));
+                const top = Math.min(maxTop, Math.max(8, event.clientY - floatingDrag.offsetY));
+                floatingAreaModelCard.style.left = `${left}px`;
+                floatingAreaModelCard.style.top = `${top}px`;
+            });
+            const endFloatingDrag = (event) => {
+                if (!floatingDrag || (event && event.pointerId !== floatingDrag.pointerId)) return;
+                try { areaModelWindowHeader.releasePointerCapture?.(floatingDrag.pointerId); } catch (_) {}
+                floatingDrag = null;
+            };
+            areaModelWindowHeader.addEventListener('pointerup', endFloatingDrag);
+            areaModelWindowHeader.addEventListener('pointercancel', endFloatingDrag);
+        }
+
+        window.addEventListener('resize', () => {
+            if (!window.matchMedia('(min-width: 768px)').matches && areaModelFloating) dockAreaModel();
+        });
+
+        setProblemSetupOpen(false);
 
         // ----- v57 MIDDLE-TERM → P/Q HELPER DISCLOSURE -----
         function syncPqHelperVisibility() {
@@ -1458,6 +1633,7 @@
         // Keep the equivalence visible as the middle term is rewritten and placed.
         function updateExpressionProgress() {
             originalEquationDisplay.textContent = formatTrinomial(activeA, activeB, activeC);
+            if (problemSetupSummary) problemSetupSummary.textContent = formatTrinomial(activeA, activeB, activeC);
 
             if (!splitVerified) {
                 if (pulledGCF !== 1) {
