@@ -1,4 +1,4 @@
-<!-- Trinomial Factorization Helper v59: floating/dockable area model + compact collapsible problem setup -->
+<!-- Trinomial Factorization Helper v60: visible auto-floating area model + compact collapsible problem setup -->
 <!DOCTYPE html>
 
 <html lang="en">
@@ -221,7 +221,7 @@
             }
         }
 
-        /* v59: dockable floating area-model window and compact problem setup. */
+        /* v60: visible dockable floating area-model window and compact problem setup. */
         #floating-area-model-card {
             min-width: 360px;
             transition: box-shadow .18s ease, border-color .18s ease;
@@ -261,7 +261,7 @@
             align-self: flex-start;
         }
         #problem-setup-body[hidden] { display: none !important; }
-        @media (max-width: 767px) {
+        @media (max-width: 599px) {
             #floating-area-model-card.is-floating {
                 position: relative !important;
                 top: auto !important;
@@ -319,6 +319,7 @@
 <div class="area-model-window-header flex w-full items-center justify-between gap-3 mb-6 border-b border-slate-100 pb-2" id="area-model-window-header">
 <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
 <span aria-label="Area model not complete" class="section-progress-circle" id="progress-circle-middle" role="status" title="Complete the area model"></span>
+<span id="area-model-window-state" class="hidden text-[9px] font-extrabold tracking-wide uppercase px-2 py-1 rounded-full bg-indigo-100 text-indigo-700">Floating</span>
 <i class="fa-solid fa-table-cells-large text-purple-500"></i> The 2x2 Area Model
                         </h3>
 <div class="flex items-center gap-1.5 shrink-0">
@@ -806,7 +807,7 @@
 <!-- Footer -->
 <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
 <div class="max-w-6xl mx-auto px-4">
-<p>Interactive Area Model v59 — dockable floating area model with compact problem setup.</p>
+<p>Interactive Area Model v60 — visible auto-floating area model with compact problem setup.</p>
 </div>
 </footer>
 <!-- Interactive App Script -->
@@ -904,6 +905,7 @@
         const areaModelWindowHeader = document.getElementById('area-model-window-header');
         const btnFloatAreaModel = document.getElementById('btn-float-area-model');
         const btnDockAreaModel = document.getElementById('btn-dock-area-model');
+        const areaModelWindowState = document.getElementById('area-model-window-state');
         const btnMinimizeAreaModel = document.getElementById('btn-minimize-area-model');
         const equationDisplay = document.getElementById('equation-display');
         const originalEquationReference = document.getElementById('original-equation-reference');
@@ -1072,11 +1074,12 @@
             floatingAreaModelCard.style.right = '';
             if (btnFloatAreaModel) btnFloatAreaModel.classList.remove('hidden');
             if (btnDockAreaModel) btnDockAreaModel.classList.add('hidden');
+            if (areaModelWindowState) areaModelWindowState.classList.add('hidden');
             requestAnimationFrame(syncSingleWorkspaceLayout);
         }
 
         function floatAreaModel() {
-            if (!floatingAreaModelCard || !window.matchMedia('(min-width: 768px)').matches) return;
+            if (!floatingAreaModelCard || !window.matchMedia('(min-width: 600px)').matches) return;
             const rect = floatingAreaModelCard.getBoundingClientRect();
             areaModelFloating = true;
             floatingAreaModelCard.classList.add('is-floating');
@@ -1088,6 +1091,7 @@
             floatingAreaModelCard.style.top = `${Math.max(headerHeight + 14, 86)}px`;
             if (btnFloatAreaModel) btnFloatAreaModel.classList.add('hidden');
             if (btnDockAreaModel) btnDockAreaModel.classList.remove('hidden');
+            if (areaModelWindowState) areaModelWindowState.classList.remove('hidden');
             requestAnimationFrame(syncSingleWorkspaceLayout);
         }
 
@@ -1139,10 +1143,15 @@
         }
 
         window.addEventListener('resize', () => {
-            if (!window.matchMedia('(min-width: 768px)').matches && areaModelFloating) dockAreaModel();
+            if (!window.matchMedia('(min-width: 600px)').matches && areaModelFloating) dockAreaModel();
         });
 
         setProblemSetupOpen(false);
+
+        // v60: make the floating workspace immediately visible on ordinary desktop Chrome windows.
+        requestAnimationFrame(() => {
+            if (window.matchMedia('(min-width: 600px)').matches) floatAreaModel();
+        });
 
         // ----- v57 MIDDLE-TERM → P/Q HELPER DISCLOSURE -----
         function syncPqHelperVisibility() {
