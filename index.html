@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Trinomial Factorization Helper v61: unified floating factoring workspace -->
+<!-- Trinomial Factorization Helper v65: stage-generated manipulatives -->
 
 <html lang="en">
 <head>
@@ -303,6 +303,101 @@
             #floating-area-model-card { min-width: 0; width: 100%; }
             #problem-setup-body { max-height: none; overflow: visible; }
         }
+
+        /* v63: keep the floating workspace grab bar and resize handle recoverable. */
+        #floating-area-model-card.is-floating {
+            box-sizing: border-box;
+        }
+        #btn-recenter-area-model {
+            white-space: nowrap;
+        }
+
+
+        /* v63: instructional stages live in a left slide-out drawer. */
+        :root {
+            --stage-drawer-width: min(380px, calc(100vw - 56px));
+            --stage-drawer-top: 88px;
+        }
+        #stage-scroll-container {
+            position: fixed !important;
+            left: 0;
+            top: var(--stage-drawer-top) !important;
+            bottom: 14px;
+            width: var(--stage-drawer-width);
+            height: auto !important;
+            min-height: 0 !important;
+            overflow-y: scroll !important;
+            overflow-x: hidden;
+            scrollbar-gutter: stable;
+            overscroll-behavior: contain;
+            padding: 14px 14px 28px 14px !important;
+            background: rgb(248 250 252 / .985);
+            border: 1px solid rgb(203 213 225);
+            border-left: 0;
+            border-radius: 0 18px 18px 0;
+            box-shadow: 12px 18px 42px rgb(15 23 42 / .18);
+            z-index: 95;
+            transform: translateX(calc(-100% - 18px));
+            opacity: .985;
+            transition: transform .25s ease;
+        }
+        #stage-scroll-container.is-open {
+            transform: translateX(0);
+        }
+        #stage-drawer-tab {
+            position: fixed;
+            left: 0;
+            top: calc(var(--stage-drawer-top) + 96px);
+            z-index: 96;
+            width: 42px;
+            min-height: 112px;
+            padding: 10px 7px;
+            border: 1px solid rgb(148 163 184);
+            border-left: 0;
+            border-radius: 0 12px 12px 0;
+            background: white;
+            color: rgb(51 65 85);
+            box-shadow: 5px 8px 20px rgb(15 23 42 / .16);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            cursor: pointer;
+            transition: opacity .18s ease, transform .18s ease;
+        }
+        #stage-drawer-tab:hover {
+            background: rgb(248 250 252);
+        }
+        body.stages-drawer-open #stage-drawer-tab {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #stage-drawer-header {
+            position: sticky;
+            top: -14px;
+            z-index: 30;
+            margin: -14px -14px 4px -14px;
+            padding: 12px 14px;
+            background: rgb(248 250 252 / .97);
+            border-bottom: 1px solid rgb(226 232 240);
+            backdrop-filter: blur(8px);
+        }
+        #btn-close-stages {
+            width: 34px;
+            height: 34px;
+            flex: 0 0 auto;
+        }
+        @media (max-width: 599px) {
+            :root { --stage-drawer-width: min(92vw, 360px); }
+            #stage-scroll-container { bottom: 8px; border-radius: 0 14px 14px 0; }
+            #stage-drawer-tab { width: 40px; min-height: 104px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #stage-scroll-container, #stage-drawer-tab { transition: none; }
+        }
+
 </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
@@ -324,7 +419,7 @@
 </div>
 </header>
 <!-- Main Content Layout -->
-<main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 flex flex-col gap-6">
+<main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 flex flex-col gap-6 min-h-[72vh]">
 <!-- v51: Shared sticky active polynomial above both columns -->
 <!-- Top Part: Split-Screen Controls and Area Model Grid -->
 <section class="flex flex-col gap-4 z-40" id="fixed-workspace"><div class="bg-white border border-slate-200 rounded-2xl shadow-md flex flex-col items-center justify-center relative p-4" data-layout-role="fixed-area-model" id="floating-area-model-card">
@@ -337,6 +432,7 @@
 <span class="hidden sm:inline-flex px-2 py-0.5 bg-slate-100 text-slate-500 font-bold tracking-wide uppercase text-[9px] rounded-full border border-slate-200" id="active-status-pill">Open workspace</span>
 <button class="px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 text-[10px] font-extrabold hover:bg-indigo-100 transition-colors" id="btn-float-area-model" title="Float the area model" type="button">Float</button>
 <button class="hidden px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 text-[10px] font-extrabold hover:bg-slate-100 transition-colors" id="btn-dock-area-model" title="Dock the area model" type="button">Dock</button>
+<button class="hidden px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 text-[10px] font-extrabold hover:bg-slate-100 transition-colors" id="btn-recenter-area-model" title="Move the floating workspace back into a safe visible position" type="button"><i class="fa-solid fa-crosshairs mr-1"></i>Reset</button>
 <button aria-label="Minimize area model" class="w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-600 text-xs font-bold hover:bg-slate-100 transition-colors" id="btn-minimize-area-model" title="Minimize area model" type="button">−</button>
 </div>
 </div><div class="w-full px-2 pb-4 mb-4 border-b border-slate-100 flex flex-col items-center justify-center gap-2" id="active-equation-card">
@@ -422,24 +518,7 @@
 </div>
 </div>
 </div>
-<!-- Once p and q are verified, show the split beside the area model. -->
-<div class="w-full flex items-center justify-between gap-3 mb-3 px-2" id="area-model-section-heading"><div class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-table-cells-large text-purple-500"></i> Area model</div></div><div class="hidden w-full mb-5 rounded-xl border-2 border-yellow-300 bg-yellow-50 px-4 py-4 flex-col items-center gap-3 shadow-sm" id="split-term-placement">
-<div class="text-center">
-<div class="text-[10px] font-extrabold tracking-wider text-yellow-800">middle term split</div>
-<p class="text-[10px] text-slate-500 mt-1">These two signed terms are equivalent to the original <span class="font-mono font-bold">bx</span> term.</p>
-</div>
-<div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 font-mono font-black text-lg text-slate-800">
-<div class="px-4 py-2 bg-yellow-100 text-yellow-900 border-2 border-yellow-400 rounded-xl shadow-sm select-none" id="split-bx-tile">bx</div>
-<span class="text-slate-500">=</span>
-<span class="text-slate-500">(</span>
-<div class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none" draggable="true" id="card-px">px</div>
-<span class="text-slate-500">+</span>
-<div class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none" draggable="true" id="card-qx">qx</div>
-<span class="text-slate-500">)</span>
-</div>
-<p class="text-[10px] text-slate-500 text-center">Drag <span class="font-mono font-bold">px</span> to the lower-left and <span class="font-mono font-bold">qx</span> to the upper-right, or click each yellow tile to snap it into place.</p>
-</div>
-<div aria-live="polite" class="hidden w-full mb-4 rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3" id="pq-model-explanation">
+<div class="w-full flex items-center justify-between gap-3 mb-3 px-2" id="area-model-section-heading"><div class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-table-cells-large text-purple-500"></i> Area model</div></div><div aria-live="polite" class="hidden w-full mb-4 rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3" id="pq-model-explanation">
 <div class="flex items-start justify-between gap-3">
 <div class="min-w-0">
 <div class="text-[10px] font-extrabold tracking-wider text-slate-500" id="pq-model-explanation-title">p/q connection to the area model</div>
@@ -509,11 +588,14 @@
 <div aria-hidden="true" class="area-model-inner-border"></div>
 </div>
 <!-- Split-coefficient sign decision (Stage 2) -->
-</div></section><section aria-label="Factoring stages and tools" class="flex flex-col gap-6 custom-scrollbar pr-1" id="stage-scroll-container">
-<div class="sticky top-0 z-20 -mb-2 rounded-xl border border-slate-200 bg-slate-50/95 px-4 py-2 backdrop-blur">
+</div></section><button aria-controls="stage-scroll-container" aria-expanded="true" aria-label="Open factoring stages" id="stage-drawer-tab" type="button"><span>Stages</span></button><section aria-label="Factoring stages and tools" class="is-open flex flex-col gap-6 custom-scrollbar" id="stage-scroll-container">
+<div id="stage-drawer-header">
 <div class="flex items-center justify-between gap-3">
-<span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Factoring stages</span>
-<span class="text-[10px] text-slate-400">Scroll through the instructional work below. Keep the Factoring Workspace beside your work.</span>
+<div class="min-w-0">
+<div class="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Factoring stages</div>
+<div class="mt-0.5 text-[10px] leading-snug text-slate-400">Work through the guidance here while keeping the Factoring Workspace visible.</div>
+</div>
+<button aria-label="Close factoring stages" class="rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-100" id="btn-close-stages" title="Hide stages" type="button"><i class="fa-solid fa-chevron-left"></i></button>
 </div>
 </div><!-- Compact Problem Setup --><!-- OPTIONAL COMMON-FACTOR TOOL: available without blocking the factoring workflow --><div class="bg-white border border-amber-200 rounded-2xl p-6 shadow-md hidden" id="gcf-scaffolding-card">
 <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-1.5">
@@ -640,6 +722,23 @@
 <div class="text-[10px] uppercase tracking-wide font-bold text-yellow-800">Candidate middle-term split</div>
 <div class="mt-1 font-mono font-black text-yellow-950" id="pq-candidate-split-expression"></div>
 </div>
+<div class="hidden w-full mt-4 rounded-xl border-2 border-yellow-300 bg-yellow-50 px-4 py-4 flex-col items-center gap-3 shadow-sm" id="split-term-placement">
+<div class="text-center">
+<div class="text-[10px] font-extrabold tracking-wider text-yellow-800">Middle-term tiles</div>
+<p class="text-[10px] text-slate-500 mt-1">Your correct p/q pair generated these yellow tiles. Drag them from this stage into the matching middle cells of the area model.</p>
+</div>
+<div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 font-mono font-black text-lg text-slate-800">
+<div class="px-4 py-2 bg-yellow-100 text-yellow-900 border-2 border-yellow-400 rounded-xl shadow-sm select-none" id="split-bx-tile">bx</div>
+<span class="text-slate-500">=</span>
+<span class="text-slate-500">(</span>
+<div class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none" draggable="true" id="card-px">px</div>
+<span class="text-slate-500">+</span>
+<div class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none" draggable="true" id="card-qx">qx</div>
+<span class="text-slate-500">)</span>
+</div>
+<p class="text-[10px] text-slate-500 text-center">Drag <span class="font-mono font-bold">px</span> to the lower-left and <span class="font-mono font-bold">qx</span> to the upper-right. Clicking a tile still snaps it into its matching cell.</p>
+</div>
+
 <p class="text-[11px] text-slate-500 text-center min-h-[1.25rem]" id="sign-choice-feedback">Try a signed pair. The product and sum checks update as you type.</p>
 </div>
 </div><div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm" id="student-tools-card">
@@ -714,7 +813,7 @@
 <i class="fa-solid fa-border-all text-indigo-500"></i> Outside factors
                     </h3>
 <p class="text-xs text-slate-600 mb-4 leading-relaxed">
-                        Inspect the two terms in each row and column and determine what factor they share. As soon as you enter a correct common factor, its draggable tile appears in the Outside factor tiles section.
+                        Inspect the two terms in each row and column and determine what factor they share. Enter the common factor, then press Check. If it is correct, a color-matched draggable tile will appear in Outside factor tiles.
                     </p>
 <div class="space-y-4 mb-4" id="outside-factor-pairs">
 <div>
@@ -788,21 +887,14 @@
 <div class="flex items-start justify-between gap-3 flex-wrap">
 <div>
 <div class="text-[11px] font-bold uppercase tracking-wide text-slate-600">Outside factor tiles</div>
-<p class="text-[10px] text-slate-500 mt-1">As soon as a correct row or column common factor is entered above, its draggable tile appears here. Drag it to the matching border of the area model.</p>
+<p class="text-[10px] text-slate-500 mt-1">After you press Check on a correct common factor, a draggable tile appears here: green for rows and blue for columns. Drag it only to its matching border on the area model.</p>
 </div>
 </div>
 <div class="mt-3 flex flex-wrap gap-2 min-h-[42px] items-center" id="factor-tile-tray">
-<span class="text-[10px] text-slate-400 italic">Correct common factors will appear here automatically as draggable tiles.</span>
+<span class="text-[10px] text-slate-400 italic">Verified row and column factors will appear here after you press Check.</span>
 </div>
-<details class="mt-3 border-t border-slate-200 pt-3">
-<summary class="cursor-pointer text-[10px] font-bold text-slate-500 hover:text-slate-700">Make a scratch factor tile instead</summary>
-<div class="flex flex-wrap items-center gap-2 mt-3">
-<input class="min-w-[150px] flex-1 px-3 py-2 text-sm font-mono font-bold bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" id="factor-tile-input" inputmode="text" placeholder="e.g. 2x or -5" type="text"/>
-<button class="px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-bold shadow-sm" id="btn-make-factor-tile" type="button">Make scratch tile</button>
 </div>
-</details>
-</div>
-<p class="text-[10px] text-slate-400 text-center italic mt-4" id="border-entry-feedback">Enter a correct common factor in a row or column and its tile appears immediately in Outside factor tiles. Drag it onto its matching area-model border. For column factors, the full vertical column is also an active drop target. You can still type directly into a border as an alternate method.</p>
+<p class="text-[10px] text-slate-400 text-center italic mt-4" id="border-entry-feedback">Enter a common factor and press Check. If it is correct, a row-colored or column-colored tile appears in Outside factor tiles. Drag it onto its matching area-model border. For column factors, the full vertical column is also an active drop target. You can still type directly into a border as an alternate method.</p>
 </div><!-- STAGE 4: Parentheses / conventional form --><div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md" id="parenthesis-card">
 <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
 <span aria-label="Binomial factors not complete" class="section-progress-circle" id="progress-circle-final" role="status" title="Write the binomial factors"></span>
@@ -831,14 +923,13 @@
 <!-- Footer -->
 <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
 <div class="max-w-6xl mx-auto px-4">
-<p>Interactive Area Model v60 — visible auto-floating area model with compact problem setup.</p>
+<p>Interactive Area Model v65 — floating workspace with stage-generated manipulatives.</p>
 </div>
 </footer>
 <!-- Interactive App Script -->
 <script>
 
-        // v59: keep the docked workspace beneath the sticky site header; when the area model floats,
-        // the instructional pane automatically receives the freed vertical space.
+        // v65: the factoring workspace floats independently; instructional stages generate the manipulatives used in the model.
         const siteHeader = document.getElementById('site-header');
         const fixedWorkspace = document.getElementById('fixed-workspace');
         const stageScrollContainer = document.getElementById('stage-scroll-container');
@@ -847,27 +938,14 @@
         function syncSingleWorkspaceLayout() {
             const headerHeight = siteHeader ? Math.ceil(siteHeader.getBoundingClientRect().height) : 72;
             document.documentElement.style.setProperty('--sticky-workspace-top', `${headerHeight + 8}px`);
-
-            if (persistentWorkspaceQuery.matches && fixedWorkspace && stageScrollContainer) {
-                const fixedHeight = Math.ceil(fixedWorkspace.getBoundingClientRect().height);
-                // 8px sticky offset + 24px main gap + 20px bottom breathing room.
-                const available = Math.max(260, window.innerHeight - headerHeight - fixedHeight - 52);
-                document.documentElement.style.setProperty('--stage-pane-height', `${available}px`);
-            } else {
-                document.documentElement.style.removeProperty('--stage-pane-height');
-            }
+            document.documentElement.style.setProperty('--stage-drawer-top', `${headerHeight + 10}px`);
+            document.documentElement.style.removeProperty('--stage-pane-height');
         }
 
         window.addEventListener('resize', syncSingleWorkspaceLayout);
-        if (persistentWorkspaceQuery.addEventListener) {
-            persistentWorkspaceQuery.addEventListener('change', syncSingleWorkspaceLayout);
-        } else if (persistentWorkspaceQuery.addListener) {
-            persistentWorkspaceQuery.addListener(syncSingleWorkspaceLayout);
-        }
         if ('ResizeObserver' in window) {
             const layoutResizeObserver = new ResizeObserver(syncSingleWorkspaceLayout);
             if (siteHeader) layoutResizeObserver.observe(siteHeader);
-            if (fixedWorkspace) layoutResizeObserver.observe(fixedWorkspace);
         }
         requestAnimationFrame(syncSingleWorkspaceLayout);
 
@@ -929,6 +1007,7 @@
         const areaModelWindowHeader = document.getElementById('area-model-window-header');
         const btnFloatAreaModel = document.getElementById('btn-float-area-model');
         const btnDockAreaModel = document.getElementById('btn-dock-area-model');
+        const btnRecenterAreaModel = document.getElementById('btn-recenter-area-model');
         const areaModelWindowState = document.getElementById('area-model-window-state');
         const btnMinimizeAreaModel = document.getElementById('btn-minimize-area-model');
         const equationDisplay = document.getElementById('equation-display');
@@ -965,6 +1044,8 @@
         const multiplicationCard = document.getElementById('multiplication-card');
         const btnCollapsePqHelper = document.getElementById('btn-collapse-pq-helper');
         const instructionColumn = document.getElementById('stage-scroll-container');
+        const stageDrawerTab = document.getElementById('stage-drawer-tab');
+        const btnCloseStages = document.getElementById('btn-close-stages');
         const gcfBorderSelectionCard = document.getElementById('gcf-border-selection-card');
         const parenthesisCard = document.getElementById('parenthesis-card');
 
@@ -976,8 +1057,6 @@
         const gcfLabelC = document.getElementById('gcf-label-c');
 
         // Stage 3 student-generated border factor workbench
-        const factorTileInput = document.getElementById('factor-tile-input');
-        const btnMakeFactorTile = document.getElementById('btn-make-factor-tile');
         const factorTileTray = document.getElementById('factor-tile-tray');
         const borderEntryFeedback = document.getElementById('border-entry-feedback');
         const outsidePairSlots = {
@@ -1068,6 +1147,32 @@
         const furtherFactorMessage = document.getElementById('further-factor-message');
         const furtherFactorActions = document.getElementById('further-factor-actions');
 
+// v63: slide-out instructional stages drawer.
+        let stagesDrawerOpen = true;
+
+        function setStagesDrawerOpen(open, { focus = false } = {}) {
+            stagesDrawerOpen = Boolean(open);
+            if (instructionColumn) instructionColumn.classList.toggle('is-open', stagesDrawerOpen);
+            document.body.classList.toggle('stages-drawer-open', stagesDrawerOpen);
+            if (stageDrawerTab) stageDrawerTab.setAttribute('aria-expanded', stagesDrawerOpen ? 'true' : 'false');
+            if (stagesDrawerOpen && focus && instructionColumn) {
+                requestAnimationFrame(() => instructionColumn.focus?.({ preventScroll: true }));
+            }
+        }
+
+        if (stageDrawerTab) stageDrawerTab.addEventListener('click', () => setStagesDrawerOpen(true));
+        if (btnCloseStages) btnCloseStages.addEventListener('click', () => {
+            setStagesDrawerOpen(false);
+            stageDrawerTab?.focus({ preventScroll: true });
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && stagesDrawerOpen && !event.defaultPrevented) {
+                setStagesDrawerOpen(false);
+                stageDrawerTab?.focus({ preventScroll: true });
+            }
+        });
+        setStagesDrawerOpen(true);
+
 // v61: compact problem setup + active polynomial are integrated with the dockable/floating area model.
         function setProblemSetupOpen(open) {
             if (!problemSetupBody || !btnToggleProblemSetup) return;
@@ -1088,6 +1193,67 @@
         let areaModelFloating = false;
         let areaModelMinimized = false;
         let floatingDrag = null;
+        let floatingConstraintFrame = 0;
+
+        function floatingWorkspaceSafeTop() {
+            const headerBottom = siteHeader ? siteHeader.getBoundingClientRect().bottom : 72;
+            return Math.max(12, Math.ceil(headerBottom) + 12);
+        }
+
+        function constrainFloatingWorkspace({ recenter = false } = {}) {
+            if (!floatingAreaModelCard || !areaModelFloating) return;
+
+            const margin = 12;
+            const minTop = floatingWorkspaceSafeTop();
+            const minLeft = margin;
+            let rect = floatingAreaModelCard.getBoundingClientRect();
+
+            // Resize limits depend on the panel's current screen position, so the native
+            // bottom-right resize handle can never be resized beyond the visible viewport.
+            let left = Number.parseFloat(floatingAreaModelCard.style.left);
+            if (!Number.isFinite(left)) left = rect.left;
+            let top = Number.parseFloat(floatingAreaModelCard.style.top);
+            if (!Number.isFinite(top)) top = rect.top;
+
+            if (recenter) {
+                const preferredWidth = Math.min(Math.max(rect.width, 480), Math.min(620, window.innerWidth - margin * 2));
+                floatingAreaModelCard.style.width = `${preferredWidth}px`;
+                left = Math.max(minLeft, window.innerWidth - preferredWidth - 24);
+                top = minTop;
+            }
+
+            // The header must always remain below the sticky site title and on screen.
+            const headerVisibleHeight = Math.max(48, areaModelWindowHeader ? areaModelWindowHeader.getBoundingClientRect().height : 48);
+            const maxTopForGrabBar = Math.max(minTop, window.innerHeight - headerVisibleHeight - margin);
+            top = Math.min(maxTopForGrabBar, Math.max(minTop, top));
+
+            // Keep enough horizontal room for the right-hand resize handle.
+            const maxLeftForGrabBar = Math.max(minLeft, window.innerWidth - 180);
+            left = Math.min(maxLeftForGrabBar, Math.max(minLeft, left));
+
+            floatingAreaModelCard.style.right = 'auto';
+            floatingAreaModelCard.style.left = `${left}px`;
+            floatingAreaModelCard.style.top = `${top}px`;
+
+            const availableWidth = Math.max(300, window.innerWidth - left - margin);
+            const availableHeight = Math.max(headerVisibleHeight + 24, window.innerHeight - top - margin);
+            floatingAreaModelCard.style.maxWidth = `${availableWidth}px`;
+            floatingAreaModelCard.style.maxHeight = `${availableHeight}px`;
+
+            // If a browser-native resize has already pushed an edge off-screen, pull it back in.
+            rect = floatingAreaModelCard.getBoundingClientRect();
+            if (rect.right > window.innerWidth - margin) {
+                floatingAreaModelCard.style.width = `${Math.max(300, window.innerWidth - left - margin)}px`;
+            }
+            if (rect.bottom > window.innerHeight - margin) {
+                floatingAreaModelCard.style.height = `${Math.max(headerVisibleHeight + 24, window.innerHeight - top - margin)}px`;
+            }
+        }
+
+        function scheduleFloatingConstraint(options = {}) {
+            cancelAnimationFrame(floatingConstraintFrame);
+            floatingConstraintFrame = requestAnimationFrame(() => constrainFloatingWorkspace(options));
+        }
 
         function dockAreaModel() {
             if (!floatingAreaModelCard) return;
@@ -1096,8 +1262,13 @@
             floatingAreaModelCard.style.left = '';
             floatingAreaModelCard.style.top = '';
             floatingAreaModelCard.style.right = '';
+            floatingAreaModelCard.style.width = '';
+            floatingAreaModelCard.style.height = '';
+            floatingAreaModelCard.style.maxWidth = '';
+            floatingAreaModelCard.style.maxHeight = '';
             if (btnFloatAreaModel) btnFloatAreaModel.classList.remove('hidden');
             if (btnDockAreaModel) btnDockAreaModel.classList.add('hidden');
+            if (btnRecenterAreaModel) btnRecenterAreaModel.classList.add('hidden');
             if (areaModelWindowState) areaModelWindowState.classList.add('hidden');
             requestAnimationFrame(syncSingleWorkspaceLayout);
         }
@@ -1107,15 +1278,17 @@
             const rect = floatingAreaModelCard.getBoundingClientRect();
             areaModelFloating = true;
             floatingAreaModelCard.classList.add('is-floating');
-            const width = Math.min(Math.max(rect.width, 480), 620);
+            const width = Math.min(Math.max(rect.width, 480), Math.min(620, window.innerWidth - 24));
             floatingAreaModelCard.style.width = `${width}px`;
-            floatingAreaModelCard.style.right = '24px';
-            floatingAreaModelCard.style.left = 'auto';
-            const headerHeight = siteHeader ? siteHeader.getBoundingClientRect().height : 72;
-            floatingAreaModelCard.style.top = `${Math.max(headerHeight + 14, 86)}px`;
+            floatingAreaModelCard.style.height = '';
+            floatingAreaModelCard.style.right = 'auto';
+            floatingAreaModelCard.style.left = `${Math.max(12, window.innerWidth - width - 24)}px`;
+            floatingAreaModelCard.style.top = `${floatingWorkspaceSafeTop()}px`;
             if (btnFloatAreaModel) btnFloatAreaModel.classList.add('hidden');
             if (btnDockAreaModel) btnDockAreaModel.classList.remove('hidden');
+            if (btnRecenterAreaModel) btnRecenterAreaModel.classList.remove('hidden');
             if (areaModelWindowState) areaModelWindowState.classList.remove('hidden');
+            scheduleFloatingConstraint();
             requestAnimationFrame(syncSingleWorkspaceLayout);
         }
 
@@ -1126,11 +1299,13 @@
             btnMinimizeAreaModel.textContent = minimized ? '+' : '−';
             btnMinimizeAreaModel.setAttribute('aria-label', minimized ? 'Expand area model' : 'Minimize area model');
             btnMinimizeAreaModel.title = minimized ? 'Expand area model' : 'Minimize area model';
+            if (areaModelFloating) scheduleFloatingConstraint();
             requestAnimationFrame(syncSingleWorkspaceLayout);
         }
 
         if (btnFloatAreaModel) btnFloatAreaModel.addEventListener('click', floatAreaModel);
         if (btnDockAreaModel) btnDockAreaModel.addEventListener('click', dockAreaModel);
+        if (btnRecenterAreaModel) btnRecenterAreaModel.addEventListener('click', () => constrainFloatingWorkspace({ recenter: true }));
         if (btnMinimizeAreaModel) btnMinimizeAreaModel.addEventListener('click', () => setAreaModelMinimized(!areaModelMinimized));
 
         if (areaModelWindowHeader && floatingAreaModelCard) {
@@ -1150,24 +1325,42 @@
             areaModelWindowHeader.addEventListener('pointermove', (event) => {
                 if (!floatingDrag || event.pointerId !== floatingDrag.pointerId) return;
                 const rect = floatingAreaModelCard.getBoundingClientRect();
-                const maxLeft = Math.max(8, window.innerWidth - rect.width - 8);
-                const maxTop = Math.max(8, window.innerHeight - Math.min(rect.height, window.innerHeight - 16) - 8);
-                const left = Math.min(maxLeft, Math.max(8, event.clientX - floatingDrag.offsetX));
-                const top = Math.min(maxTop, Math.max(8, event.clientY - floatingDrag.offsetY));
+                const minTop = floatingWorkspaceSafeTop();
+                const margin = 12;
+                const maxLeft = Math.max(margin, window.innerWidth - Math.min(rect.width, window.innerWidth - margin * 2) - margin);
+                const headerHeight = Math.max(48, areaModelWindowHeader.getBoundingClientRect().height);
+                const maxTop = Math.max(minTop, window.innerHeight - headerHeight - margin);
+                const left = Math.min(maxLeft, Math.max(margin, event.clientX - floatingDrag.offsetX));
+                const top = Math.min(maxTop, Math.max(minTop, event.clientY - floatingDrag.offsetY));
                 floatingAreaModelCard.style.left = `${left}px`;
                 floatingAreaModelCard.style.top = `${top}px`;
+                scheduleFloatingConstraint();
             });
             const endFloatingDrag = (event) => {
                 if (!floatingDrag || (event && event.pointerId !== floatingDrag.pointerId)) return;
                 try { areaModelWindowHeader.releasePointerCapture?.(floatingDrag.pointerId); } catch (_) {}
                 floatingDrag = null;
+                scheduleFloatingConstraint();
             };
             areaModelWindowHeader.addEventListener('pointerup', endFloatingDrag);
             areaModelWindowHeader.addEventListener('pointercancel', endFloatingDrag);
         }
 
+        // Native CSS resize can alter the panel without a pointer event on our header.
+        // Observe those size changes and keep the resize handle inside the viewport.
+        if ('ResizeObserver' in window && floatingAreaModelCard) {
+            const floatingWorkspaceResizeObserver = new ResizeObserver(() => {
+                if (areaModelFloating) scheduleFloatingConstraint();
+            });
+            floatingWorkspaceResizeObserver.observe(floatingAreaModelCard);
+        }
+
         window.addEventListener('resize', () => {
-            if (!window.matchMedia('(min-width: 600px)').matches && areaModelFloating) dockAreaModel();
+            if (!window.matchMedia('(min-width: 600px)').matches && areaModelFloating) {
+                dockAreaModel();
+            } else if (areaModelFloating) {
+                scheduleFloatingConstraint();
+            }
         });
 
         setProblemSetupOpen(false);
@@ -1186,10 +1379,11 @@
 
         function openPqHelper({ focus = false } = {}) {
             pqHelperOpen = true;
+            setStagesDrawerOpen(true);
             syncPqHelperVisibility();
             requestAnimationFrame(() => {
-                if (instructionColumn && window.matchMedia('(min-width: 768px)').matches) {
-                    const targetTop = Math.max(0, multiplicationCard.offsetTop - instructionColumn.offsetTop - 10);
+                if (instructionColumn) {
+                    const targetTop = Math.max(0, multiplicationCard.offsetTop - instructionColumn.offsetTop - 58);
                     instructionColumn.scrollTo({ top: targetTop, behavior: 'smooth' });
                 } else {
                     multiplicationCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1322,7 +1516,7 @@
             foundGCFBorders = { row1:null,row2:null,col1:null,col2:null };
             pendingBorderSource = { row1:'workspace',row2:'workspace',col1:'workspace',col2:'workspace' };
             borderAttemptState = { row1:'idle',row2:'idle',col1:'idle',col2:'idle' };
-            factorTileTray.innerHTML='<span class="text-[10px] text-slate-400 italic">Correct common factors will appear here automatically as draggable tiles.</span>';
+            factorTileTray.innerHTML='<span class="text-[10px] text-slate-400 italic">Verified row and column factors will appear here after you press Check.</span>';
             finalFactorData = null;
             finalExtraction = { factor1:1, factor2:1 };
             finalFactorsRevealed = { factor1:false, factor2:false };
@@ -1350,7 +1544,7 @@
             splitTermPlacement.classList.remove('hidden');
             splitTermPlacement.classList.add('flex');
             cardBx.className = 'px-5 py-2.5 bg-slate-100 text-slate-400 border-2 border-dashed border-slate-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none line-through';
-            signChoiceFeedback.textContent = `✓ p = ${p} and q = ${q}. Both conditions are true; the yellow terms are ready for the model.`;
+            signChoiceFeedback.textContent = `✓ p = ${p} and q = ${q}. Both conditions are true; yellow px and qx tiles are generated in this stage below.`;
             signChoiceFeedback.className = 'text-[11px] text-emerald-700 text-center min-h-[1.25rem] font-bold';
             targetDescription.innerHTML = `Current split: <strong>p = ${p}</strong> and <strong>q = ${q}</strong>, so <strong>p × q = ${p*q}</strong> and <strong>p + q = ${p+q}</strong>.`;
             computeCorrectBordersFromSplit();
@@ -2011,11 +2205,10 @@
             multiplicationChartContainer.innerHTML='';
             toolChartFeedback.textContent='Enter the product you want to investigate. For a negative product, the chart uses its positive magnitude.';
             resetCalculator();
-            factorTileInput.value='';
-            factorTileTray.innerHTML='<span class="text-[10px] text-slate-400 italic">Correct common factors will appear here automatically as draggable tiles.</span>';
+            factorTileTray.innerHTML='<span class="text-[10px] text-slate-400 italic">Verified row and column factors will appear here after you press Check.</span>';
             foundGCFBorders = { row1:null,row2:null,col1:null,col2:null };
             pendingBorderSource = { row1:'workspace',row2:'workspace',col1:'workspace',col2:'workspace' };
-            borderEntryFeedback.textContent='Enter a correct common factor and its tile will appear immediately in Outside factor tiles. Then drag it to the matching border. Direct border entry is still available.';
+            borderEntryFeedback.textContent='Enter a common factor and press Check. If it is correct, its color-matched tile will appear in Outside factor tiles. Then drag it to the matching border. Direct border entry is still available.';
             borderEntryFeedback.className='text-[10px] text-slate-500 text-center italic mt-4';
 
             prepareBorderEntrySlots();
@@ -2250,7 +2443,7 @@
             if (productOK && sumOK) {
                 pqCandidateSplit.classList.remove('hidden');
                 pqCandidateSplitExpression.textContent=formatCandidateSplit(p,q);
-                signChoiceFeedback.textContent='✓ This pair satisfies both conditions. The yellow px and qx tiles are ready for the area model.';
+                signChoiceFeedback.textContent='✓ This pair satisfies both conditions. Yellow px and qx tiles have been generated below for the area model.';
                 signChoiceFeedback.className='text-[11px] text-emerald-700 text-center min-h-[1.25rem] font-bold';
                 if (!splitVerified || factorsP!==p || factorsQ!==q) applyVerifiedSplit(p,q,'helper');
             } else {
@@ -2789,15 +2982,13 @@
                 ui.input.addEventListener('input', () => {
                     if (borderAttemptState[slotId] === 'wrong') borderAttemptState[slotId] = 'idle';
                     ui.input.classList.remove('ring-2','ring-rose-400');
-
-                    // v47: recognize a correct common factor immediately. The Check
-                    // button remains useful for explicit feedback on incomplete/wrong attempts.
-                    if (solvedGCFBorders[slotId] !== null || foundGCFBorders[slotId] !== null) return;
-                    const typed = normalizeFactorInput(ui.input.value);
-                    if (!typed || !computeCorrectBordersFromSplit()) return;
-                    const correct = normalizeFactorInput(correctGCFBorders[slotId]);
-                    if (typed === correct) {
-                        verifyGCFAssignmentForSlot(slotId, ui.input.value, false, 'workspace');
+                    // v64: typing alone never verifies or queues a factor for automatic
+                    // verification. The student must explicitly press Check (or Enter).
+                    if (ui.input.value.trim()) {
+                        ui.status.textContent = 'Press Check to test this common factor.';
+                        ui.status.className = `mt-1 text-[10px] min-h-[14px] ${slotId.startsWith('row') ? 'text-emerald-700' : 'text-blue-700'}`;
+                    } else {
+                        ui.status.textContent = 'What factor is common to both terms?';
                     }
                 });
                 ui.button.addEventListener('click', submit);
@@ -2843,6 +3034,8 @@
             if (badge) badge.textContent = 'placed';
         }
 
+        let activeGeneratedFactorSlot = null;
+
         function createGeneratedFactorTile(slotId, raw) {
             if (!slotId || foundGCFBorders[slotId] === null) return;
             const existing = factorTileTray.querySelector(`[data-origin-slot="${slotId}"]`);
@@ -2860,6 +3053,7 @@
             tile.innerHTML = `<span>${escapeHtml(raw)}</span><span class="font-sans text-[9px] font-bold uppercase opacity-70">${borderLabel(slotId)}</span><span data-tile-state class="font-sans text-[9px] font-bold uppercase opacity-60">drag</span>`;
             tile.setAttribute('aria-label', `${raw}, verified ${borderLabel(slotId)} factor. Drag to the area-model border.`);
             tile.addEventListener('dragstart', e => {
+                activeGeneratedFactorSlot = slotId;
                 e.dataTransfer.setData('text/factor-tile', raw);
                 e.dataTransfer.setData('text/factor-origin-slot', slotId);
                 e.dataTransfer.effectAllowed = 'move';
@@ -2868,6 +3062,7 @@
                 }
             });
             tile.addEventListener('dragend', () => {
+                activeGeneratedFactorSlot = null;
                 areaModelGrid.classList.remove('factor-drag-col1','factor-drag-col2');
             });
             setupFactorTileTouchDrag(tile, raw, slotId);
@@ -2908,7 +3103,7 @@
                 if (source === 'workspace') {
                     createGeneratedFactorTile(slotId, displayValue);
                     prepareBorderEntrySlots();
-                    borderEntryFeedback.textContent=`✓ ${borderLabel(slotId)} common factor found. The draggable ${displayValue} tile is now in Outside factor tiles.`;
+                    borderEntryFeedback.textContent=`✓ ${borderLabel(slotId)} common factor found. A ${slotId.startsWith('row') ? 'green row' : 'blue column'} tile for ${displayValue} is now in Outside factor tiles.`;
                     borderEntryFeedback.className=`text-[10px] text-center italic mt-4 ${slotId.startsWith('row')?'text-emerald-700':'text-blue-700'} font-bold`;
                     renderOutsideFactorWorkspace();
                     updateProgressChecklist();
@@ -2963,12 +3158,15 @@
             },{passive:false});
             tile.addEventListener('touchend',e=>{
                 if(!ghost)return; const touch=e.changedTouches[0]; ghost.remove(); ghost=null;
-                const dropTargets = [
+                const allDropTargets = [
                     ['row1',[gcfRow1]],
                     ['row2',[gcfRow2]],
                     ['col1',[gcfCol1,cellTl,cellBl]],
                     ['col2',[gcfCol2,cellTr,cellBr]]
                 ];
+                const dropTargets = originSlot
+                    ? allDropTargets.filter(([slotId]) => slotId === originSlot)
+                    : allDropTargets;
                 outer: for(const [slotId,elements] of dropTargets) {
                     if(solvedGCFBorders[slotId]!==null) continue;
                     for (const el of elements) {
@@ -2983,43 +3181,25 @@
             });
         }
 
-        function makeFactorTile() {
-            const raw = factorTileInput.value.trim();
-            if (!validFactorTileText(raw)) {
-                borderEntryFeedback.textContent = 'Enter a factor such as x, -x, 2x, 3, or -5 before making a tile.';
-                borderEntryFeedback.className = 'text-[10px] text-rose-600 text-center italic mt-4 font-bold';
-                factorTileInput.focus();
-                return;
-            }
-            if (factorTileTray.querySelector('span.italic')) factorTileTray.innerHTML = '';
-            const tile = document.createElement('button');
-            tile.type = 'button';
-            tile.draggable = true;
-            tile.textContent = raw;
-            tile.className = 'px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-sm font-mono font-bold shadow-sm cursor-grab active:cursor-grabbing touch-action-none';
-            tile.addEventListener('dragstart', e => {
-                e.dataTransfer.setData('text/factor-tile', raw);
-                e.dataTransfer.effectAllowed = 'copy';
-            });
-            setupFactorTileTouchDrag(tile, raw);
-            factorTileTray.appendChild(tile);
-            factorTileInput.value = '';
-            factorTileInput.focus();
-            borderEntryFeedback.textContent = `Drag ${raw} to the border where you think it belongs, or type directly into a border.`;
-            borderEntryFeedback.className = 'text-[10px] text-slate-500 text-center italic mt-4';
-        }
-
-        btnMakeFactorTile.addEventListener('click', makeFactorTile);
-        factorTileInput.addEventListener('keydown', e => { if (e.key === 'Enter') makeFactorTile(); });
         function setupGCFBorderDropZone(slotId, element) {
             element.addEventListener('dragover',e=>{
                 if(solvedGCFBorders[slotId]!==null)return;
-                e.preventDefault(); e.dataTransfer.dropEffect='copy';
+                if (!activeGeneratedFactorSlot || activeGeneratedFactorSlot !== slotId) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
             });
             element.addEventListener('drop',e=>{
                 if(solvedGCFBorders[slotId]!==null)return;
-                e.preventDefault(); const value=e.dataTransfer.getData('text/factor-tile');
-                if(value)verifyGCFAssignmentForSlot(slotId,value,false,'drop');
+                const value=e.dataTransfer.getData('text/factor-tile');
+                const origin=e.dataTransfer.getData('text/factor-origin-slot');
+                if (!value) return;
+                e.preventDefault();
+                if (origin && origin !== slotId) {
+                    borderEntryFeedback.textContent = `${borderLabel(origin)} tile belongs on ${borderLabel(origin)}, not ${borderLabel(slotId)}.`;
+                    borderEntryFeedback.className = 'text-[10px] text-amber-700 text-center italic mt-4 font-bold';
+                    return;
+                }
+                verifyGCFAssignmentForSlot(slotId,value,false,'drop');
             });
         }
         setupGCFBorderDropZone('row1', gcfRow1);
@@ -3032,6 +3212,7 @@
             for (const element of elements) {
                 element.addEventListener('dragover', e => {
                     if (solvedGCFBorders[slotId] !== null) return;
+                    if (!activeGeneratedFactorSlot || activeGeneratedFactorSlot !== slotId) return;
                     const types = Array.from(e.dataTransfer?.types || []);
                     if (!types.includes('text/factor-tile')) return;
                     e.preventDefault();
@@ -3040,9 +3221,15 @@
                 element.addEventListener('drop', e => {
                     if (solvedGCFBorders[slotId] !== null) return;
                     const value = e.dataTransfer.getData('text/factor-tile');
+                    const origin = e.dataTransfer.getData('text/factor-origin-slot');
                     if (!value) return;
                     e.preventDefault();
                     e.stopPropagation();
+                    if (origin && origin !== slotId) {
+                        borderEntryFeedback.textContent = `${borderLabel(origin)} tile belongs on ${borderLabel(origin)}, not ${borderLabel(slotId)}.`;
+                        borderEntryFeedback.className = 'text-[10px] text-amber-700 text-center italic mt-4 font-bold';
+                        return;
+                    }
                     verifyGCFAssignmentForSlot(slotId, value, false, 'drop');
                     areaModelGrid.classList.remove('factor-drag-col1','factor-drag-col2');
                 });
