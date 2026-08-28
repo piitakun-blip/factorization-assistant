@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!DOCTYPE html>
 
-<!-- Trinomial Factorization Helper v65: stage-generated manipulatives -->
+<!-- Trinomial Factorization Helper v75 -->
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -234,7 +234,7 @@
             width: 430px;
             max-width: calc(100vw - 32px);
             max-height: calc(100vh - 128px);
-            z-index: 90;
+            z-index: 110;
             overflow: auto;
             resize: both;
             box-shadow: 0 24px 60px rgb(15 23 42 / .24);
@@ -476,6 +476,19 @@
         #floating-area-model-card.is-floating #tool-chart-panel,
         #floating-area-model-card.is-floating #tool-calculator-panel {
             scroll-margin-top: 68px;
+        }
+
+        /* v75: keep the completed equivalent expression visible in the floating workspace. */
+        #floating-area-model-card.is-floating #final-equality:not(.hidden) {
+            position: sticky;
+            bottom: 0;
+            z-index: 135;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 -4px 18px rgb(15 23 42 / .10);
+        }
+        #floating-area-model-card.is-minimized #final-equality {
+            display: none !important;
         }
 </style>
 </head>
@@ -729,6 +742,13 @@
 </div>
 </div>
 </div>
+<div aria-live="polite" class="hidden w-full mt-3 rounded-xl border-2 border-emerald-300 bg-emerald-50/95 px-4 py-4 text-center shadow-sm" id="final-equality">
+<div class="flex items-center justify-center gap-2 text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 mb-1">
+<i class="fa-solid fa-circle-check"></i> Equivalent expressions
+</div>
+<div class="math-font text-lg sm:text-xl font-black text-slate-900 break-words" id="final-equality-expression"></div>
+<div class="mt-1 text-[10px] text-emerald-700">This final equality remains visible in the Factoring Workspace.</div>
+</div>
 <!-- Split-coefficient sign decision (Stage 2) -->
 </div></section><button aria-controls="stage-scroll-container" aria-expanded="true" aria-label="Open factoring stages" id="stage-drawer-tab" type="button"><span>Stages</span></button><section aria-label="Factoring stages and tools" class="is-open flex flex-col gap-6 custom-scrollbar" id="stage-scroll-container">
 <div id="stage-drawer-header">
@@ -952,10 +972,7 @@
 <span class="text-slate-950">)</span>
 </div>
 <p class="text-xs text-slate-500 text-center leading-relaxed" id="parenthesis-tips">Transfer the green row factors and blue column factors into the two binomials.</p>
-<div class="hidden mt-4 rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-4 text-center" id="final-equality">
-<div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Equivalent expressions</div>
-<div class="math-font text-lg sm:text-xl font-black text-slate-900 break-words" id="final-equality-expression"></div>
-</div>
+
 <div class="hidden mt-5 p-4 rounded-xl border border-amber-200 bg-amber-50" id="further-factor-card">
 <p class="text-xs font-bold text-amber-800 text-center mb-3" id="further-factor-message">Hint: one or more binomial factors can be factored further.</p>
 <div class="flex flex-wrap gap-2 justify-center" id="further-factor-actions"></div>
@@ -965,13 +982,13 @@
 <!-- Footer -->
 <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
 <div class="max-w-6xl mx-auto px-4">
-<p>Interactive Area Model v73 — wider stages drawer with auto-collapsing completed stages.</p>
+<p>Interactive Area Model v75 — completed equivalent expression stays visible in the floating workspace.</p>
 </div>
 </footer>
 <!-- Interactive App Script -->
 <script>
 
-        // v72: floating factoring workspace + wider, auto-collapsing instructional stages drawer.
+        // v75: persistent final equality in floating workspace + protected floating window + auto-collapsing stages.
         const siteHeader = document.getElementById('site-header');
         const fixedWorkspace = document.getElementById('fixed-workspace');
         const stageScrollContainer = document.getElementById('stage-scroll-container');
@@ -1195,6 +1212,7 @@
         const furtherFactorActions = document.getElementById('further-factor-actions');
 
 // v63: slide-out instructional stages drawer.
+        let areaModelFloating = false;
         let stagesDrawerOpen = true;
 
         function setStagesDrawerOpen(open, { focus = false } = {}) {
@@ -1202,6 +1220,11 @@
             if (instructionColumn) instructionColumn.classList.toggle('is-open', stagesDrawerOpen);
             document.body.classList.toggle('stages-drawer-open', stagesDrawerOpen);
             if (stageDrawerTab) stageDrawerTab.setAttribute('aria-expanded', stagesDrawerOpen ? 'true' : 'false');
+            if (areaModelFloating) {
+                requestAnimationFrame(() => scheduleFloatingConstraint());
+                // Re-check after the drawer's slide transition reaches its final edge.
+                window.setTimeout(() => scheduleFloatingConstraint(), 280);
+            }
             if (stagesDrawerOpen && focus && instructionColumn) {
                 requestAnimationFrame(() => instructionColumn.focus?.({ preventScroll: true }));
             }
@@ -1219,6 +1242,11 @@
             }
         });
         setStagesDrawerOpen(true);
+        if (instructionColumn) {
+            instructionColumn.addEventListener('transitionend', (event) => {
+                if (event.propertyName === 'transform' && areaModelFloating) scheduleFloatingConstraint();
+            });
+        }
 
 // v61: compact problem setup + active polynomial are integrated with the dockable/floating area model.
         function setProblemSetupOpen(open) {
@@ -1237,7 +1265,6 @@
             });
         }
 
-        let areaModelFloating = false;
         let areaModelMinimized = false;
         let floatingDrag = null;
         let floatingConstraintFrame = 0;
@@ -1248,13 +1275,47 @@
             return Math.max(20, Math.ceil(headerBottom) + 18);
         }
 
+        function floatingWorkspacePreferredLeftBoundary() {
+            const margin = 12;
+            // Keep the Stages control reachable even when the drawer is closed.
+            if (!stagesDrawerOpen) {
+                const tabRect = stageDrawerTab ? stageDrawerTab.getBoundingClientRect() : null;
+                const tabRight = tabRect && Number.isFinite(tabRect.right) ? tabRect.right : 42;
+                return Math.max(margin, Math.ceil(tabRight) + margin);
+            }
+
+            // When the drawer is open, its right edge is the preferred no-go boundary.
+            const drawerRect = instructionColumn ? instructionColumn.getBoundingClientRect() : null;
+            const drawerRight = drawerRect && Number.isFinite(drawerRect.right) ? drawerRect.right : 0;
+            return Math.max(margin, Math.ceil(drawerRight) + margin);
+        }
+
+        function floatingWorkspaceHorizontalBounds(panelWidth) {
+            const margin = 12;
+            const preferredMinLeft = floatingWorkspacePreferredLeftBoundary();
+            const minUsableWidth = 420;
+            const availableBesideStages = window.innerWidth - preferredMinLeft - margin;
+
+            // If there is enough room for a usable workspace beside the drawer, never allow
+            // the floating panel to enter the drawer's space. On narrower windows there is
+            // physically not enough room for both; in that case allow overlap but keep the
+            // workspace above the drawer via z-index so it can never disappear behind it.
+            const keepBesideStages = !stagesDrawerOpen || availableBesideStages >= minUsableWidth;
+            const minLeft = keepBesideStages ? preferredMinLeft : margin;
+            const usableWidth = keepBesideStages ? availableBesideStages : (window.innerWidth - minLeft - margin);
+            const width = Math.min(panelWidth, Math.max(minUsableWidth, usableWidth));
+            const maxLeft = Math.max(minLeft, window.innerWidth - Math.min(width, window.innerWidth - margin * 2) - margin);
+            return { minLeft, maxLeft, usableWidth, keepBesideStages };
+        }
+
         function constrainFloatingWorkspace({ recenter = false } = {}) {
             if (!floatingAreaModelCard || !areaModelFloating) return;
 
             const margin = 12;
             const minTop = floatingWorkspaceSafeTop();
-            const minLeft = margin;
             let rect = floatingAreaModelCard.getBoundingClientRect();
+            let horizontal = floatingWorkspaceHorizontalBounds(rect.width);
+            let minLeft = horizontal.minLeft;
 
             // Resize limits depend on the panel's current screen position, so the native
             // bottom-right resize handle can never be resized beyond the visible viewport.
@@ -1264,7 +1325,12 @@
             if (!Number.isFinite(top)) top = rect.top;
 
             if (recenter) {
-                const preferredWidth = Math.min(Math.max(rect.width, 480), Math.min(620, window.innerWidth - margin * 2));
+                horizontal = floatingWorkspaceHorizontalBounds(Math.max(rect.width, 480));
+                minLeft = horizontal.minLeft;
+                const preferredWidth = Math.min(
+                    Math.max(horizontal.keepBesideStages ? 420 : 480, rect.width),
+                    Math.min(620, horizontal.usableWidth)
+                );
                 floatingAreaModelCard.style.width = `${preferredWidth}px`;
                 left = Math.max(minLeft, window.innerWidth - preferredWidth - 24);
                 top = minTop;
@@ -1275,8 +1341,17 @@
             const maxTopForGrabBar = Math.max(minTop, window.innerHeight - headerVisibleHeight - margin);
             top = Math.min(maxTopForGrabBar, Math.max(minTop, top));
 
-            // Keep enough horizontal room for the right-hand resize handle.
-            const maxLeftForGrabBar = Math.max(minLeft, window.innerWidth - 180);
+            // Keep the workspace out of the open Stages drawer whenever the viewport can
+            // accommodate both. The fallback overlap mode still keeps this panel above it.
+            rect = floatingAreaModelCard.getBoundingClientRect();
+            horizontal = floatingWorkspaceHorizontalBounds(rect.width);
+            minLeft = horizontal.minLeft;
+            if (horizontal.keepBesideStages && rect.width > horizontal.usableWidth) {
+                floatingAreaModelCard.style.width = `${Math.max(420, horizontal.usableWidth)}px`;
+                rect = floatingAreaModelCard.getBoundingClientRect();
+                horizontal = floatingWorkspaceHorizontalBounds(rect.width);
+            }
+            const maxLeftForGrabBar = Math.max(minLeft, horizontal.maxLeft);
             left = Math.min(maxLeftForGrabBar, Math.max(minLeft, left));
 
             floatingAreaModelCard.style.right = 'auto';
@@ -1330,7 +1405,9 @@
             floatingAreaModelCard.style.width = `${width}px`;
             floatingAreaModelCard.style.height = '';
             floatingAreaModelCard.style.right = 'auto';
-            floatingAreaModelCard.style.left = `${Math.max(12, window.innerWidth - width - 24)}px`;
+            const horizontal = floatingWorkspaceHorizontalBounds(width);
+            const initialLeft = Math.max(horizontal.minLeft, window.innerWidth - width - 24);
+            floatingAreaModelCard.style.left = `${Math.min(horizontal.maxLeft, initialLeft)}px`;
             floatingAreaModelCard.style.top = `${floatingWorkspaceSafeTop()}px`;
             if (btnFloatAreaModel) btnFloatAreaModel.classList.add('hidden');
             if (btnDockAreaModel) btnDockAreaModel.classList.remove('hidden');
@@ -1375,10 +1452,10 @@
                 const rect = floatingAreaModelCard.getBoundingClientRect();
                 const minTop = floatingWorkspaceSafeTop();
                 const margin = 12;
-                const maxLeft = Math.max(margin, window.innerWidth - Math.min(rect.width, window.innerWidth - margin * 2) - margin);
+                const horizontal = floatingWorkspaceHorizontalBounds(rect.width);
                 const headerHeight = Math.max(48, areaModelWindowHeader.getBoundingClientRect().height);
                 const maxTop = Math.max(minTop, window.innerHeight - headerHeight - margin);
-                const left = Math.min(maxLeft, Math.max(margin, event.clientX - floatingDrag.offsetX));
+                const left = Math.min(horizontal.maxLeft, Math.max(horizontal.minLeft, event.clientX - floatingDrag.offsetX));
                 const top = Math.min(maxTop, Math.max(minTop, event.clientY - floatingDrag.offsetY));
                 floatingAreaModelCard.style.left = `${left}px`;
                 floatingAreaModelCard.style.top = `${top}px`;
@@ -2297,7 +2374,7 @@
                 updateFinalEquality();
                 return;
             }
-            parenthesisTips.innerHTML = `<span class="text-emerald-600 font-extrabold text-sm block mt-2">✓ Factorization complete</span><span class="text-slate-500 text-[11px] block mt-1">The statement below shows that the factored form is equivalent to the original trinomial.</span>`;
+            parenthesisTips.innerHTML = `<span class="text-emerald-600 font-extrabold text-sm block mt-2">✓ Factorization complete</span><span class="text-slate-500 text-[11px] block mt-1">The equivalent expression is now pinned in the Factoring Workspace.</span>`;
             updateFinalEquality();
             renderFurtherFactoringOptions();
         }
