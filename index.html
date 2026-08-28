@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!DOCTYPE html>
 
-<!-- Trinomial Factorization Helper v75 -->
+<!-- Trinomial Factorization Helper v76 -->
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -478,7 +478,7 @@
             scroll-margin-top: 68px;
         }
 
-        /* v75: keep the completed equivalent expression visible in the floating workspace. */
+        /* v76: keep the completed equivalent expression visible in the floating workspace. */
         #floating-area-model-card.is-floating #final-equality:not(.hidden) {
             position: sticky;
             bottom: 0;
@@ -781,131 +781,105 @@
 <span aria-label="Place terms not complete" class="section-progress-circle" id="progress-circle-outer" role="status" title="Place terms"></span>
 <span class="text-xs font-bold text-slate-500 uppercase tracking-wide" id="term-cards-heading">Place terms</span>
 </div>
-<div class="flex flex-wrap items-center justify-center gap-3">
+<div class="flex flex-wrap items-start justify-center gap-3">
 <div class="px-5 py-2.5 bg-blue-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-blue-700 active:scale-95 transition-all text-sm select-none touch-action-none" draggable="true" id="card-ax2">2x²</div>
-<button aria-controls="multiplication-card" aria-expanded="false" aria-label="Open the middle-term split helper" class="px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none cursor-pointer hover:bg-amber-200 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" id="card-bx" type="button">-21x</button>
+<div class="flex flex-col items-center gap-2">
+<button aria-controls="multiplication-card" aria-expanded="false" aria-label="Split the middle term" class="px-5 py-2.5 bg-amber-100 text-amber-800 border-2 border-amber-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none cursor-pointer hover:bg-amber-200 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all" id="card-bx" type="button">-21x</button>
+<div class="flex items-center justify-center gap-1.5" id="middle-split-preview" aria-label="Middle term will split into two terms">
+<button type="button" id="preview-split-1" class="min-w-[52px] px-2 py-1.5 rounded-lg border-2 border-dashed border-yellow-400 bg-yellow-50 text-yellow-800 font-mono font-black text-xs hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">?x</button>
+<span class="font-black text-slate-400">+</span>
+<button type="button" id="preview-split-2" class="min-w-[52px] px-2 py-1.5 rounded-lg border-2 border-dashed border-yellow-400 bg-yellow-50 text-yellow-800 font-mono font-black text-xs hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400">?x</button>
+</div>
+<div class="text-[9px] text-slate-400 font-bold tracking-wide">split into two terms</div>
+</div>
 <div class="px-5 py-2.5 bg-purple-600 text-white font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-purple-700 active:scale-95 transition-all text-sm select-none touch-action-none" draggable="true" id="card-c">40</div>
 </div>
-<p class="text-[11px] text-slate-500 italic text-center" id="term-cards-help">Drag, click, or type directly into the area-model cells. Press the yellow middle term to open the middle-term split helper in the stages below.</p>
-</div><!-- STAGE 2: Split the middle term --><div class="hidden bg-white border border-amber-200 rounded-2xl p-6 shadow-md" id="multiplication-card">
-<div class="stage2-sticky-problem -mx-2 mb-4 px-3 py-2.5 rounded-xl border border-amber-200 bg-white/95 shadow-sm" id="stage2-sticky-problem">
+<p class="text-[11px] text-slate-500 italic text-center" id="term-cards-help">Place the outer terms. The two yellow ?x tiles show that the middle term must be split before it can fill the two open middle cells.</p>
+</div><!-- STAGE 2: Split the middle term --><div class="hidden bg-white border border-amber-200 rounded-2xl p-5 shadow-md" id="multiplication-card">
+<div class="stage2-sticky-problem -mx-1 mb-4 px-3 py-2.5 rounded-xl border border-amber-200 bg-white/95 shadow-sm" id="stage2-sticky-problem">
 <div class="flex flex-wrap items-center justify-center gap-2 text-center">
 <span class="text-[10px] font-bold tracking-wide text-slate-500">current problem</span>
 <div aria-live="polite" class="font-mono font-black text-lg text-slate-900 flex flex-wrap items-center justify-center gap-1.5" id="stage2-problem-expression" tabindex="-1"></div>
 </div>
-<p class="text-[10px] text-slate-500 text-center mt-1">The yellow middle term will be rewritten as two new terms that fit the two open middle cells of the area model.</p>
 </div>
-<div class="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
+<div class="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 mb-4">
 <div>
 <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
 <span aria-label="Middle-term split not complete" class="section-progress-circle" id="progress-circle-split" role="status" title="Split the middle term"></span>
 <i class="fa-solid fa-scissors text-amber-500"></i> Split the Middle Term
-                            </h3>
-<p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Split the middle term into two terms. Their coefficients must <strong>add to the middle coefficient</strong> and <strong>multiply to the product of the outer coefficients</strong>.</p>
+</h3>
+<p class="text-[11px] text-slate-500 mt-1 leading-relaxed">Rewrite the middle term as <strong>two x-terms</strong>. Their coefficients must add to the middle coefficient and multiply to the product of the outer coefficients.</p>
 </div>
-<div class="flex items-center gap-2 self-start">
-<div class="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-500 rounded-xl font-mono text-xs font-bold text-center" id="product-target-display">
-                                Find two numbers
-                            </div>
-<button aria-label="Close middle-term split helper" class="w-8 h-8 rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500" id="btn-collapse-pq-helper" title="Close middle-term split helper" type="button">
-<i aria-hidden="true" class="fa-solid fa-chevron-up"></i>
-</button>
+<button aria-label="Close middle-term split helper" class="w-8 h-8 shrink-0 rounded-lg border border-slate-300 bg-white text-slate-500 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-amber-500" id="btn-collapse-pq-helper" title="Close middle-term split helper" type="button"><i aria-hidden="true" class="fa-solid fa-chevron-up"></i></button>
 </div>
+<div class="rounded-xl border border-indigo-100 bg-indigo-50/40 p-3 mb-4" id="target-entry-panel">
+<div class="text-center mb-2">
+<div class="text-xs font-extrabold text-slate-800">Build the clues from the polynomial</div>
+<p class="text-[10px] text-slate-500 mt-1">You already selected the middle term, so its coefficient is the <strong>sum</strong>. Now click the <strong>first term and constant term</strong> to build the product clue.</p>
 </div>
-<div class="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 mb-4" id="target-entry-panel">
-<div class="text-center mb-3">
-<div class="text-xs font-extrabold text-slate-800">Build the two clues from the polynomial above</div>
-<p class="text-[10px] text-slate-500 mt-1">Click the <strong>first term and constant term</strong> to identify the product. Click the <strong>middle term</strong> to identify the sum.</p>
-</div>
-<div class="grid sm:grid-cols-2 gap-3 items-stretch">
-<div class="rounded-xl border-2 border-indigo-300 bg-indigo-50 px-3 py-3 flex flex-col items-center justify-center text-center">
-<div class="text-[10px] font-extrabold uppercase tracking-wide text-indigo-700">The two numbers multiply to</div>
+<div class="grid sm:grid-cols-2 gap-2 items-stretch">
+<div class="rounded-xl border-2 border-indigo-300 bg-indigo-50 px-3 py-2.5 flex flex-col items-center justify-center text-center">
+<div class="text-[9px] font-extrabold uppercase tracking-wide text-indigo-700">Multiply to</div>
 <div class="mt-1 font-mono text-base font-black text-indigo-950" id="product-clue-display">Select the two outer terms</div>
 </div>
-<div class="rounded-xl border-2 border-yellow-400 bg-yellow-100 px-3 py-3 flex flex-col items-center justify-center text-center">
-<div class="text-[10px] font-extrabold uppercase tracking-wide text-yellow-800">The two numbers add to</div>
-<div class="mt-1 font-mono text-base font-black text-yellow-950" id="target-sum-display">Select the middle term</div>
+<div class="rounded-xl border-2 border-yellow-400 bg-yellow-100 px-3 py-2.5 flex flex-col items-center justify-center text-center">
+<div class="text-[9px] font-extrabold uppercase tracking-wide text-yellow-800">Add to</div>
+<div class="mt-1 font-mono text-base font-black text-yellow-950" id="target-sum-display">middle coefficient</div>
 </div>
 </div>
-<div class="mt-3 text-[11px] text-slate-500 text-center min-h-[1.25rem]" id="target-entry-feedback">Select the relevant terms in the polynomial to reveal the two clues.</div>
+<div class="mt-2 text-[10px] text-slate-500 text-center min-h-[1rem]" id="target-entry-feedback">Select the two outer terms to reveal the product clue.</div>
 <input id="input-product-target" type="hidden"/>
 <button aria-hidden="true" class="hidden" id="btn-check-targets" tabindex="-1" type="button">Check</button>
 </div>
-<div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 mb-4 text-center">
-<p class="text-[10px] text-slate-500">Need arithmetic help? Open the <strong>Calculator</strong> or <strong>Multiplication chart</strong> beside the area model whenever you need them.</p>
-</div>
-<div class="text-xs text-slate-600 font-medium mb-4 bg-slate-50 border border-slate-100 rounded-xl px-3 py-2" id="target-description">
-                        The middle term needs to be split into two terms whose coefficients <strong>add to the middle coefficient</strong> and <strong>multiply to the product of the outer coefficients</strong>.
-                    </div>
-<!-- Two-number constraint-solving workbench -->
-<div class="mt-5 w-full border-t border-amber-100 pt-5 flex flex-col gap-4" id="factor-inputs-row">
+<div class="w-full flex flex-col gap-3" id="factor-inputs-row">
 <div class="text-center">
-<span class="text-sm font-extrabold text-slate-800 tracking-wide">Find two numbers</span>
-<p class="text-[10px] text-slate-500 mt-1">Enter two signed integers. Their product and sum must match the two clues above at the same time.</p>
-<div class="mt-2 flex flex-wrap items-center justify-center gap-2 text-[11px] font-mono font-bold text-slate-600">
+<div class="text-xs font-extrabold text-slate-800">Build the two split terms</div>
+<p class="text-[10px] text-slate-500 mt-1">Choose each sign and enter each coefficient. The yellow tiles become draggable when both checks are satisfied.</p>
+<div class="mt-2 flex flex-wrap items-center justify-center gap-2 text-[10px] font-mono font-bold text-slate-600">
 <span class="px-2 py-1 rounded-lg border border-slate-200 bg-white" id="pq-product-condition">product clue not identified yet</span>
-<span class="px-2 py-1 rounded-lg border border-slate-200 bg-white" id="pq-sum-condition">sum clue not identified yet</span>
-</div>
-<div class="mt-3 flex flex-wrap items-center justify-center gap-2">
-<button aria-pressed="false" class="pq-reason-button px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 text-[10px] font-bold transition-all" id="btn-explain-pq-sum" type="button">
-<i class="fa-solid fa-plus mr-1"></i> Why this sum?
-                                </button>
-<button aria-pressed="false" class="pq-reason-button px-3 py-1.5 rounded-lg border border-indigo-300 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 text-[10px] font-bold transition-all" id="btn-explain-pq-product" type="button">
-<i class="fa-solid fa-xmark mr-1"></i> Why this product?
-                                </button>
+<span class="px-2 py-1 rounded-lg border-2 border-yellow-400 bg-yellow-100 text-yellow-950" id="pq-sum-condition">sum = ?</span>
 </div>
 </div>
-<div class="grid grid-cols-2 gap-4 w-full">
-<label class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
-<span class="text-xs text-yellow-900 font-extrabold">First number</span>
-<div class="flex items-center gap-2">
-<button class="w-10 h-10 rounded-lg border-2 border-yellow-400 bg-white text-yellow-900 font-mono font-black text-lg hover:bg-yellow-100" id="btn-p-toggle-sign" title="Change the sign of the first number" type="button">±</button>
-<input class="w-24 px-2.5 py-2 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none" id="input-p" placeholder="-5" type="number"/>
+<div class="flex flex-wrap items-center justify-center gap-2 font-mono font-black text-lg">
+<div class="px-3 py-2 bg-yellow-100 text-yellow-900 border-2 border-yellow-400 rounded-xl shadow-sm select-none" id="split-bx-tile">middle term</div>
+<span class="text-slate-500">=</span><span class="text-slate-500">(</span>
+<div class="min-w-[132px] px-2 py-2 bg-yellow-100 text-yellow-950 border-2 border-yellow-400 rounded-xl shadow-sm transition-all select-none" draggable="false" id="card-px">
+<div class="flex items-center justify-center gap-1.5" id="split-editor-p">
+<button class="w-9 h-9 rounded-lg border-2 border-yellow-400 bg-white text-yellow-900 font-mono font-black text-lg hover:bg-yellow-200" id="btn-p-toggle-sign" title="Choose the sign of the first split term" type="button">±</button>
+<input aria-label="First split coefficient" class="w-16 px-1.5 py-1.5 text-center font-mono font-black bg-white border-2 border-yellow-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:outline-none" id="input-p" placeholder="?" type="number"/>
+<span>x</span>
 </div>
-</label>
-<label class="rounded-xl border-2 border-yellow-400 bg-yellow-50 p-3 flex flex-col items-center gap-2">
-<span class="text-xs text-yellow-900 font-extrabold">Second number</span>
-<div class="flex items-center gap-2">
-<button class="w-10 h-10 rounded-lg border-2 border-yellow-400 bg-white text-yellow-900 font-mono font-black text-lg hover:bg-yellow-100" id="btn-q-toggle-sign" title="Change the sign of the second number" type="button">±</button>
-<input class="w-24 px-2.5 py-2 text-center font-mono font-bold bg-yellow-100 border-2 border-yellow-400 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none" id="input-q" placeholder="-16" type="number"/>
+<span class="hidden text-center font-mono font-black" id="split-value-p"></span>
 </div>
-</label>
-</div>
-<div class="grid sm:grid-cols-2 gap-3 w-full">
-<div class="rounded-xl border border-slate-200 bg-white p-3 text-center" id="pq-live-product">
-<div class="text-[10px] uppercase tracking-wide font-bold text-slate-400">Product check</div>
-<div class="mt-1 font-mono font-bold text-slate-700" id="pq-live-product-equation">product = ?</div>
-<div class="mt-1 text-[10px] text-slate-500" id="pq-live-product-status">Enter both values.</div>
-</div>
-<div class="rounded-xl border border-slate-200 bg-white p-3 text-center" id="pq-live-sum">
-<div class="text-[10px] uppercase tracking-wide font-bold text-slate-400">Sum check</div>
-<div class="mt-1 font-mono font-bold text-slate-700" id="pq-live-sum-equation">sum = ?</div>
-<div class="mt-1 text-[10px] text-slate-500" id="pq-live-sum-status">Enter both values.</div>
-</div>
-</div>
-<div class="hidden rounded-xl border-2 border-yellow-300 bg-yellow-50 p-3 text-center" id="pq-candidate-split">
-<div class="text-[10px] uppercase tracking-wide font-bold text-yellow-800">Middle-term split</div>
-<div class="mt-1 font-mono font-black text-yellow-950" id="pq-candidate-split-expression"></div>
-</div>
-<div class="hidden w-full mt-4 rounded-xl border-2 border-yellow-300 bg-yellow-50 px-4 py-4 flex-col items-center gap-3 shadow-sm" id="split-term-placement">
-<div class="text-center">
-<div class="text-[10px] font-extrabold tracking-wider text-yellow-800">Middle-term tiles</div>
-<p class="text-[10px] text-slate-500 mt-1">Your two numbers generated these yellow middle-term tiles. Drag them from this stage into the two open middle cells of the area model.</p>
-</div>
-<div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 font-mono font-black text-lg text-slate-800">
-<div class="px-4 py-2 bg-yellow-100 text-yellow-900 border-2 border-yellow-400 rounded-xl shadow-sm select-none" id="split-bx-tile">middle term</div>
-<span class="text-slate-500">=</span>
-<span class="text-slate-500">(</span>
-<div class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none" draggable="true" id="card-px">split term 1</div>
 <span class="text-slate-500">+</span>
-<div class="px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none" draggable="true" id="card-qx">split term 2</div>
+<div class="min-w-[132px] px-2 py-2 bg-yellow-100 text-yellow-950 border-2 border-yellow-400 rounded-xl shadow-sm transition-all select-none" draggable="false" id="card-qx">
+<div class="flex items-center justify-center gap-1.5" id="split-editor-q">
+<button class="w-9 h-9 rounded-lg border-2 border-yellow-400 bg-white text-yellow-900 font-mono font-black text-lg hover:bg-yellow-200" id="btn-q-toggle-sign" title="Choose the sign of the second split term" type="button">±</button>
+<input aria-label="Second split coefficient" class="w-16 px-1.5 py-1.5 text-center font-mono font-black bg-white border-2 border-yellow-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-yellow-500 focus:outline-none" id="input-q" placeholder="?" type="number"/>
+<span>x</span>
+</div>
+<span class="hidden text-center font-mono font-black" id="split-value-q"></span>
+</div>
 <span class="text-slate-500">)</span>
 </div>
-<p class="text-[10px] text-slate-500 text-center">Drag <span class="font-mono font-bold">split term 1</span> to the lower-left and <span class="font-mono font-bold">split term 2</span> to the upper-right. Clicking a tile still snaps it into its matching cell.</p>
+<div class="grid sm:grid-cols-2 gap-2 w-full">
+<div class="rounded-xl border border-slate-200 bg-white p-2.5 text-center" id="pq-live-product"><div class="text-[9px] uppercase tracking-wide font-bold text-slate-400">Product</div><div class="mt-1 font-mono font-bold text-slate-700" id="pq-live-product-equation">product = ?</div><div class="mt-1 text-[10px] text-slate-500" id="pq-live-product-status">Enter both values.</div></div>
+<div class="rounded-xl border border-slate-200 bg-white p-2.5 text-center" id="pq-live-sum"><div class="text-[9px] uppercase tracking-wide font-bold text-slate-400">Sum</div><div class="mt-1 font-mono font-bold text-slate-700" id="pq-live-sum-equation">sum = ?</div><div class="mt-1 text-[10px] text-slate-500" id="pq-live-sum-status">Enter both values.</div></div>
 </div>
-<p class="text-[11px] text-slate-500 text-center min-h-[1.25rem]" id="sign-choice-feedback">Try two signed integers. The product and sum checks update as you type.</p>
+<div class="hidden rounded-xl border-2 border-yellow-300 bg-yellow-50 p-2.5 text-center" id="pq-candidate-split"><div class="text-[9px] uppercase tracking-wide font-bold text-yellow-800">Equivalent split</div><div class="mt-1 font-mono font-black text-yellow-950" id="pq-candidate-split-expression"></div></div>
+<div class="hidden w-full rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-center" id="split-term-placement">
+<span class="hidden" id="split-bx-tile-copy"></span>
+<p class="text-[10px] text-emerald-700 font-bold">✓ Both clues work. Drag the two yellow tiles above into the matching open cells of the area model.</p>
 </div>
-</div><!-- STAGE 3: Student-generated row/column factors --><div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md" id="gcf-border-selection-card">
+<p class="text-[11px] text-slate-500 text-center min-h-[1.25rem]" id="sign-choice-feedback">Choose signs and coefficients for the two yellow split terms.</p>
+<div class="flex items-center justify-center gap-2">
+<button aria-pressed="false" class="pq-reason-button px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 text-[10px] font-bold transition-all" id="btn-explain-pq-sum" type="button"><i class="fa-solid fa-plus mr-1"></i> Why the sum?</button>
+<button aria-pressed="false" class="pq-reason-button px-3 py-1.5 rounded-lg border border-indigo-300 bg-indigo-50 text-indigo-800 hover:bg-indigo-100 text-[10px] font-bold transition-all" id="btn-explain-pq-product" type="button"><i class="fa-solid fa-xmark mr-1"></i> Why the product?</button>
+</div>
+</div>
+<div class="hidden" id="product-target-display">Build the two clues</div>
+<div class="hidden" id="target-description"></div>
+</div></div><!-- STAGE 3: Student-generated row/column factors --><div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-md" id="gcf-border-selection-card">
 <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-2 flex items-center gap-1.5">
 <span aria-label="Outside factors not complete" class="section-progress-circle" id="progress-circle-borders" role="status" title="Outside factors"></span>
 <i class="fa-solid fa-border-all text-indigo-500"></i> Outside factors
@@ -982,13 +956,13 @@
 <!-- Footer -->
 <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400 mt-12">
 <div class="max-w-6xl mx-auto px-4">
-<p>Interactive Area Model v75 — completed equivalent expression stays visible in the floating workspace.</p>
+<p>Interactive Area Model v76 — completed equivalent expression stays visible in the floating workspace.</p>
 </div>
 </footer>
 <!-- Interactive App Script -->
 <script>
 
-        // v75: persistent final equality in floating workspace + protected floating window + auto-collapsing stages.
+        // v76: persistent final equality in floating workspace + protected floating window + auto-collapsing stages.
         const siteHeader = document.getElementById('site-header');
         const fixedWorkspace = document.getElementById('fixed-workspace');
         const stageScrollContainer = document.getElementById('stage-scroll-container');
@@ -1149,6 +1123,9 @@
         const termCardsContainer = document.getElementById('term-cards-container');
         const termCardsHeading = document.getElementById('term-cards-heading');
         const termCardsHelp = document.getElementById('term-cards-help');
+        const middleSplitPreview = document.getElementById('middle-split-preview');
+        const previewSplit1 = document.getElementById('preview-split-1');
+        const previewSplit2 = document.getElementById('preview-split-2');
 
         // Area Model Grid Cells
         const cellTl = document.getElementById('cell-tl');
@@ -1199,6 +1176,10 @@
         const splitBxTile = document.getElementById('split-bx-tile');
         const cardPx = document.getElementById('card-px');
         const cardQx = document.getElementById('card-qx');
+        const splitEditorP = document.getElementById('split-editor-p');
+        const splitEditorQ = document.getElementById('split-editor-q');
+        const splitValueP = document.getElementById('split-value-p');
+        const splitValueQ = document.getElementById('split-value-q');
 
         // Stage 5 Parenthesis Elements
         const parenthesisGCFPrefix = document.getElementById('parenthesis-gcf-prefix');
@@ -1514,6 +1495,8 @@
         }
 
         function openPqHelper({ focus = false } = {}) {
+            ensureSplitClueStateForProblem();
+            splitClueMiddle = true;
             pqHelperOpen = true;
             setStagesDrawerOpen(true);
             if (multiplicationCard && multiplicationCard.classList.contains('stage-auto-collapsed')) {
@@ -1521,6 +1504,8 @@
                 if (stageAutoCollapseState && stageAutoCollapseState.split) stageAutoCollapseState.split.reopened = true;
             }
             syncPqHelperVisibility();
+            updateStage2ProblemStrip();
+            updateSplitClueDisplays();
             updateProgressChecklist();
             requestAnimationFrame(() => {
                 if (instructionColumn) {
@@ -1622,6 +1607,31 @@
             circle.title = `${label}: ${status}`;
         }
 
+        function updateMiddleSplitPreview() {
+            if (!previewSplit1 || !previewSplit2) return;
+            let first = null;
+            let second = null;
+            if (splitVerified) {
+                first = factorsP;
+                second = factorsQ;
+            } else {
+                const bl = parseLinearCoefficient(cellBlValue.textContent.trim());
+                const tr = parseLinearCoefficient(cellTrValue.textContent.trim());
+                if (bl !== null && tr !== null && bl + tr === workB && bl * tr === workA * workC) {
+                    first = bl;
+                    second = tr;
+                }
+            }
+            const ready = first !== null && second !== null;
+            previewSplit1.textContent = ready ? linearText(first) : '?x';
+            previewSplit2.textContent = ready ? linearText(second) : '?x';
+            [previewSplit1, previewSplit2].forEach(btn => {
+                btn.className = ready
+                    ? 'min-w-[52px] px-2 py-1.5 rounded-lg border-2 border-yellow-500 bg-yellow-200 text-yellow-950 font-mono font-black text-xs hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400'
+                    : 'min-w-[52px] px-2 py-1.5 rounded-lg border-2 border-dashed border-yellow-400 bg-yellow-50 text-yellow-800 font-mono font-black text-xs hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-400';
+            });
+        }
+
         function syncTermCards() {
             cardAx2.classList.toggle('opacity-20', placedTL);
             cardAx2.classList.toggle('pointer-events-none', placedTL);
@@ -1631,6 +1641,7 @@
             cardPx.classList.toggle('pointer-events-none', placedBL);
             cardQx.classList.toggle('opacity-20', placedTR);
             cardQx.classList.toggle('pointer-events-none', placedTR);
+            updateMiddleSplitPreview();
         }
 
         function computeCorrectBordersFromSplit() {
@@ -1674,18 +1685,30 @@
             factorsP = p;
             factorsQ = q;
             splitVerified = true;
-            inputP.value = p;
-            inputQ.value = q;
-            cardPx.textContent = linearText(p);
-            cardQx.textContent = linearText(q);
-            splitBxTile.textContent = cardBx.textContent;
-            const splitTileClass = 'px-4 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 font-mono font-bold rounded-xl cursor-grab active:cursor-grabbing shadow-sm hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none';
+            signPChoice = p < 0 ? -1 : 1;
+            signQChoice = q < 0 ? -1 : 1;
+            inputP.value = Math.abs(p);
+            inputQ.value = Math.abs(q);
+            setSplitSignButton(btnPToggleSign, signPChoice);
+            setSplitSignButton(btnQToggleSign, signQChoice);
+            splitEditorP.classList.add('hidden');
+            splitEditorQ.classList.add('hidden');
+            splitValueP.textContent = linearText(p);
+            splitValueQ.textContent = linearText(q);
+            splitValueP.classList.remove('hidden');
+            splitValueQ.classList.remove('hidden');
+            const splitTileClass = 'min-w-[132px] px-3 py-2 bg-yellow-300 text-yellow-950 border-2 border-yellow-500 rounded-xl shadow-sm cursor-grab active:cursor-grabbing hover:bg-yellow-400 active:scale-95 transition-all select-none touch-action-none text-center';
             cardPx.className = splitTileClass;
             cardQx.className = splitTileClass;
+            cardPx.setAttribute('draggable','true');
+            cardQx.setAttribute('draggable','true');
+            cardPx.setAttribute('aria-label', `Drag ${linearText(p)} to the lower-left middle cell`);
+            cardQx.setAttribute('aria-label', `Drag ${linearText(q)} to the upper-right middle cell`);
+            splitBxTile.textContent = cardBx.textContent;
             splitTermPlacement.classList.remove('hidden');
-            splitTermPlacement.classList.add('flex');
-            cardBx.className = 'px-5 py-2.5 bg-slate-100 text-slate-400 border-2 border-dashed border-slate-300 font-mono font-bold rounded-xl shadow-sm text-sm select-none line-through';
-            signChoiceFeedback.textContent = `✓ ${p} and ${q} satisfy both clues. Yellow middle-term tiles are generated in this stage below.`;
+            pqCandidateSplit.classList.remove('hidden');
+            pqCandidateSplitExpression.textContent = formatCandidateSplit(p,q);
+            signChoiceFeedback.textContent = '✓ Both conditions work. The two yellow split tiles are now draggable.';
             signChoiceFeedback.className = 'text-[11px] text-emerald-700 text-center min-h-[1.25rem] font-bold';
             targetDescription.innerHTML = `Current split numbers: <strong>${p}</strong> and <strong>${q}</strong>. Their product is <strong>${p*q}</strong> and their sum is <strong>${p+q}</strong>.`;
             computeCorrectBordersFromSplit();
@@ -2454,7 +2477,7 @@
             syncPqHelperVisibility();
             termCardsContainer.classList.remove('hidden');
             termCardsHeading.textContent = 'Place terms';
-            termCardsHelp.textContent = 'Drag, click, or type directly into the area-model cells. Press the yellow middle term to open the middle-term split helper in the stages below.';
+            termCardsHelp.textContent = 'Place the outer terms. The two yellow ?x tiles show that the middle term must be split before it can fill the two open middle cells.';
 
             parenthesisGCFPrefix.classList.add('hidden');
             parenthesisGCFPrefix.textContent='';
@@ -2472,6 +2495,19 @@
 
             inputP.value=inputQ.value='';
             inputP.disabled=inputQ.disabled=false;
+            signPChoice = signQChoice = null;
+            setSplitSignButton(btnPToggleSign, null);
+            setSplitSignButton(btnQToggleSign, null);
+            splitEditorP.classList.remove('hidden');
+            splitEditorQ.classList.remove('hidden');
+            splitValueP.classList.add('hidden');
+            splitValueQ.classList.add('hidden');
+            splitValueP.textContent='';
+            splitValueQ.textContent='';
+            cardPx.setAttribute('draggable','false');
+            cardQx.setAttribute('draggable','false');
+            cardPx.className='min-w-[132px] px-2 py-2 bg-yellow-100 text-yellow-950 border-2 border-yellow-400 rounded-xl shadow-sm transition-all select-none';
+            cardQx.className='min-w-[132px] px-2 py-2 bg-yellow-100 text-yellow-950 border-2 border-yellow-400 rounded-xl shadow-sm transition-all select-none';
             pqLiveProduct.className='rounded-xl border border-slate-200 bg-white p-3 text-center';
             pqLiveSum.className='rounded-xl border border-slate-200 bg-white p-3 text-center';
             pqLiveProductEquation.textContent='product = ?';
@@ -2480,11 +2516,13 @@
             pqLiveSumStatus.textContent=`Target sum: ${workB}`;
             pqCandidateSplit.classList.add('hidden');
             pqCandidateSplitExpression.textContent='';
-            signChoiceFeedback.textContent='Try two signed integers. The product and sum checks update as you type.';
+            signChoiceFeedback.textContent='Choose a sign and coefficient for each yellow split term.';
             signChoiceFeedback.className='text-[11px] text-slate-500 text-center min-h-[1.25rem]';
             splitTermPlacement.classList.add('hidden');
             splitTermPlacement.classList.remove('flex');
-            cardPx.textContent='split term 1'; cardQx.textContent='split term 2'; splitBxTile.textContent='middle term';
+            splitBxTile.textContent='middle term';
+            if (previewSplit1) previewSplit1.textContent='?x';
+            if (previewSplit2) previewSplit2.textContent='?x';
 
             splitClueOuterA=false; splitClueOuterC=false; splitClueMiddle=false; splitClueProblemKey='';
             inputProductTarget.value='';
@@ -2649,14 +2687,37 @@
             multiplicationChartContainer.innerHTML = tableHTML;
         }
 
-        function toggleCandidateSign(input) {
-            if (!input.value.trim()) {
-                input.value = '-1';
+        function setSplitSignButton(button, sign) {
+            if (!button) return;
+            const base = 'w-9 h-9 rounded-lg border-2 border-yellow-400 font-mono font-black text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all';
+            if (sign === null) {
+                button.className = `${base} bg-white text-yellow-900 hover:bg-yellow-200`;
+                button.textContent = '±';
+                button.setAttribute('aria-pressed','false');
+                button.title = 'Choose a sign';
+            } else if (sign < 0) {
+                button.className = `${base} bg-yellow-900 text-white hover:bg-yellow-800`;
+                button.textContent = '−';
+                button.setAttribute('aria-pressed','true');
+                button.title = 'Negative sign selected; press to change to positive';
             } else {
-                const value = Number(input.value);
-                if (!Number.isFinite(value)) return;
-                input.value = String(value === 0 ? 0 : -value);
+                button.className = `${base} bg-yellow-200 text-yellow-950 hover:bg-yellow-300`;
+                button.textContent = '+';
+                button.setAttribute('aria-pressed','true');
+                button.title = 'Positive sign selected; press to change to negative';
             }
+        }
+
+        function toggleCandidateSign(which, button, input) {
+            if (splitVerified) return;
+            if (which === 'p') {
+                signPChoice = signPChoice === 1 ? -1 : 1;
+                button.textContent = signPChoice < 0 ? '−' : '+';
+            } else {
+                signQChoice = signQChoice === 1 ? -1 : 1;
+                button.textContent = signQChoice < 0 ? '−' : '+';
+            }
+            setSplitSignButton(button, which === 'p' ? signPChoice : signQChoice);
             evaluatePqCandidate();
             input.focus();
         }
@@ -2667,11 +2728,11 @@
         }
 
         function resetPqLiveCards() {
-            pqLiveProduct.className='rounded-xl border border-slate-200 bg-white p-3 text-center';
-            pqLiveSum.className='rounded-xl border border-slate-200 bg-white p-3 text-center';
+            pqLiveProduct.className='rounded-xl border border-slate-200 bg-white p-2.5 text-center';
+            pqLiveSum.className='rounded-xl border border-slate-200 bg-white p-2.5 text-center';
             pqLiveProductEquation.textContent='product = ?';
             pqLiveSumEquation.textContent='sum = ?';
-            pqLiveProductStatus.textContent='Enter both values.';
+            pqLiveProductStatus.textContent=targetsVerified ? `Target product: ${workA * workC}` : 'Select the outer terms first.';
             pqLiveSumStatus.textContent=`Target sum: ${workB}`;
             pqCandidateSplit.classList.add('hidden');
             pqCandidateSplitExpression.textContent='';
@@ -2682,89 +2743,77 @@
             const qText=inputQ.value.trim();
             selectedAbsPair=null;
 
-            if (pText==='' || qText==='') {
+            if (splitVerified) {
+                updateProgressChecklist();
+                return;
+            }
+
+            if (pText==='' || qText==='' || signPChoice === null || signQChoice === null) {
                 resetPqLiveCards();
-                signChoiceFeedback.textContent='Try two signed integers. The product and sum checks update as you type.';
+                signChoiceFeedback.textContent='Choose a sign and coefficient for each yellow split term.';
                 signChoiceFeedback.className='text-[11px] text-slate-500 text-center min-h-[1.25rem]';
                 updateProgressChecklist();
                 return;
             }
 
-            const p=Number(pText), q=Number(qText);
-            if (!Number.isInteger(p) || !Number.isInteger(q)) {
+            const pMag=Math.abs(Number(pText)), qMag=Math.abs(Number(qText));
+            if (!Number.isInteger(pMag) || !Number.isInteger(qMag)) {
                 resetPqLiveCards();
-                signChoiceFeedback.textContent='Use two integer values.';
+                signChoiceFeedback.textContent='Use whole-number coefficients.';
                 signChoiceFeedback.className='text-[11px] text-rose-600 text-center min-h-[1.25rem] font-bold';
                 return;
             }
-
+            const p=signPChoice * pMag;
+            const q=signQChoice * qMag;
             const product=p*q;
             const sum=p+q;
             pqLiveProductEquation.textContent=`${p} × ${q} = ${product}`;
             pqLiveSumEquation.textContent=`${p} + ${q} = ${sum}`;
 
-            if (!targetsVerified || !splitClueMiddle) {
-                const productReady = targetsVerified;
-                const sumReady = splitClueMiddle;
-                const productOK = productReady && product === workA * workC;
-                const sumOK = sumReady && sum === workB;
-                pqLiveProduct.className = !productReady
-                    ? 'rounded-xl border border-indigo-200 bg-indigo-50/50 p-3 text-center'
-                    : (productOK ? 'rounded-xl border-2 border-emerald-400 bg-emerald-50 p-3 text-center' : 'rounded-xl border-2 border-rose-300 bg-rose-50 p-3 text-center');
-                pqLiveSum.className = !sumReady
-                    ? 'rounded-xl border border-yellow-200 bg-yellow-50/50 p-3 text-center'
-                    : (sumOK ? 'rounded-xl border-2 border-emerald-400 bg-emerald-50 p-3 text-center' : 'rounded-xl border-2 border-rose-300 bg-rose-50 p-3 text-center');
-                pqLiveProductStatus.textContent = productReady ? (productOK ? `✓ matches ${workA * workC}` : `Needs to equal ${workA * workC}`) : 'Select both outer terms above first.';
-                pqLiveSumStatus.textContent = sumReady ? (sumOK ? `✓ matches ${workB}` : `Needs to equal ${workB}`) : 'Select the middle term above first.';
-                pqCandidateSplit.classList.add('hidden');
-                signChoiceFeedback.textContent = 'Identify both clues from the polynomial above, then adjust the two numbers until both checks are green.';
-                signChoiceFeedback.className='text-[11px] text-slate-600 text-center min-h-[1.25rem]';
-                updateProgressChecklist();
-                return;
-            }
+            const productReady = targetsVerified;
+            const sumReady = splitClueMiddle;
+            const productOK = productReady && product === workA * workC;
+            const sumOK = sumReady && sum === workB;
 
-            const targetProduct=workA*workC;
-            const targetSum=workB;
-            const productOK=product===targetProduct;
-            const sumOK=sum===targetSum;
+            pqLiveProduct.className = !productReady
+                ? 'rounded-xl border border-indigo-200 bg-indigo-50/50 p-2.5 text-center'
+                : (productOK ? 'rounded-xl border-2 border-emerald-400 bg-emerald-50 p-2.5 text-center' : 'rounded-xl border-2 border-rose-300 bg-rose-50 p-2.5 text-center');
+            pqLiveSum.className = !sumReady
+                ? 'rounded-xl border border-yellow-200 bg-yellow-50/50 p-2.5 text-center'
+                : (sumOK ? 'rounded-xl border-2 border-emerald-400 bg-emerald-50 p-2.5 text-center' : 'rounded-xl border-2 border-rose-300 bg-rose-50 p-2.5 text-center');
+            pqLiveProductStatus.textContent = productReady ? (productOK ? `✓ matches ${workA * workC}` : `Needs to equal ${workA * workC}`) : 'Select both outer terms above first.';
+            pqLiveSumStatus.textContent = sumReady ? (sumOK ? `✓ matches ${workB}` : `Needs to equal ${workB}`) : 'Select the middle term first.';
+            pqLiveProductStatus.className = productReady && productOK ? 'mt-1 text-[10px] text-emerald-700 font-bold' : 'mt-1 text-[10px] text-slate-600 font-bold';
+            pqLiveSumStatus.className = sumReady && sumOK ? 'mt-1 text-[10px] text-emerald-700 font-bold' : 'mt-1 text-[10px] text-slate-600 font-bold';
 
-            pqLiveProduct.className=productOK
-                ? 'rounded-xl border-2 border-emerald-400 bg-emerald-50 p-3 text-center'
-                : 'rounded-xl border-2 border-rose-300 bg-rose-50 p-3 text-center';
-            pqLiveSum.className=sumOK
-                ? 'rounded-xl border-2 border-emerald-400 bg-emerald-50 p-3 text-center'
-                : 'rounded-xl border-2 border-rose-300 bg-rose-50 p-3 text-center';
-            pqLiveProductStatus.textContent=productOK ? `✓ matches ${targetProduct}` : `Needs to equal ${targetProduct}`;
-            pqLiveSumStatus.textContent=sumOK ? `✓ matches ${targetSum}` : `Needs to equal ${targetSum}`;
-            pqLiveProductStatus.className=productOK ? 'mt-1 text-[10px] text-emerald-700 font-bold' : 'mt-1 text-[10px] text-rose-600 font-bold';
-            pqLiveSumStatus.className=sumOK ? 'mt-1 text-[10px] text-emerald-700 font-bold' : 'mt-1 text-[10px] text-rose-600 font-bold';
-
-            if (productOK && sumOK) {
-                pqCandidateSplit.classList.remove('hidden');
-                pqCandidateSplitExpression.textContent=formatCandidateSplit(p,q);
-                signChoiceFeedback.textContent='✓ These two numbers satisfy both clues. Yellow middle-term tiles have been generated below for the area model.';
-                signChoiceFeedback.className='text-[11px] text-emerald-700 text-center min-h-[1.25rem] font-bold';
-                if (!splitVerified || factorsP!==p || factorsQ!==q) applyVerifiedSplit(p,q,'helper');
+            if (productReady && sumReady && productOK && sumOK) {
+                applyVerifiedSplit(p,q,'helper');
             } else {
                 pqCandidateSplit.classList.add('hidden');
-                if (productOK && !sumOK) {
-                    signChoiceFeedback.textContent='The product works. Adjust one or both signs/values so the sum also matches.';
+                if (!productReady) {
+                    signChoiceFeedback.textContent='Your sum can be tested now. Select both outer terms above to establish the product target.';
+                    signChoiceFeedback.className='text-[11px] text-indigo-700 text-center min-h-[1.25rem] font-bold';
+                } else if (productOK && !sumOK) {
+                    signChoiceFeedback.textContent='The product works. Change a sign or coefficient so the two terms also add to the middle coefficient.';
                     signChoiceFeedback.className='text-[11px] text-amber-700 text-center min-h-[1.25rem] font-bold';
                 } else if (!productOK && sumOK) {
-                    signChoiceFeedback.textContent='The sum works. Adjust the pair so the product also matches.';
+                    signChoiceFeedback.textContent='The sum works. Adjust the coefficients/signs so their product also matches.';
                     signChoiceFeedback.className='text-[11px] text-amber-700 text-center min-h-[1.25rem] font-bold';
                 } else {
-                    signChoiceFeedback.textContent='Keep adjusting the pair until both checks are green.';
+                    signChoiceFeedback.textContent='Keep adjusting the two yellow terms until both checks are green.';
                     signChoiceFeedback.className='text-[11px] text-slate-600 text-center min-h-[1.25rem]';
                 }
             }
             updateProgressChecklist();
         }
 
-        btnPToggleSign.addEventListener('click',()=>toggleCandidateSign(inputP));
-        btnQToggleSign.addEventListener('click',()=>toggleCandidateSign(inputQ));
+        btnPToggleSign.addEventListener('click',()=>toggleCandidateSign('p', btnPToggleSign, inputP));
+        btnQToggleSign.addEventListener('click',()=>toggleCandidateSign('q', btnQToggleSign, inputQ));
         [inputP,inputQ].forEach(input=>{
-            input.addEventListener('input',evaluatePqCandidate);
+            input.addEventListener('input',()=>{
+                if (input.value && Number(input.value) < 0) input.value = String(Math.abs(Number(input.value)));
+                evaluatePqCandidate();
+            });
             input.addEventListener('keydown',e=>{ if(e.key==='Enter') evaluatePqCandidate(); });
         });
 
@@ -2774,17 +2823,20 @@
             const selectedProduct=Math.abs(f1*f2);
             const currentProduct=Math.abs(workA*workC);
             if (!targetsVerified || selectedProduct!==currentProduct) {
-                toolChartFeedback.textContent=`Candidate magnitudes: ${Math.abs(f1)} and ${Math.abs(f2)}. Verify the current target product before sending a chart pair to the two-number workbench.`;
+                toolChartFeedback.textContent=`Candidate magnitudes: ${Math.abs(f1)} and ${Math.abs(f2)}. Verify the current target product before sending a chart pair to the split tiles.`;
                 toolChartFeedback.className='text-[10px] text-indigo-700 text-center mb-3 font-bold';
                 return;
             }
             selectedAbsPair=[Math.abs(f1),Math.abs(f2)];
             inputP.value=String(Math.abs(f1));
             inputQ.value=String(Math.abs(f2));
-            toolChartFeedback.textContent=`Loaded candidate magnitudes ${Math.abs(f1)} and ${Math.abs(f2)}. Adjust signs or values in the two-number workbench and watch both checks.`;
+            signPChoice = signQChoice = null;
+            setSplitSignButton(btnPToggleSign, null);
+            setSplitSignButton(btnQToggleSign, null);
+            toolChartFeedback.textContent=`Loaded magnitudes ${Math.abs(f1)} and ${Math.abs(f2)} into the two yellow split tiles. Now choose a sign for each.`;
             toolChartFeedback.className='text-[10px] text-indigo-700 text-center mb-3 font-bold';
             evaluatePqCandidate();
-            targetDescription.innerHTML='A factor pair from the multiplication chart is now in Find two numbers. Adjust the signed values until both the product and sum checks are green.';
+            targetDescription.innerHTML='A factor pair from the multiplication chart is now in the split tiles. Choose the signs and adjust the coefficients until both checks are green.';
         }
 
         // Snap and place function for TL
@@ -3180,10 +3232,18 @@
         }
 
         cardBx.addEventListener('click', () => openPqHelper({ focus: true }));
+        previewSplit1?.addEventListener('click', () => openPqHelper({ focus: true }));
+        previewSplit2?.addEventListener('click', () => openPqHelper({ focus: true }));
         if (btnCollapsePqHelper) btnCollapsePqHelper.addEventListener('click', closePqHelper);
 
-        cardPx.addEventListener('click', placeBL);
-        cardQx.addEventListener('click', placeTR);
+        cardPx.addEventListener('click', (event) => {
+            if (!splitVerified || event.target.closest('button,input')) return;
+            placeBL();
+        });
+        cardQx.addEventListener('click', (event) => {
+            if (!splitVerified || event.target.closest('button,input')) return;
+            placeTR();
+        });
 
         cardPx.addEventListener('dragstart', (e) => {
             if (!splitVerified || placedBL) return e.preventDefault();
@@ -3590,7 +3650,7 @@
             gcfBorderSelectionCard.classList.remove('hidden');
             parenthesisCard.classList.remove('hidden');
             termCardsHeading.textContent='Place terms';
-            termCardsHelp.textContent='Start by placing terms in the area model. Press the yellow middle term whenever you want to open the middle-term split helper below.';
+            termCardsHelp.textContent='Place the outer terms. The two yellow ?x tiles show that the middle term must be split before it can fill the two open middle cells.';
             if (splitVerified) {
                 splitTermPlacement.classList.remove('hidden'); splitTermPlacement.classList.add('flex');
             } else {
